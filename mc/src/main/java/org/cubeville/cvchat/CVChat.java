@@ -35,6 +35,7 @@ import org.bukkit.util.Vector;
 
 import de.myzelyam.api.vanish.VanishAPI;
 
+import org.cubeville.commons.utils.PlayerUtils;
 import org.cubeville.cvipc.CVIPC;
 import org.cubeville.cvipc.IPCInterface;
 
@@ -45,7 +46,6 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 public class CVChat extends JavaPlugin implements Listener, IPCInterface
 {
     private List<LocalRegion> localRegions;
-    private Map<UUID, Set<ProtectedRegion>> worldIDRegionMap;
     private Map<ProtectedRegion, String> regionChatPrefixMap;
     private WorldGuardPlugin worldGuard;
     CVIPC ipc;
@@ -63,7 +63,6 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
         
         localRegions = (List<LocalRegion>) getConfig().get("LocalRegions");
         if(localRegions == null) { localRegions = new ArrayList<LocalRegion>(); }
-        worldIDRegionMap = new HashMap<UUID, Set<ProtectedRegion>>();
         regionChatPrefixMap = new HashMap<ProtectedRegion, String>();
         worldGuard = (WorldGuardPlugin) pm.getPlugin("WorldGuard");
         if(worldGuard == null) { return; }
@@ -74,10 +73,6 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
             if(regionManager == null) { continue; }
             ProtectedRegion region = regionManager.getRegion(localRegion.getRegionName());
             if(region == null) { continue; }
-            if(!worldIDRegionMap.containsKey(world.getUID())) {
-                worldIDRegionMap.put(world.getUID(), new HashSet<ProtectedRegion>());
-            }
-            worldIDRegionMap.get(world.getUID()).add(region);
             regionChatPrefixMap.put(region, localRegion.getChatPrefix().replaceAll("&", "§"));
         }
     }
@@ -194,8 +189,7 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                 player.sendMessage("§cERROR: No WorldGuard plugin found!");
                 return true;
             }
-            World world = player.getWorld();
-            RegionManager regionManager = worldGuard.getRegionManager(world);
+            RegionManager regionManager = worldGuard.getRegionManager(player.getWorld());
             if(regionManager == null) {
                 player.sendMessage("§cERROR: No RegionManager found for this world!");
                 return true;
@@ -205,10 +199,6 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                 player.sendMessage("§cNo region found!");
                 return true;
             }
-            if(!worldIDRegionMap.containsKey(world.getUID())) {
-                worldIDRegionMap.put(world.getUID(), new HashSet<ProtectedRegion>());
-            }
-            worldIDRegionMap.get(world.getUID()).add(protectedRegion);
             regionChatPrefixMap.put(protectedRegion, chatPrefixSecondary);
             localRegions.add(localRegion);
             player.sendMessage("§aChat prefix enabled on region!");
@@ -251,11 +241,6 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
             }
             if(regionChatPrefixMap.containsKey(protectedRegion)) {
                 regionChatPrefixMap.remove(protectedRegion);
-            }
-            if(worldIDRegionMap.containsKey(player.getWorld().getUID())) {
-                if(worldIDRegionMap.get(player.getWorld().getUID()).contains(protectedRegion)) {
-                    worldIDRegionMap.get(player.getWorld().getUID()).remove(protectedRegion);
-                }
             }
             player.sendMessage("§aLocal chat removed for region.");
             return true;
@@ -300,70 +285,100 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                 }
             }
             message = message.substring(idx + 1);
+            String greyMessage = "§7" + removeColorCodes(message);
+            String darkGreyMessage = "§8" + removeColorCodes(message);
             
-            Player sender = getServer().getPlayer(chatSenderId);
-            if(sender == null) return;
-            Location senderLocation = sender.getLocation();
-            
+            Player chatSender = getServer().getPlayer(chatSenderId);
+            if(chatSender == null) return;
+            Location senderLocation = chatSender.getLocation();
+            Set<ProtectedRegion> playerRegions = PlayerUtils.getRegionsAtPlayerLocation(chatSender);
             ProtectedRegion selectedRegion = null;
-            com.sk89q.worldedit.Vector vSenderLocation = new com.sk89q.worldedit.Vector(senderLocation.getX(), senderLocation.getY(), senderLocation.getZ());
-            for(ProtectedRegion worldRegion: worldIDRegionMap.get(senderLocation.getWorld().getUID())) {
-                if(worldRegion.contains(vSenderLocation)) {
-                    selectedRegion = worldRegion;
+            for(ProtectedRegion playerRegion: playerRegions) {
+                if(regionChatPrefixMap.keySet().contains(playerRegion)) {
+                    selectedRegion = playerRegion;
                     break;
                 }
             }
             
-            Collection<Player> onlinePlayers = (Collection<Player>) getServer().getOnlinePlayers();
-            Set<Player> visible = new HashSet<Player>();
-            Set<Player> invis = new HashSet<Player>();
-            Set<Player> monitor = new HashSet<Player>();
-            for(Player player: onlinePlayers) {
-                if(player.getUniqueId().equals(sender.getUniqueId())) { continue; }
-                if(!player.getWorld().getUID().equals(sender.getWorld().getUID())) {
-                    if(player.hasPermission("cvchat.monitor.local")) {
-                        monitor.add(player);
-                        continue;
-                    }
-                }
-                Location playerLocation = player.getLocation();
-                if(selectedRegion == null) {
-                    if(playerLocation.distance(senderLocation) < 55.0D) {
-                        if(isVanished(player)) { invis.add(player); }
-                        else { visible.add(player); }
-                    }
-                    else if(player.hasPermission("cvchat.monitor.local")) {
-                        monitor.add(player);
-                    }
-                }
-                else {
-                    if(selectedRegion.contains(new com.sk89q.worldedit.Vector(playerLocation.getX(), playerLocation.getY(), playerLocation.getZ()))) {
-                        if(isVanished(player)) { invis.add(player); }
-                        else { visible.add(player); }
-                    }
-                    else if(player.hasPermission("cvchat.monitor.local")) {
-                        monitor.add(player);
-                    }
-                }
-            }
-            
             if(selectedRegion == null) {
-                sendLocalMessage(visible, invis, monitor, message, "", sender);
+                Collection<Player> serverPlayers = (Collection<Player>) getServer().getOnlinePlayers();
+                int recipientCount = 0;
+                List<Player> vanishedClosePlayers = new ArrayList<Player>();
+                for(Player serverPlayer: serverPlayers) {
+                    if(!serverPlayer.getUniqueId().equals(chatSender.getUniqueId())) {
+                        Location serverPlayerLocation = serverPlayer.getLocation();
+                        if(serverPlayerLocation.getWorld().getUID().equals(senderLocation.getWorld().getUID()) && serverPlayerLocation.distance(senderLocation) < 55.0D) {
+                            if(isVanished(serverPlayer)) {
+                                vanishedClosePlayers.add(serverPlayer);
+                            }
+                            else {
+                                serverPlayer.sendMessage(message);
+                                recipientCount++;
+                            }
+                        }
+                    }
+                }
+                chatSender.sendMessage(recipientCount == 0 ? darkGreyMessage : message);
+                for(Player vanishedClosePlayer: vanishedClosePlayers) {
+                    if(recipientCount == 0) { vanishedClosePlayer.sendMessage(message + " §4*"); }
+                    else { vanishedClosePlayer.sendMessage(message); }
+                }
+                if(recipientCount == 0) { greyMessage += " §4*"; }
+                ipc.sendMessage("localmonitor|" + greyMessage);
+                for(Player serverPlayer: serverPlayers) {
+                    Location serverLocation = serverPlayer.getLocation();
+                    boolean sameWorld = serverLocation.getWorld().getUID().equals(senderLocation.getWorld().getUID());
+                    if(!sameWorld || serverLocation.distance(senderLocation) >= 55.0D) {
+                        if(serverPlayer.hasPermission("cvchat.monitor.local") && !mutedIds.contains(serverPlayer.getUniqueId())) {
+                            serverPlayer.sendMessage(greyMessage);
+                        }
+                    }
+                }
             }
             else {
-                sendLocalMessage(visible, invis, monitor, message, regionChatPrefixMap.get(selectedRegion) + " ", sender);
+                List<Player> regionPlayers = PlayerUtils.getPlayersInsideRegion(selectedRegion, chatSender.getWorld());
+                List<Player> nonRegionPlayers = PlayerUtils.getPlayersOutsideRegion(selectedRegion, chatSender.getWorld());
+                List<Player> vanishedRegionPlayers = new ArrayList<Player>();
+                List<Player> visibleRegionPlayers = new ArrayList<Player>();
+                for(Player regionPlayer: regionPlayers) {
+                    if(regionPlayer.getUniqueId().equals(chatSender.getUniqueId())) { continue; }
+                    if(isVanished(regionPlayer)) { vanishedRegionPlayers.add(regionPlayer); }
+                    else { visibleRegionPlayers.add(regionPlayer); }
+                }
+                String chatPrefix = regionChatPrefixMap.get(selectedRegion) + " ";
+                greyMessage = chatPrefix + greyMessage;
+                darkGreyMessage = chatPrefix + darkGreyMessage;
+                message = chatPrefix + message;
+                for(Player player: visibleRegionPlayers) {
+                    player.sendMessage(message);
+                }
+                chatSender.sendMessage(visibleRegionPlayers.size() == 0 ? darkGreyMessage : message);
+                if(visibleRegionPlayers.size() == 0) {
+                    greyMessage = greyMessage + (visibleRegionPlayers.size() == 0 ? " §4*" : "");
+                    message = message + (visibleRegionPlayers.size() == 0 ? " §4*" : "");
+                }
+                for(Player player: vanishedRegionPlayers) {
+                    player.sendMessage(message);
+                }
+                ipc.sendMessage("localmonitor|" + greyMessage);
+                for(Player player: nonRegionPlayers) {
+                    if(player.hasPermission("cvchat.monitor.local") && !mutedIds.contains(player.getUniqueId())) {
+                        player.sendMessage(greyMessage);
+                    }
+                }
             }
+
             
             int gtidx = message.indexOf(">");
             if(gtidx != -1) {
-                if(message.substring(gtidx + 2).equals("fus") && sender.hasPermission("cvchat.thuum.fus")) {
-                    fusRoDah(sender, 1);
+                if(message.substring(gtidx + 2).equals("fus") && chatSender.hasPermission("cvchat.thuum.fus")) {
+                    fusRoDah(chatSender, 1);
                 }
-                else if(message.substring(gtidx + 2).equals("fus ro") && sender.hasPermission("cvchat.thuum.fus.ro")) {
-                    fusRoDah(sender, 2);
+                else if(message.substring(gtidx + 2).equals("fus ro") && chatSender.hasPermission("cvchat.thuum.fus.ro")) {
+                    fusRoDah(chatSender, 2);
                 }
-                else if(message.substring(gtidx + 2).equals("fus ro dah") && sender.hasPermission("cvchat.thuum.fus.ro.dah")) {
-                    fusRoDah(sender, 3);
+                else if(message.substring(gtidx + 2).equals("fus ro dah") && chatSender.hasPermission("cvchat.thuum.fus.ro.dah")) {
+                    fusRoDah(chatSender, 3);
                 }
             }
             
@@ -430,25 +445,5 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
             returnMe.add(victim);
         }
         return returnMe;
-    }
-    
-    private void sendLocalMessage(Set<Player> visible, Set<Player> invis, Set<Player> monitor,
-            String message, String prefix, Player sender) {
-        
-        String monitorMessage = "§7" + removeColorCodes(prefix + message);
-        String unheardMessage = prefix + "§8" + removeColorCodes(message);
-        
-        if(visible.size() == 0) {
-            sender.sendMessage(unheardMessage);
-            for(Player player: invis) { player.sendMessage(prefix + message + " §4*"); }
-            monitorMessage += " §4*";
-        }
-        else {
-            sender.sendMessage(message);
-            for(Player player: visible) { player.sendMessage(prefix + message); }
-        }
-        
-        for(Player player: monitor) { player.sendMessage(monitorMessage); }
-        ipc.sendMessage("localmonitor|" + monitorMessage);
     }
 }
