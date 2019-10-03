@@ -1,8 +1,8 @@
 name: CVChat
 main: org.cubeville.cvchat.CVChat
-authors: [FrediW,unixadmin]
+authors: [FrediW]
 version: 0.1
-depend: [CVIPC,SuperVanish,WorldGuard]
+depend: [CVIPC,PremiumVanish]
 
 commands:
   modreq:
@@ -12,9 +12,3 @@ commands:
   ltr:
     description: Fake local chat
     permission: cvchat.fakelocal
-  addlocalregion:
-    description: Add local chat for region.
-    permission: cvchat.local.regionchat
-  removelocalregion:
-    description: Remove a region-based local chat.
-    permission: cvchat.local.regionchat
