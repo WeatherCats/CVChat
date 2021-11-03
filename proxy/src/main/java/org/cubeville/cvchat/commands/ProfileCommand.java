@@ -1,6 +1,7 @@
 package org.cubeville.cvchat.commands;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -19,18 +20,33 @@ public class ProfileCommand extends CommandBase
     
     public ProfileCommand(CVChat plugin) {
         super("profile", "cvchat.profile");
-        setUsage("§c/profile <player>");
+        setUsage("§c/profile <player> [full]"); 
         this.plugin = plugin;
         dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     }
 
-    public void executeC(CommandSender sender, String[] args) {                                
+    public void executeC(CommandSender sender, String[] args) {
         if(!verifyNotLessArguments(sender, args, 1)) return;
-        if(!verifyNotMoreArguments(sender, args, 1)) return;
+        if(!verifyNotMoreArguments(sender, args, 4)) return;
 
-        UUID playerId = getPDM().getPlayerId(args[0]);
+        boolean showFullProfile = false;
+        List<String> searchTerms = new ArrayList<>();
+        for(int i = 0; i < args.length; i++) {
+            if(args[i].equals("full")) {
+                showFullProfile = true;
+            }
+            else {
+                searchTerms.add(args[i]);
+            }
+        }
+
+        UUID playerId = null;
+        if(searchTerms.size() == 1) {
+            playerId = getPDM().getPlayerId(searchTerms.get(0));
+        }
+        
         if(playerId == null) {
-            List<String> searchNames = getPDM().getMatchingPlayerNames(args[0]);
+            List<String> searchNames = getPDM().getMatchingPlayerNames(searchTerms);
             if(searchNames.size() == 0 || args[0].length() < 4) {
                 sender.sendMessage("§cPlayer not found.");
             }
@@ -59,8 +75,13 @@ public class ProfileCommand extends CommandBase
 
         String playerName = getPDM().getPlayerName(playerId);
         boolean isOnline = ProxyServer.getInstance().getPlayer(playerId) != null;
-
+        boolean finishedTutorial = getPDM().finishedTutorial(playerId);
+        
         sender.sendMessage("§4* §r" + playerName);
+        if(finishedTutorial == false) {
+            sender.sendMessage("§4! §cPlayer has not finished the tutorial");
+        }
+        
         if(sender.hasPermission("cvchat.profile.extended")) {
             sender.sendMessage("§4- §r" + (isOnline ? "Peer" : "Last") + " address: §9" + getPDM().getIPAddress(playerId));
         }
@@ -94,14 +115,34 @@ public class ProfileCommand extends CommandBase
             lastOnline += "§r (" + dateFormat.format(new Date(lastOnlineTime)) + ")";
         }
         final String lastOnlineMessage = "§4- §rLast on: " + lastOnline;
+        String firstLogin;
+        {
+            long firstLoginTime = getPDM().getFirstLogin(playerId);
+            firstLogin = dateFormat.format(new Date(firstLoginTime));
+        }
+        final String firstLoginMessage = "§4- §rFirst login: " + firstLogin;
+        
         // TODO: current location
+        final UUID fPlayerId = playerId;
+        boolean fShowFullProfile = showFullProfile;
         ProxyServer.getInstance().getScheduler().runAsync(plugin, new Runnable() {
                 public void run() {
-                    List<ProfileEntry> entries = ProfilesDao.getInstance().getProfileEntries(playerId);
+                    List<ProfileEntry> entries = ProfilesDao.getInstance().getProfileEntries(fPlayerId);
+                    int cnt = 0;
+                    int more = 0;
                     for(ProfileEntry entry: entries) {
-                        String txt = "§c" + dateFormat.format(new Date(entry.getCommentTime())) + "§r " + entry.getComment() + " [" + getPDM().getPlayerName(entry.getAuthor()) + "]";
-                        sender.sendMessage(txt);
+                        cnt++;
+                        if(cnt <= 4 || fShowFullProfile) {
+                            String txt = "§c" + dateFormat.format(new Date(entry.getCommentTime())) + "§r " + entry.getComment() + " [" + getPDM().getPlayerName(entry.getAuthor()) + "]";
+                            sender.sendMessage(txt);
+                        }
+                        else
+                            more++;
                     }
+                    if(more > 0) {
+                        sender.sendMessage("§c...and " + more + " more, to view them enter /profile <player> full");
+                    }
+                    sender.sendMessage(firstLoginMessage);
                     sender.sendMessage(lastOnlineMessage);
                 }
             });

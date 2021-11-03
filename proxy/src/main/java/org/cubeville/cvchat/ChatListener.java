@@ -1,5 +1,6 @@
 package org.cubeville.cvchat;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +12,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
+import net.md_5.bungee.api.event.TabCompleteResponseEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
@@ -32,12 +34,12 @@ public class ChatListener implements Listener, IPCInterface {
     
     private TextCommandManager textCommandManager;
     private Set<UUID> tutorialChatUnlocked;
-    private Map<String, String> aliases;
+    private List<Alias> aliases;
 
     private TicketManager ticketManager;
     private CVIPC cvipc;
     
-    public ChatListener(Channel localChannel, Map<String, Set<String>> commandWhitelist, TextCommandManager textCommandManager, TicketManager ticketManager, CVIPC ipc, List<List<String>> aliasList) {
+    public ChatListener(Channel localChannel, Map<String, Set<String>> commandWhitelist, TextCommandManager textCommandManager, TicketManager ticketManager, CVIPC ipc) {
         this.localChannel = localChannel;
         this.commandWhitelist = commandWhitelist;
         this.textCommandManager = textCommandManager;
@@ -45,19 +47,25 @@ public class ChatListener implements Listener, IPCInterface {
         tutorialChatUnlocked = new HashSet<>();
         this.cvipc = ipc;
         ipc.registerInterface("unlocktutorialchat", this);
-        aliases = new HashMap<>();
-        for(List<String> alias: aliasList) {
-            if(alias.size() == 2) aliases.put(alias.get(0), alias.get(1));
-            else System.out.println("Alias count wrong!");
-        }
+        ipc.registerInterface("finishtutorial", this);
+        aliases = new ArrayList<>();
     }
 
     public void unlockTutorialChat(UUID playerId) {
         tutorialChatUnlocked.add(playerId);
+        System.out.println("Unlocking tutorial chat for player " + playerId);
     }
 
     public void process(String serverName, String channel, String message) {
-        unlockTutorialChat(UUID.fromString(message));
+        if(channel.equals("unlocktutorialchat")) {
+            unlockTutorialChat(UUID.fromString(message));
+        }
+        else if(channel.equals("finishtutorial")) {
+            System.out.println("Finishing tutorial for player " + message);
+            PlayerDataManager.getInstance().setFinishedTutorial(UUID.fromString(message));
+            String tpCmd = "xwportal|" + message + "|portal:Tutorial_SpawnNewPlayer|cv7survival";
+            cvipc.sendMessage("cv7survival", tpCmd);            
+        }
     }
 
     @EventHandler
@@ -71,6 +79,8 @@ public class ChatListener implements Listener, IPCInterface {
         if (!(event.getSender() instanceof ProxiedPlayer)) return;
         ProxiedPlayer player = (ProxiedPlayer)event.getSender();
 
+        event.setMessage(event.getMessage().replace("§", ""));
+                         
         String serverName = player.getServer().getInfo().getName();
         cvipc.sendMessage(serverName, "afktrigger|" + player.getUniqueId());
         
@@ -78,20 +88,40 @@ public class ChatListener implements Listener, IPCInterface {
         if(finishedTutorial == false && tutorialChatUnlocked.contains(player.getUniqueId()) == false && player.hasPermission("cvchat.bypasstutorial") == false) {
             player.sendMessage("§cNo permission. Please proceed first.");
             event.setCancelled(true);
+            System.out.println("Cancelling command due to tutorial intro for player " + player.getName());
             return;
         }
 
         if (event.isCommand()) {
+            for(Alias alias: aliases) {
+		for(String command: alias.getCommands()) {
+		    boolean complete = command.endsWith("$");
+		    if((complete == false && event.getMessage().toLowerCase().startsWith(command)) ||
+		       (complete == true && event.getMessage().toLowerCase().equals(command))) {
+			if(alias.getServer() == null || alias.getServer().equals(player.getServer().getInfo().getName())) {
+			    String perm = alias.getPermission();
+			    boolean perminv = false;
+			    if(perm != null && perm.startsWith("!")) {
+				perminv = true;
+				perm = perm.substring(1);
+			    }
+			    if(perm != null) perm = "cvchat.alias." + perm;
+			    if(perm == null || (perminv == false && player.hasPermission(perm) == true) || (perminv == true && player.hasPermission(perm) == false)) {
+				List<String> translations = alias.getTranslate();
+				event.setMessage(translations.get(0) + event.getMessage().substring(command.length()));
+				for(int i = 1; i < translations.size(); i++) {
+				    ProxyServer.getInstance().getPluginManager().dispatchCommand(player, translations.get(i));
+				}
+				break;
+			    }
+			}
+		    }
+		}
+            }
+
             if(textCommandManager.executeTextCommand(player, event.getMessage())) {
                 event.setCancelled(true);
                 return;
-            }
-
-            for(String alias: aliases.keySet()) {
-                if(event.getMessage().toLowerCase().startsWith(alias)) {
-                    event.setMessage(aliases.get(alias) + event.getMessage().substring(alias.length()));
-                    break;
-                }
             }
 
             if(player.hasPermission("cvchat.nowhitelist")) return;
@@ -113,6 +143,7 @@ public class ChatListener implements Listener, IPCInterface {
                 if(commandWhitelist.get("tutorial").contains(cmd)) return;
                 player.sendMessage("§cYou have limited permissions, please finish the tutorial first.");
                 event.setCancelled(true);
+                System.out.println("Cancelling command for player, not contained in tutorial whitelist: " + player.getName());
                 return;
             }
 
@@ -139,9 +170,14 @@ public class ChatListener implements Listener, IPCInterface {
             }
         }
 
-        localChannel.sendMessage(player, message);
+        localChannel.sendMessage(player, message.trim());
     }
 
+    @EventHandler
+    public void OnTabCompleteResponseEvent(final TabCompleteResponseEvent event) {
+        event.setCancelled(true);
+    }
+    
     @EventHandler
     public void onTabCompleteEvent(final TabCompleteEvent event) {
         if(!(event.getSender() instanceof ProxiedPlayer)) {
@@ -165,7 +201,7 @@ public class ChatListener implements Listener, IPCInterface {
                 players = new HashSet<>();
             }
             for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
-                if(!Util.playerIsHidden(p)) {
+                if(Util.playerIsUnlisted(p) == false || player.hasPermission("cvchat.tabcompletion.seehidden")) {
                     players.add(Util.removeColorCodes(p.getDisplayName()));
                 }
             }
@@ -192,5 +228,40 @@ public class ChatListener implements Listener, IPCInterface {
         if(event.getSuggestions().size() == 0) {
             event.setCancelled(true);
         }
+    }
+
+    public void addAlias(List<String> commands, List<String> translate, String server, String permission) {
+	aliases.add(new Alias(commands, translate, server, permission));
+    }
+    
+    public class Alias {
+	public Alias(List<String> commands, List<String> translate, String server, String permission) {
+	    this.commands = commands;
+	    this.translate = translate;
+	    this.server = server;
+	    this.permission = permission;
+	}
+	
+	public String getServer() {
+	    return server;
+	}
+	
+	public List<String> getCommands() {
+	    return commands;
+	}
+
+	public List<String> getTranslate() {
+	    return translate;
+	}
+
+	public String getPermission() {
+	    return permission;
+	}
+	
+	private List<String> commands;
+	private List<String> translate;
+	//private String translate;
+	private String server;
+	private String permission;
     }
 }

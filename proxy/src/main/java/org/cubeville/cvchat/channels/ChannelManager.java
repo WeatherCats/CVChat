@@ -48,13 +48,22 @@ public class ChannelManager implements IPCInterface
         for(String channelName: channelNames) {
             Configuration channelConfig = (Configuration) config.get(channelName);
             String type = channelConfig.getString("type");
+
+            Map<String, String> format = new HashMap<>();
+            {
+                Collection<String> formatKeys = channelConfig.getSection("format").getKeys();
+                for(String key: formatKeys) {
+                    format.put(key, channelConfig.getSection("format").getString(key));
+                }
+            }
+            
             Channel channel =
                 ChannelFactory.getChannel(channelName, type,
                                           channelConfig.getString("permission"),
                                           channelConfig.getString("sendpermission"),
                                           channelConfig.getString("colorpermission"),
                                           channelConfig.getString("leavepermission"),
-                                          channelConfig.getString("format"),
+                                          format,
                                           channelConfig.getBoolean("default"),
                                           channelConfig.getBoolean("autojoin"),
                                           channelConfig.getBoolean("listable"),

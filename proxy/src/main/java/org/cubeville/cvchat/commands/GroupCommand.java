@@ -82,7 +82,7 @@ public class GroupCommand extends Command
             Collection<ProxiedPlayer> members = channel.getGroupMembers(player);
             String list = "";
             for(ProxiedPlayer member: members) {
-                if(!Util.playerIsHidden(member)) {
+                if(!Util.playerIsUnlisted(member)) {
                     if(list.length() > 0) list += "§r, ";
                     list += member.getDisplayName();
                 }

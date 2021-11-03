@@ -20,6 +20,9 @@ public class ChatCommand extends Command
     public void execute(CommandSender commandSender, String[] args) {
         if(args.length == 0) return;
         String message = Util.removeSectionSigns(Util.joinStrings(args, 0));
-        channel.sendMessage(commandSender, message);
+        message = message.trim();
+        if(message.length() > 0) {
+            channel.sendMessage(commandSender, message.trim());
+        }
     }
 }

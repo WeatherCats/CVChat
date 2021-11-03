@@ -2,11 +2,13 @@ package org.cubeville.cvchat;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import net.md_5.bungee.api.ProxyServer;
@@ -23,20 +25,23 @@ import org.cubeville.cvchat.channels.ChannelManager;
 import org.cubeville.cvchat.channels.GroupChannel;
 import org.cubeville.cvchat.channels.LocalChannel;
 
+import org.cubeville.cvchat.commands.BacksiesCommand;
 import org.cubeville.cvchat.commands.BanCommand;
+import org.cubeville.cvchat.commands.BlockNewPlayersCommand;
 import org.cubeville.cvchat.commands.ChannelCommand;
 import org.cubeville.cvchat.commands.ChatCommand;
-import org.cubeville.cvchat.commands.CheckbanCommand;
 import org.cubeville.cvchat.commands.CheckCommand;
+import org.cubeville.cvchat.commands.CheckbanCommand;
 import org.cubeville.cvchat.commands.ClearchatCommand;
 import org.cubeville.cvchat.commands.DibsCommand;
 import org.cubeville.cvchat.commands.DoneCommand;
 import org.cubeville.cvchat.commands.FinishCommand;
+import org.cubeville.cvchat.commands.ForceTutorialFinishCommand;
 import org.cubeville.cvchat.commands.FjCommand;
 import org.cubeville.cvchat.commands.ForwardCommand;
 import org.cubeville.cvchat.commands.FqCommand;
-import org.cubeville.cvchat.commands.GroupCommand;
 import org.cubeville.cvchat.commands.GTrCommand;
+import org.cubeville.cvchat.commands.GroupCommand;
 import org.cubeville.cvchat.commands.HoldCommand;
 import org.cubeville.cvchat.commands.KickCommand;
 import org.cubeville.cvchat.commands.LocalCommand;
@@ -44,10 +49,11 @@ import org.cubeville.cvchat.commands.LocchatCommand;
 import org.cubeville.cvchat.commands.ModlistCommand;
 import org.cubeville.cvchat.commands.MsgCommand;
 import org.cubeville.cvchat.commands.MuteCommand;
+import org.cubeville.cvchat.commands.NewCommand;
 import org.cubeville.cvchat.commands.NoteCommand;
+import org.cubeville.cvchat.commands.PTrCommand;
 import org.cubeville.cvchat.commands.PrefixCommand;
 import org.cubeville.cvchat.commands.ProfileCommand;
-import org.cubeville.cvchat.commands.PTrCommand;
 import org.cubeville.cvchat.commands.RCommand;
 import org.cubeville.cvchat.commands.ReopenCommand;
 import org.cubeville.cvchat.commands.RlCommand;
@@ -57,10 +63,10 @@ import org.cubeville.cvchat.commands.TestCommand;
 import org.cubeville.cvchat.commands.TpidCommand;
 import org.cubeville.cvchat.commands.TrCommand;
 import org.cubeville.cvchat.commands.UnbanCommand;
-import org.cubeville.cvchat.commands.BacksiesCommand;
-import org.cubeville.cvchat.commands.UnmuteCommand;
-import org.cubeville.cvchat.commands.WhoCommand;
 import org.cubeville.cvchat.commands.UnholdCommand;
+import org.cubeville.cvchat.commands.UnmuteCommand;
+import org.cubeville.cvchat.commands.VcbAddCommand;
+import org.cubeville.cvchat.commands.WhoCommand;
 
 import org.cubeville.cvchat.log.Logger;
 
@@ -107,8 +113,9 @@ public class CVChat extends Plugin {
         ProxyServer.getInstance().getScheduler().schedule(this, new Runnable() {
                 public void run() {
                     System.out.println("Uptime: " + (getUptime() / 60) + " minutes");
+                    ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), "who");
                 }
-            }, 300, 300, TimeUnit.SECONDS);
+            }, 60, 60, TimeUnit.SECONDS);
         
         logger = new Logger(new File(getDataFolder(), "logs"));
         ProxyServer.getInstance().getScheduler().schedule(this, logger, 2000, 2000, TimeUnit.MILLISECONDS);
@@ -178,14 +185,44 @@ public class CVChat extends Plugin {
             for(String whitelist: whitelistConfig.getKeys()) {
                 commandWhitelist.put(whitelist, new HashSet<String>(whitelistConfig.getStringList(whitelist)));
             }
-            List<List<String>> aliases = (List<List<String>>)config.get("aliases");
-            ChatListener chatListener = new ChatListener(local, commandWhitelist, textCommandManager, ticketManager, ipc, aliases);
+
+            ChatListener chatListener = new ChatListener(local, commandWhitelist, textCommandManager, ticketManager, ipc);
+	    List<HashMap> aliasconf = (List<HashMap>)config.getList("aliases");
+	    for(HashMap a: aliasconf) {
+		List<String> cmds;
+		if(a.get("commands") instanceof String) {
+		    cmds = new ArrayList<>();
+		    cmds.add((String) a.get("commands"));
+		}
+		else {
+		    cmds = (List<String>) a.get("commands");
+		}
+		List<String> translations;
+		if(a.get("translate") instanceof String) {
+		    translations = new ArrayList<>();
+		    translations.add((String) a.get("translate"));
+		}
+		else {
+		    translations = (List<String>) a.get("translate");
+		}
+		chatListener.addAlias(cmds,
+				      translations,
+				      (String)a.get("server"),
+				      (String)a.get("permission"));
+	    }
             pm.registerListener(this, chatListener);
-            
-            pm.registerListener(this, new LoginListener(channelManager, ticketManager));
+
+            Set<UUID> versionCheckBypass = new HashSet<>();
+            List<String> versionCheckBypassStrings = config.getStringList("versioncheckbypass");
+            for(String s: versionCheckBypassStrings) {
+                versionCheckBypass.add(UUID.fromString(s));
+            }
+            LoginListener loginListener = new LoginListener(channelManager, ticketManager, versionCheckBypass);
+            pm.registerListener(this, loginListener);
             pm.registerCommand(this, new ChannelCommand(channelManager));
             
             pm.registerCommand(this, new FinishCommand(ipc, textCommandManager));
+            pm.registerCommand(this, new ForceTutorialFinishCommand());
             
             // Load ranks configuration
             Configuration ranksList = (Configuration) config.get("ranks");
@@ -211,8 +248,9 @@ public class CVChat extends Plugin {
                 pm.registerCommand(this, new CheckbanCommand());
                 
                 // Player list commands
-                pm.registerCommand(this, new WhoCommand());
                 pm.registerCommand(this, new ModlistCommand());
+                pm.registerCommand(this, new NewCommand());
+                pm.registerCommand(this, new WhoCommand());
                 
                 // Little helper command, remove when done! TODO
                 pm.registerCommand(this, new TestCommand());
@@ -226,6 +264,8 @@ public class CVChat extends Plugin {
                 pm.registerCommand(this, new GTrCommand());
                 pm.registerCommand(this, new SuCommand());
                 pm.registerCommand(this, new ClearchatCommand());
+                pm.registerCommand(this, new VcbAddCommand(loginListener));
+                pm.registerCommand(this, new BlockNewPlayersCommand(loginListener));
             }
 
             { // Install playerdata system
@@ -254,7 +294,7 @@ public class CVChat extends Plugin {
             }
             
             { // Chat forward commands for quest
-                for(int i = 0; i < 10; i++) {
+                for(int i = 0; i < 20; i++) {
                     pm.registerCommand(this, new ForwardCommand(String.valueOf(i), String.valueOf(i)));
                 }
             }

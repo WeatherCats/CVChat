@@ -11,10 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import codecrafter47.bungeetablistplus.BungeeTabListPlus;
+import org.cubeville.cvchat.playerdata.PlayerDataManager;
+
+import org.cubeville.cvvanish.CVVanish;
 
 public class Util
 {
@@ -43,7 +46,7 @@ public class Util
         }
         return ret;
     }
-    
+
     public static String removeSectionSigns(String text) {
         text.replace("§", "");
         return text;
@@ -125,13 +128,59 @@ public class Util
     }
     
     public static boolean playerIsHidden(ProxiedPlayer player) {
-        return (BungeeTabListPlus.isHidden(BungeeTabListPlus.getInstance().getConnectedPlayerManager().getPlayer(player)));
+        return playerIsHidden(player.getUniqueId());
     }
 
     public static boolean playerIsHidden(UUID playerId) {
-        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(playerId);
-        if(player == null) return false;
-        return playerIsHidden(player);
+        return CVVanish.getInstance().isPlayerInvisible(playerId);
+    }
+
+    public static boolean playerIsUnlisted(ProxiedPlayer player) {
+        return playerIsUnlisted(player.getUniqueId());
+    }
+
+    public static boolean playerIsUnlisted(UUID playerId) {
+        return CVVanish.getInstance().isPlayerUnlisted(playerId);
+    }
+
+    private static boolean isSamePlayer(CommandSender watchingPlayer, ProxiedPlayer watchedPlayer) {
+        if(!(watchingPlayer instanceof ProxiedPlayer)) return false;
+        ProxiedPlayer p = (ProxiedPlayer) watchingPlayer;
+        return p.getUniqueId().equals(watchedPlayer.getUniqueId());
+    }
+    
+    private static PlayerDataManager getPDM() {
+        return PlayerDataManager.getInstance();
+    }
+
+    private static boolean outranksOrEqual(CommandSender watchingPlayer, ProxiedPlayer watchedPlayer) {
+        if(!(watchingPlayer instanceof ProxiedPlayer)) return true; // console outranks everyone
+        return getPDM().outranksOrEqual(((ProxiedPlayer) watchingPlayer).getUniqueId(), watchedPlayer.getUniqueId());
+    }
+    
+    public static boolean getPlayerVisibilityFor(CommandSender watchingPlayer, ProxiedPlayer watchedPlayer) {
+        if(!(watchingPlayer instanceof ProxiedPlayer)) return true;              // Console sees everything
+        if(!(playerIsUnlisted(watchedPlayer))) return true;                      // Everyone sees listed players
+        if(isSamePlayer(watchingPlayer, watchedPlayer)) return true;             // Everyone see themselves
+        if(outranksOrEqual(watchingPlayer, watchedPlayer)) {
+            if(watchedPlayer.hasPermission("cvchat.visibilityexemption")) {      // Players with exemption are not visible even to higher ranked staffers
+                return watchingPlayer.hasPermission("cvchat.visibilityexemptionoverride"); // ...unless the higher ranks staffer overrides this
+            }
+            return true; // Everyone can see staffers of same or lower rank
+        }
+        return false;                                                            // nope
+    }
+
+    public static boolean getPlayerInvisibilityStatusFor(CommandSender watchingPlayer, ProxiedPlayer watchedPlayer) {
+        if(!(watchingPlayer instanceof ProxiedPlayer)) return playerIsHidden(watchedPlayer);               // Console always sees actual status of player
+        if(outranksOrEqual(watchingPlayer, watchedPlayer)) return playerIsHidden(watchedPlayer); // Staffers see the actual status of same or lower rank
+        return false;                                                                                      // Everyone else don't see shit
+    }
+
+    public static boolean getPlayerUnlistedStatusFor(CommandSender watchingPlayer, ProxiedPlayer watchedPlayer) {
+        if(!(watchingPlayer instanceof ProxiedPlayer)) return playerIsUnlisted(watchedPlayer);               // Console always sees actual status of player
+        if(outranksOrEqual(watchingPlayer, watchedPlayer)) return playerIsUnlisted(watchedPlayer); // Staffers see the actual status of same or lower rank
+        return false;                                                                                        // Everyone else don't see shit
     }
     
     public static List<ProxiedPlayer> getPlayersWithPermission(String permission) {

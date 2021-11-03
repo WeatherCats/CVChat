@@ -60,6 +60,15 @@ public class PlayerDataManager
         return false;
     }
 
+    public boolean needsConfirmation(UUID playerId, String ipAddress) {
+        PlayerData pd = playerData.get(playerId);
+        if(pd == null) return false;
+        if(pd.getPriority() >= 60) {
+            return true;
+        }
+        return false;
+    }
+    
     public long getEndOfTempban(UUID playerId) {
         PlayerData pd = playerData.get(playerId);
         if(pd == null) return System.currentTimeMillis();
@@ -82,20 +91,27 @@ public class PlayerDataManager
         return playerNameMap.get(playerName.toLowerCase());
     }
 
-    public List<String> getMatchingPlayerNames(String search) {
+    public List<String> getMatchingPlayerNames(List<String> search) {
         List<String> ret = new ArrayList<>();
         for(String name: playerNameMap.keySet()) {
-            if(name.contains(search.toLowerCase())) {
+            boolean failed = false;
+            for(String s: search) {
+                if(!name.contains(s.toLowerCase())) {
+                    failed = true;
+                    break;
+                }
+            }
+            if(failed == false) {
                 ret.add(playerData.get(playerNameMap.get(name)).getName());
             }
         }
         return ret;
     }
     
-    public void banPlayer(UUID playerId, UUID bannedBy, String banReason, long duration) {
+    public void banPlayer(UUID playerId, UUID bannedBy, String banReason, long duration, boolean startNow) {
         PlayerData pd = playerData.get(playerId);
         if(pd == null) return;
-        pd.setBanStart(null);
+        pd.setBanStart(startNow ? System.currentTimeMillis() : null);
         pd.setBanIssued(System.currentTimeMillis());
         pd.setBanDuration(duration == 0 ? null : duration);
         pd.setBannedBy(bannedBy);
@@ -123,6 +139,7 @@ public class PlayerDataManager
     public void changePlayerName(UUID playerId, String playerName) {
         PlayerData pd = playerData.get(playerId);
         if(pd == null) return;
+        System.out.println("Change player name of " + playerId + " from " + pd.getName() + " to " + playerName);
         playerNameMap.remove(pd.getName().toLowerCase());
         pd.setName(playerName);
         playerNameMap.put(playerName.toLowerCase(), pd.getPlayerId());

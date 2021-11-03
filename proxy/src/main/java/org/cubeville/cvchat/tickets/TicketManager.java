@@ -154,7 +154,7 @@ public class TicketManager implements IPCInterface
                     if(text.length() > 22) { text = text.substring(0, 22) + "§7..."; }
                     boolean playerOnline = false;
                     if(ProxyServer.getInstance().getPlayer(ticket.getPlayer()) != null) {
-                        if(!Util.playerIsHidden(ticket.getPlayer())) {
+                        if(!Util.playerIsUnlisted(ticket.getPlayer())) {
                             playerOnline = true;
                         }
                     }

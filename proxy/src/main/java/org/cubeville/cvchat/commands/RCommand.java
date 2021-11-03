@@ -34,7 +34,7 @@ public class RCommand extends Command
 
         ProxiedPlayer recipient = ProxyServer.getInstance().getPlayer(recipientId);
         boolean fakeNotFound = false;
-        if(recipient == null || (Util.playerIsHidden(recipient) == true && recipient.hasPermission("cvchat.refusepm") == true && sender.hasPermission("cvchat.showvanished") == false && MsgCommand.disabledRefusal(recipient.getUniqueId()) == false)) {
+        if(recipient == null || (Util.playerIsUnlisted(recipient) == true && recipient.hasPermission("cvchat.refusepm") == true && sender.hasPermission("cvchat.showvanished") == false && MsgCommand.disabledRefusal(recipient.getUniqueId()) == false)) {
             sender.sendMessage("§cPlayer left.");
             if(recipient == null) return;
             fakeNotFound = true;

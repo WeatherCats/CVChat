@@ -12,7 +12,7 @@ import org.cubeville.cvchat.sanctions.SanctionManager;
 public class MuteCommand extends CommandBase
 {
     public MuteCommand() {
-        super("mute");
+        super("mute", "cvchat.mute");
         setUsage("§c/mute <player> [reason]");
     }
 

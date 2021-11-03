@@ -50,16 +50,18 @@ public class SanctionManager
         PlayerDataManager pdm = PlayerDataManager.getInstance();
 
         if(duration == 0 && pdm.isBanned(bannedPlayerId, false) && pdm.isPermanentlyBanned(bannedPlayerId)) return false;
-        
-        pdm.banPlayer(bannedPlayerId, senderId, banReason, duration * 1000);
-        {
-            ProxiedPlayer player = ProxyServer.getInstance().getPlayer(bannedPlayerId);
-            if(player != null) {
-                String kname = "Console";
-                if(sender instanceof ProxiedPlayer) kname = ((ProxiedPlayer) sender).getDisplayName();
-                player.disconnect("§6You have been " + (duration != 0 ? "temporarily " : "") + "banned by §e" + kname + "§6.\nReason: §e" + banReason);
-            }
+
+        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(bannedPlayerId);
+
+        boolean startBanNow = duration > 0 && player != null;
+        pdm.banPlayer(bannedPlayerId, senderId, banReason, duration * 1000, startBanNow);
+           
+        if(player != null) {
+            String kname = "Console";
+            if(sender instanceof ProxiedPlayer) kname = ((ProxiedPlayer) sender).getDisplayName();
+            player.disconnect("§6You have been " + (duration != 0 ? "temporarily " : "") + "banned by §e" + kname + "§6.\nReason: §e" + banReason);
         }
+
         return true;
     }
 

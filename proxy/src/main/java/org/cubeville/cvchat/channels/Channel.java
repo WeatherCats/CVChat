@@ -24,7 +24,7 @@ public class Channel
     private String sendPermission;
     private String colorPermission;
     private String leavePermission;
-    private String format;
+    private Map<String, String> format;
     private boolean isDefault; // Channel is activated for new players
     private boolean autojoin; // Players join automatically when they log in (otherwise serialized)
     private boolean listable; // Shows up in /ch list
@@ -37,7 +37,7 @@ public class Channel
     private Map<Integer, String> messageQueue;
     private Integer messageQueueId;
 
-    public Channel(String name, String viewPermission, String sendPermission, String colorPermission, String leavePermission, String format, boolean isDefault, boolean autojoin, boolean listable, boolean filtered, Collection<String> commands, Collection<String> users) {
+    public Channel(String name, String viewPermission, String sendPermission, String colorPermission, String leavePermission, Map<String, String> format, boolean isDefault, boolean autojoin, boolean listable, boolean filtered, Collection<String> commands, Collection<String> users) {
         this.name = name;
         this.viewPermission = viewPermission;
         this.sendPermission = sendPermission;
@@ -55,7 +55,6 @@ public class Channel
 
         messageQueue = new HashMap<>();
         messageQueueId = 0;
-
     }
 
     public void playerLogin(ProxiedPlayer player, String configuration) {
@@ -93,6 +92,7 @@ public class Channel
             player.sendMessage("§cPermission denied.");
             return;
         }
+        
         if(player instanceof ProxiedPlayer) {
             if(!members.contains(((ProxiedPlayer) player).getUniqueId())) {
                 player.sendMessage("§cYou're currently not a member of this channel. Join with /ch join " + name + ".");
@@ -130,8 +130,14 @@ public class Channel
             }
         }
         
-        String formattedMessage = format;
-
+        String formattedMessage = format.get("default");
+        if(player instanceof ProxiedPlayer) {
+            String serverName = ((ProxiedPlayer) player).getServer().getInfo().getName();
+            if(format.containsKey(serverName)) {
+                formattedMessage = format.get(serverName);
+            }
+        }
+        
         if(formattedMessage.indexOf("%prefix%") >= 0 && player instanceof ProxiedPlayer) {
             formattedMessage = formattedMessage.replace("%prefix%", PlayerDataManager.getInstance().getPrefix(((ProxiedPlayer) player).getUniqueId()));
         }

@@ -2,13 +2,22 @@ name: CVChat
 main: org.cubeville.cvchat.CVChat
 authors: [FrediW]
 version: 0.1
-depend: [CVIPC,PremiumVanish]
+depend: [CVIPC,CVTools,CVVanish]
+api-version: 1.16
 
 commands:
   modreq:
     description: Send moderator request
   unlocktutorialchat:
     description: Unlocks tutorial chat
+  finishtutorial:
+    description: Finishes tutorial
   ltr:
     description: Fake local chat
     permission: cvchat.fakelocal
+  localchatregion:
+    description: Local chat region administration
+    permission: cvchat.localchatregion
+  localchardistance:
+    permission: cvchat.localchatdistance
+    description: Change local chat default distance temporarily

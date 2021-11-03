@@ -87,7 +87,7 @@ public class MsgCommand extends CommandBase
         ProxiedPlayer recipient = getPlayer(args[0]);
         
         if(recipient == null ||
-           (Util.playerIsHidden(recipient) == true && recipient.hasPermission("cvchat.refusepm") == true && sender.hasPermission("cvchat.showvanished") == false && disabledRefusal(recipient.getUniqueId()) == false)) {
+           (Util.playerIsUnlisted(recipient) == true && recipient.hasPermission("cvchat.refusepm") == true && sender.hasPermission("cvchat.showvanished") == false && disabledRefusal(recipient.getUniqueId()) == false)) {
             sender.sendMessage("§cPlayer not found!");
             if(recipient == null) return;
             fakeNotFound = true;
