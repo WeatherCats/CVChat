@@ -139,13 +139,13 @@ public class TicketManager implements IPCInterface
         return cnt;
     }
     
-    public void checkTickets(CommandSender sender, boolean held, boolean closed, int page) {
+    public void checkTickets(CommandSender sender, boolean held, boolean closed, UUID playerId, UUID modId, int page) {
         // TODO: Need to async this?
         int cnt = -1;
         int pageSize = 5;
         List<TextComponent> out = new ArrayList<>();
         for(Ticket ticket: tickets) {
-            if(ticket.isClosed() == closed && ticket.isHeld() == held) {
+            if(ticket.isClosed() == closed && ticket.isHeld() == held && (playerId == null || ticket.getPlayer().equals(playerId)) && (modId == null || ((ticket.isClaimed() || ticket.isClosed()) && ticket.getModerator().equals(modId)))) {
                 cnt++;
                 if(cnt / pageSize + 1 == page) {
                     String text;
