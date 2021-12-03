@@ -13,6 +13,10 @@ import java.util.concurrent.TimeUnit;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvipc.CVIPC;
@@ -135,13 +139,13 @@ public class TicketManager implements IPCInterface
         return cnt;
     }
     
-    public void checkTickets(CommandSender sender, boolean held, boolean closed, int page) {
+    public void checkTickets(CommandSender sender, boolean held, boolean closed, UUID playerId, UUID modId, int page) {
         // TODO: Need to async this?
         int cnt = -1;
         int pageSize = 5;
-        List<String> out = new ArrayList<>();
+        List<TextComponent> out = new ArrayList<>();
         for(Ticket ticket: tickets) {
-            if(ticket.isClosed() == closed && ticket.isHeld() == held) {
+            if(ticket.isClosed() == closed && ticket.isHeld() == held && (playerId == null || ticket.getPlayer().equals(playerId)) && (modId == null || ((ticket.isClaimed() || ticket.isClosed()) && ticket.getModerator().equals(modId)))) {
                 cnt++;
                 if(cnt / pageSize + 1 == page) {
                     String text;
@@ -158,7 +162,14 @@ public class TicketManager implements IPCInterface
                             playerOnline = true;
                         }
                     }
-                    out.add("§6#" + ticket.getId() + ". " + getDateStr(ticket.getCreationTimestamp()) + " by §" + (playerOnline ? "a" : "c") + ticket.getPlayerName() + " §7- " + text);
+                    int id = ticket.getId();
+                    TextComponent t = new TextComponent("§6#" + id + ". " + getDateStr(ticket.getCreationTimestamp()) + " by §" + (playerOnline ? "a" : "c") + ticket.getPlayerName() + " §7- " + text);
+                    t.addExtra("  ");
+                    TextComponent c = new TextComponent("§b[§aCheck§b]");
+                    c.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/check " + id));
+                    c.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to check #" + id).create()));
+                    t.addExtra(c);
+                    out.add(t);
                 }
             }
         }
@@ -172,7 +183,7 @@ public class TicketManager implements IPCInterface
         int from = page * 5 - 4;
         int to = Math.min(page * 5, cnt + 1);
         sender.sendMessage("--------- " + ++cnt + " " + (held ? "held" : (closed ? "closed" : "open")) + " modreqs, showing " + from + "-" + to + " ---------");
-        for(String s: out) {
+        for(TextComponent s: out) {
             sender.sendMessage(s);
         }
     }
@@ -194,7 +205,19 @@ public class TicketManager implements IPCInterface
             sender.sendMessage(hl);
         }
 
-        sender.sendMessage("§eFiled by §c" + ticket.getPlayerName() + "§e at " + getDateStr(ticket.getCreationTimestamp()) + "§e at " + ticket.getServer() + "," + ticket.getWorld() + "," + ticket.getX() + "," + ticket.getY() + "," + ticket.getZ());
+        String p = ticket.getPlayerName();
+        TextComponent t = new TextComponent("§eFiled by §c" + p + " §eat " + getDateStr(ticket.getCreationTimestamp()) + " at " + ticket.getServer() + "," + ticket.getWorld() + "," + ticket.getX() + "," + ticket.getY() + "," + ticket.getZ());
+        t.addExtra("  ");
+        TextComponent name = new TextComponent("§b[§aProfile§b]");
+        name.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/profile " + p));
+        name.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to profile " + p).create()));
+        t.addExtra(name);
+        t.addExtra("  ");
+        TextComponent tp = new TextComponent("§b[§aTeleport§b]");
+        tp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpid " + id));
+        tp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to teleport to modreq #" + id).create()));
+        t.addExtra(tp);
+        sender.sendMessage(t);
         if(!ticket.isClosed() && ticket.isClaimed()) {
             sender.sendMessage("§eClaimed by §d" + ticket.getModeratorName() + "§e at §d" + getDateStr(ticket.getModeratorTimestamp()));
         }
