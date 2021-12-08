@@ -33,6 +33,10 @@ public class SanctionManager
         mutedPlayers.put(player.getUniqueId(), System.currentTimeMillis());
     }
 
+    public void mutePlayer(UUID player) {
+        mutedPlayers.put(player, System.currentTimeMillis());
+    }
+
     public void unmutePlayer(ProxiedPlayer player) {
         mutedPlayers.remove(player.getUniqueId());
     }
