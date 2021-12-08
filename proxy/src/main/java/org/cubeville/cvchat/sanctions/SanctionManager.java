@@ -34,7 +34,11 @@ public class SanctionManager
     public void unmutePlayer(ProxiedPlayer player) {
         mutedPlayers.remove(player.getUniqueId());
     }
-    
+
+    public void unmutePlayer(UUID player) {
+        mutedPlayers.remove(player);
+    }
+
     public boolean isPlayerMuted(CommandSender player) {
         if(player instanceof ProxiedPlayer) {
             return mutedPlayers.containsKey(((ProxiedPlayer) player).getUniqueId());
@@ -42,6 +46,10 @@ public class SanctionManager
         else {
             return false;
         }
+    }
+
+    public boolean isPlayerMuted(UUID player) {
+        return mutedPlayers.containsKey(player);
     }
 
     public boolean banPlayer(CommandSender sender, UUID bannedPlayerId, String banReason, long duration, boolean silent) {
