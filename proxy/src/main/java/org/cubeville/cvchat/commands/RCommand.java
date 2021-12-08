@@ -47,6 +47,13 @@ public class RCommand extends Command
             }
         }
 
+        if(SanctionManager.getInstance().isAllChatMuted() && !sender.hasPermission("cvchat.muteallbypass")) {
+            if(!recipient.hasPermission("cvchat.mute.staff")) {
+                sender.sendMessage("§cAll chat is muted. You can only send messages to staff members.");
+                return;
+            }
+        }
+
         MsgCommand.sendMessage(sender, recipient, args, 0, fakeNotFound);
     }
 }

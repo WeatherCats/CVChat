@@ -48,6 +48,7 @@ import org.cubeville.cvchat.commands.LocalCommand;
 import org.cubeville.cvchat.commands.LocchatCommand;
 import org.cubeville.cvchat.commands.ModlistCommand;
 import org.cubeville.cvchat.commands.MsgCommand;
+import org.cubeville.cvchat.commands.MuteAllCommand;
 import org.cubeville.cvchat.commands.MuteCommand;
 import org.cubeville.cvchat.commands.NewCommand;
 import org.cubeville.cvchat.commands.NoteCommand;
@@ -64,6 +65,7 @@ import org.cubeville.cvchat.commands.TpidCommand;
 import org.cubeville.cvchat.commands.TrCommand;
 import org.cubeville.cvchat.commands.UnbanCommand;
 import org.cubeville.cvchat.commands.UnholdCommand;
+import org.cubeville.cvchat.commands.UnmuteAllCommand;
 import org.cubeville.cvchat.commands.UnmuteCommand;
 import org.cubeville.cvchat.commands.VcbAddCommand;
 import org.cubeville.cvchat.commands.WhoCommand;
@@ -79,7 +81,6 @@ import org.cubeville.cvchat.textcommands.TextCommandManager;
 import org.cubeville.cvchat.tickets.TicketManager;
 import org.cubeville.cvchat.tickets.TicketDao;
 
-// TODO: Muting players, muting complete chat except staff
 // TODO: Private messaging with afk function :)
 // TODO: hidden staff
 
@@ -242,6 +243,8 @@ public class CVChat extends Plugin {
                 pm.registerCommand(this, new KickCommand());
                 pm.registerCommand(this, new MuteCommand());
                 pm.registerCommand(this, new UnmuteCommand());
+                pm.registerCommand(this, new MuteAllCommand());
+                pm.registerCommand(this, new UnmuteAllCommand());
                 pm.registerCommand(this, new BanCommand());
                 pm.registerCommand(this, new TempbanCommand());
                 pm.registerCommand(this, new UnbanCommand());

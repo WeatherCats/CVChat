@@ -87,6 +87,11 @@ public class Channel
             player.sendMessage("§cYou are muted.");
             return;
         }
+
+        if(SanctionManager.getInstance().isAllChatMuted() && !player.hasPermission("cvchat.muteallbypass")) {
+            player.sendMessage("§cAll chat is muted.");
+            return;
+        }
         
         if(((!sendPermission.equals("default")) && player.hasPermission(sendPermission) == false) || ((!viewPermission.equals("default")) && player.hasPermission(viewPermission) == false)) {
             player.sendMessage("§cPermission denied.");

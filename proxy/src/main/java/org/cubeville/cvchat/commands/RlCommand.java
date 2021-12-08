@@ -38,6 +38,13 @@ public class RlCommand extends CommandBase
         if(SanctionManager.getInstance().isPlayerMuted(sender)) {
             if(!verify(sender, recipient.hasPermission("cvchat.mute.staff"), "§cYou are muted. You can only send messages to staff members.")) return;
         }
+
+        if(SanctionManager.getInstance().isAllChatMuted() && !sender.hasPermission("cvchat.muteallbypass")) {
+            if(!recipient.hasPermission("cvchat.mute.staff")) {
+                sender.sendMessage("§cAll chat is muted. You can only send messages to staff members.");
+                return;
+            }
+        }
         
         MsgCommand.sendMessage(sender, recipient, args, 0, fakeNotFound);
     }
