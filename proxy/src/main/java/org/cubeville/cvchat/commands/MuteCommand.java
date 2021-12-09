@@ -9,6 +9,8 @@ import org.cubeville.cvchat.Util;
 
 import org.cubeville.cvchat.sanctions.SanctionManager;
 
+import java.util.UUID;
+
 public class MuteCommand extends CommandBase
 {
     public MuteCommand() {
@@ -22,24 +24,27 @@ public class MuteCommand extends CommandBase
 
         if(!verifyNotLessArguments(sender, args, 1)) return;
 
-        if(!verifyOnline(sender, args[0])) return;
-        ProxiedPlayer player = getPlayer(args[0]);
-
-        if(!verify(sender, !player.getUniqueId().equals(sender.getUniqueId()), "§cYou can't mute yourself, silly!")) return;
-        
-        if(!verifyOutranks(sender, player)) {
-            player.sendMessage(sender.getDisplayName() + "§c tried to mute you. Should we instaban that person, your majesty?");
+        UUID pUUID = getPDM().getPlayerId(args[0]);
+        if(pUUID == null) {
+            sender.sendMessage("§cNo player found!");
             return;
         }
 
-        if(!verify(sender, !getSanctionManager().isPlayerMuted(player), "§cPlayer is already muted.")) return;
+        if(!verify(sender, !pUUID.equals(sender.getUniqueId()), "§cYou can't mute yourself, silly!")) return;
 
-        getSanctionManager().mutePlayer(player);
+        if(!verifyOutranks(sender, pUUID)) {
+            if(ProxyServer.getInstance().getPlayer(pUUID) != null) ProxyServer.getInstance().getPlayer(pUUID).sendMessage(sender.getDisplayName() + "§c tried to mute you. Should we instaban that person, your majesty?");
+            return;
+        }
+
+        if(!verify(sender, !getSanctionManager().isPlayerMuted(pUUID), "§cPlayer is already muted.")) return;
+
+        getSanctionManager().mutePlayer(pUUID);
 
         String reason = "";
         if(args.length > 1) reason = " Reason: " + Util.joinStrings(args, 1);
-        player.sendMessage("§cYou have been muted." + reason);
-        String msg = "§a" + player.getDisplayName() + "§a has been muted by " + sender.getDisplayName() + "§a." + reason;
+        if(ProxyServer.getInstance().getPlayer(pUUID) != null) ProxyServer.getInstance().getPlayer(pUUID).sendMessage("§cYou have been muted." + reason);
+        String msg = "§a" + getPDM().getPlayerName(pUUID) + "§a has been muted by " + sender.getDisplayName() + "§a." + reason;
         sendMessage(getAllPlayersWithPermission("cvchat.mute.notify"), msg);
     }
 

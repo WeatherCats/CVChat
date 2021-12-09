@@ -13,6 +13,7 @@ import org.cubeville.cvchat.playerdata.PlayerDataManager;
 
 public class SanctionManager
 {
+    boolean allChatMuted;
     Map<UUID, Long> mutedPlayers;
     List<String> filterTerms;
     
@@ -23,6 +24,7 @@ public class SanctionManager
 
     public SanctionManager(List<String> filterTerms) {
         instance = this;
+        allChatMuted = false;
         mutedPlayers = new HashMap<>();
         this.filterTerms = filterTerms;
     }
@@ -31,10 +33,18 @@ public class SanctionManager
         mutedPlayers.put(player.getUniqueId(), System.currentTimeMillis());
     }
 
+    public void mutePlayer(UUID player) {
+        mutedPlayers.put(player, System.currentTimeMillis());
+    }
+
     public void unmutePlayer(ProxiedPlayer player) {
         mutedPlayers.remove(player.getUniqueId());
     }
-    
+
+    public void unmutePlayer(UUID player) {
+        mutedPlayers.remove(player);
+    }
+
     public boolean isPlayerMuted(CommandSender player) {
         if(player instanceof ProxiedPlayer) {
             return mutedPlayers.containsKey(((ProxiedPlayer) player).getUniqueId());
@@ -42,6 +52,22 @@ public class SanctionManager
         else {
             return false;
         }
+    }
+
+    public boolean isPlayerMuted(UUID player) {
+        return mutedPlayers.containsKey(player);
+    }
+
+    public void muteAllChat() {
+        allChatMuted = true;
+    }
+
+    public void unmuteAllChat() {
+        allChatMuted = false;
+    }
+
+    public boolean isAllChatMuted() {
+        return allChatMuted;
     }
 
     public boolean banPlayer(CommandSender sender, UUID bannedPlayerId, String banReason, long duration, boolean silent) {

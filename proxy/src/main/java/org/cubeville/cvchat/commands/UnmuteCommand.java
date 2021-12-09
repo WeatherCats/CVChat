@@ -3,10 +3,11 @@ package org.cubeville.cvchat.commands;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Command;
 
 import org.cubeville.cvchat.Util;
 import org.cubeville.cvchat.sanctions.SanctionManager;
+
+import java.util.UUID;
 
 public class UnmuteCommand extends CommandBase
 {
@@ -24,30 +25,30 @@ public class UnmuteCommand extends CommandBase
             return;
         }
 
-        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(args[0]);
-        if(player == null) {
+        UUID pUUID = getPDM().getPlayerId(args[0]);
+        if(pUUID == null) {
             sender.sendMessage("§cNo player found!");
             return;
         }
 
-        if(!verify(sender, !player.getUniqueId().equals(sender.getUniqueId()), "§cYou can't unmute yourself.")) return;
+        if(!verify(sender, !pUUID.equals(sender.getUniqueId()), "§cYou can't unmute yourself.")) return;
 
-        if(!verifyOutranks(sender, player)) {
+        if(!verifyOutranks(sender, pUUID)) {
             sender.sendMessage("§cNo permission.");
             return;
         }
         
-        if(!getSanctionManager().isPlayerMuted(player)) {
+        if(!getSanctionManager().isPlayerMuted(pUUID)) {
             sender.sendMessage("§cPlayer is not muted.");
             return;
         }
 
-        getSanctionManager().unmutePlayer(player);
+        getSanctionManager().unmutePlayer(pUUID);
 
-        player.sendMessage("§aYou have been unmuted.");
+        if(ProxyServer.getInstance().getPlayer(pUUID) != null) ProxyServer.getInstance().getPlayer(pUUID).sendMessage("§aYou have been unmuted.");
 
         for(ProxiedPlayer n: Util.getPlayersWithPermission("cvchat.mute.notify")) {
-            n.sendMessage("§a" + player.getDisplayName() + "§a has been unmuted by " + sender.getDisplayName() + "§a.");
+            n.sendMessage("§a" + getPDM().getPlayerName(pUUID) + "§a has been unmuted by " + sender.getDisplayName() + "§a.");
         }
 
         sender.sendMessage("§cPlease consider making a /note if you think this mute would justify one.");

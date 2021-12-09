@@ -100,6 +100,13 @@ public class MsgCommand extends CommandBase
             }
         }
 
+        if(SanctionManager.getInstance().isAllChatMuted() && !sender.hasPermission("cvchat.muteallbypass")) {
+            if(!recipient.hasPermission("cvchat.mute.staff")) {
+                sender.sendMessage("§cAll chat is muted. You can only send messages to staff members.");
+                return;
+            }
+        }
+
         long senderFirstLogin = PlayerDataManager.getInstance().getFirstLogin(sender.getUniqueId());
         if(senderFirstLogin == 0 || System.currentTimeMillis() - senderFirstLogin < 600000) {
             if(!recipient.hasPermission("cvchat.mute.staff")) {
