@@ -84,10 +84,7 @@ public class ProfileCommand extends CommandBase
         }
 
         if(SanctionManager.getInstance().getFilteredMessages(playerId) != null) {
-            sender.sendMessage("§4Today's Swear Kicks:");
-            for(String message : SanctionManager.getInstance().getFilteredMessages(playerId)) {
-                sender.sendMessage("§6 - " + message);
-            }
+            sender.sendMessage("§cToday's Swear Kicks: §6" + SanctionManager.getInstance().getFilteredMessages(playerId).size());
         }
         
         if(sender.hasPermission("cvchat.profile.extended")) {

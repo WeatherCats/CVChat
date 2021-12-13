@@ -10,7 +10,7 @@ import org.cubeville.cvchat.playerdata.PlayerDataManager;
 
 public class SanctionManager
 {
-    Map<UUID, List<String>> filteredMessages;
+    Map<UUID, List<Map<Long, String>>> filteredMessages;
     boolean allChatMuted;
     Map<UUID, Long> mutedPlayers;
     List<String> filterTerms;
@@ -98,17 +98,24 @@ public class SanctionManager
         return pdm.getPlayerName(bannedPlayerId);
     }
 
-    public void addFilteredMessages(UUID player, String message) {
-        List<String> messages = new ArrayList<>();
+    public void addFilteredMessage(UUID player, String message) {
+        List<Map<Long, String>> messages;
         if(filteredMessages.containsKey(player)) {
             messages = filteredMessages.get(player);
+        } else {
+            messages = new ArrayList<>();
         }
-        messages.add(message);
+        Map<Long, String> messageMap = new HashMap<>();
+        messageMap.put(System.currentTimeMillis(), message);
+        messages.add(messageMap);
         filteredMessages.put(player, messages);
     }
 
-    public List<String> getFilteredMessages(UUID player) {
-        return filteredMessages.getOrDefault(player, null);
+    public List<Map<Long, String>> getFilteredMessages(UUID player) {
+        if(filteredMessages.containsKey(player)) {
+            return filteredMessages.get(player);
+        }
+        return null;
     }
 
     public boolean checkFilter(String message) {

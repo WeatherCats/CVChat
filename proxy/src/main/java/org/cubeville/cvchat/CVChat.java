@@ -59,6 +59,7 @@ import org.cubeville.cvchat.commands.RCommand;
 import org.cubeville.cvchat.commands.ReopenCommand;
 import org.cubeville.cvchat.commands.RlCommand;
 import org.cubeville.cvchat.commands.SuCommand;
+import org.cubeville.cvchat.commands.SwearCheckCommand;
 import org.cubeville.cvchat.commands.TempbanCommand;
 import org.cubeville.cvchat.commands.TestCommand;
 import org.cubeville.cvchat.commands.TpidCommand;
@@ -232,6 +233,7 @@ public class CVChat extends Plugin {
             
             // Load swear filter words 
             sanctionManager = new SanctionManager(config.getStringList("filter"));
+            pm.registerCommand(this, new SwearCheckCommand(this));
 
             {
                 // Initialize private message chat commands
