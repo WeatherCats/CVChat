@@ -12,6 +12,7 @@ import net.md_5.bungee.api.ProxyServer;
 import org.cubeville.cvchat.CVChat;
 import org.cubeville.cvchat.playerdata.ProfileEntry;
 import org.cubeville.cvchat.playerdata.ProfilesDao;
+import org.cubeville.cvchat.sanctions.SanctionManager;
 
 public class ProfileCommand extends CommandBase
 {
@@ -80,6 +81,13 @@ public class ProfileCommand extends CommandBase
         sender.sendMessage("§4* §r" + playerName);
         if(finishedTutorial == false) {
             sender.sendMessage("§4! §cPlayer has not finished the tutorial");
+        }
+
+        if(SanctionManager.getInstance().getFilteredMessages(playerId) != null) {
+            sender.sendMessage("§4Today's Swear Kicks:");
+            for(String message : SanctionManager.getInstance().getFilteredMessages(playerId)) {
+                sender.sendMessage("§6 - " + message);
+            }
         }
         
         if(sender.hasPermission("cvchat.profile.extended")) {

@@ -114,6 +114,7 @@ public class Channel
                 }
                 else {
                     pp.disconnect("§cKicked for swearing:\n" + fm);
+                    SanctionManager.getInstance().addFilteredMessages(pp.getUniqueId(), message);
                     for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
                         p.sendMessage("§e" + pp.getDisplayName() + "§c got kicked for swearing.");
                         if(p.hasPermission("cvchat.showfiltercause")) p.sendMessage("§cMessage: §r" + fm);

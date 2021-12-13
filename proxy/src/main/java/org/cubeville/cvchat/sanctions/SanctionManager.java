@@ -1,9 +1,6 @@
 package org.cubeville.cvchat.sanctions;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -13,6 +10,7 @@ import org.cubeville.cvchat.playerdata.PlayerDataManager;
 
 public class SanctionManager
 {
+    Map<UUID, List<String>> filteredMessages;
     boolean allChatMuted;
     Map<UUID, Long> mutedPlayers;
     List<String> filterTerms;
@@ -24,6 +22,7 @@ public class SanctionManager
 
     public SanctionManager(List<String> filterTerms) {
         instance = this;
+        filteredMessages = new HashMap<>();
         allChatMuted = false;
         mutedPlayers = new HashMap<>();
         this.filterTerms = filterTerms;
@@ -97,6 +96,19 @@ public class SanctionManager
         if(bannedPlayerId == null) return null;
         pdm.unbanPlayer(bannedPlayerId);
         return pdm.getPlayerName(bannedPlayerId);
+    }
+
+    public void addFilteredMessages(UUID player, String message) {
+        List<String> messages = new ArrayList<>();
+        if(filteredMessages.containsKey(player)) {
+            messages = filteredMessages.get(player);
+        }
+        messages.add(message);
+        filteredMessages.put(player, messages);
+    }
+
+    public List<String> getFilteredMessages(UUID player) {
+        return filteredMessages.getOrDefault(player, null);
     }
 
     public boolean checkFilter(String message) {
