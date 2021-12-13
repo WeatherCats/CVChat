@@ -1,7 +1,6 @@
 package org.cubeville.cvchat;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +37,8 @@ public class ChatListener implements Listener, IPCInterface {
 
     private TicketManager ticketManager;
     private CVIPC cvipc;
+
+    private Set<String> commandLoggingBlacklist;
     
     public ChatListener(Channel localChannel, Map<String, Set<String>> commandWhitelist, TextCommandManager textCommandManager, TicketManager ticketManager, CVIPC ipc) {
         this.localChannel = localChannel;
@@ -49,6 +50,7 @@ public class ChatListener implements Listener, IPCInterface {
         ipc.registerInterface("unlocktutorialchat", this);
         ipc.registerInterface("finishtutorial", this);
         aliases = new ArrayList<>();
+        this.commandLoggingBlacklist = CVChat.getInstance().getCommandLoggingBlacklist();
     }
 
     public void unlockTutorialChat(UUID playerId) {
@@ -78,6 +80,12 @@ public class ChatListener implements Listener, IPCInterface {
         if (event.isCancelled()) return;
         if (!(event.getSender() instanceof ProxiedPlayer)) return;
         ProxiedPlayer player = (ProxiedPlayer)event.getSender();
+
+        if(event.getMessage().contains("/")) {
+            String[] commandSplit = event.getMessage().substring(1).split(" ");
+            if(commandLoggingBlacklist.contains(commandSplit[0])) return;
+            PlayerDataManager.getInstance().addPlayerCommand(player.getUniqueId(), event.getMessage());
+        }
 
         event.setMessage(event.getMessage().replace("§", ""));
                          

@@ -33,6 +33,7 @@ import org.cubeville.cvchat.commands.ChatCommand;
 import org.cubeville.cvchat.commands.CheckCommand;
 import org.cubeville.cvchat.commands.CheckbanCommand;
 import org.cubeville.cvchat.commands.ClearchatCommand;
+import org.cubeville.cvchat.commands.CommandCheckCommand;
 import org.cubeville.cvchat.commands.DibsCommand;
 import org.cubeville.cvchat.commands.DoneCommand;
 import org.cubeville.cvchat.commands.FinishCommand;
@@ -93,6 +94,7 @@ public class CVChat extends Plugin {
     private PlayerDataManager playerDataManager;
 
     private Logger logger;
+    private Set<String> commandLoggingBlacklist;
 
     private long startupTime;
     
@@ -106,11 +108,16 @@ public class CVChat extends Plugin {
         uptime /= 1000;
         return uptime;
     }
+
+    public Set<String> getCommandLoggingBlacklist() {
+        return commandLoggingBlacklist;
+    }
     
     @Override
     public void onEnable() {
         instance = this;
 
+        commandLoggingBlacklist = new HashSet<>();
         startupTime = System.currentTimeMillis();
         ProxyServer.getInstance().getScheduler().schedule(this, new Runnable() {
                 public void run() {
@@ -167,6 +174,7 @@ public class CVChat extends Plugin {
             for(Channel channel: channelManager.getChannels()) {
                 for(String command: channel.getCommands()) {
                     pm.registerCommand(this, new ChatCommand(command, channel));
+                    commandLoggingBlacklist.add(command);
                 }
             }
 
@@ -240,6 +248,9 @@ public class CVChat extends Plugin {
                 pm.registerCommand(this, new MsgCommand());
                 pm.registerCommand(this, new RCommand());
                 pm.registerCommand(this, new RlCommand());
+                commandLoggingBlacklist.add("msg");
+                commandLoggingBlacklist.add("r");
+                commandLoggingBlacklist.add("rl");
                 
                 // Sanction commands
                 pm.registerCommand(this, new KickCommand());
@@ -287,6 +298,7 @@ public class CVChat extends Plugin {
 
                     pm.registerCommand(this, new ProfileCommand(this));
                     pm.registerCommand(this, new NoteCommand(this));
+                    pm.registerCommand(this, new CommandCheckCommand(this));
                 }
                 else {
                     System.out.println("No playerdata dao configuration found.");
