@@ -80,7 +80,7 @@ public class ChatListener implements Listener, IPCInterface {
         ProxiedPlayer player = (ProxiedPlayer)event.getSender();
 
         event.setMessage(event.getMessage().replace("§", ""));
-                         
+
         String serverName = player.getServer().getInfo().getName();
         cvipc.sendMessage(serverName, "afktrigger|" + player.getUniqueId());
         

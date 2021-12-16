@@ -138,6 +138,11 @@ public class TicketManager implements IPCInterface
         }
         return cnt;
     }
+
+    private boolean showPlayerAsOnline(UUID playerId) {
+	if(ProxyServer.getInstance().getPlayer(playerId) == null) return false;
+	return !Util.playerIsUnlisted(playerId);
+    }
     
     public void checkTickets(CommandSender sender, boolean held, boolean closed, UUID playerId, UUID modId, int page) {
         // TODO: Need to async this?
@@ -156,12 +161,7 @@ public class TicketManager implements IPCInterface
                         text = "§7" + ticket.getText();
                     }
                     if(text.length() > 22) { text = text.substring(0, 22) + "§7..."; }
-                    boolean playerOnline = false;
-                    if(ProxyServer.getInstance().getPlayer(ticket.getPlayer()) != null) {
-                        if(!Util.playerIsUnlisted(ticket.getPlayer())) {
-                            playerOnline = true;
-                        }
-                    }
+ 		    boolean playerOnline = showPlayerAsOnline(ticket.getPlayer());
                     int id = ticket.getId();
                     TextComponent t = new TextComponent("§6#" + id + ". " + getDateStr(ticket.getCreationTimestamp()) + " by §" + (playerOnline ? "a" : "c") + ticket.getPlayerName() + " §7- " + text);
                     t.addExtra("  ");
@@ -206,7 +206,8 @@ public class TicketManager implements IPCInterface
         }
 
         String p = ticket.getPlayerName();
-        TextComponent t = new TextComponent("§eFiled by §c" + p + " §eat " + getDateStr(ticket.getCreationTimestamp()) + " at " + ticket.getServer() + "," + ticket.getWorld() + "," + ticket.getX() + "," + ticket.getY() + "," + ticket.getZ());
+	boolean playerOnline = showPlayerAsOnline(ticket.getPlayer());
+        TextComponent t = new TextComponent("§eFiled by " + (playerOnline ? "§a" : "§c") + p + " §eat " + getDateStr(ticket.getCreationTimestamp()) + " at " + ticket.getServer() + "," + ticket.getWorld() + "," + ticket.getX() + "," + ticket.getY() + "," + ticket.getZ());
         t.addExtra("  ");
         TextComponent name = new TextComponent("§b[§aProfile§b]");
         name.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/profile " + p));

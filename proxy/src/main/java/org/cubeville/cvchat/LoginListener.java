@@ -90,16 +90,10 @@ public class LoginListener implements Listener
         {
             int forcedProtocolVersion = 754;
             int protocolVersion = connection.getVersion();
-            if(protocolVersion != forcedProtocolVersion) { // && versionCheckBypass.contains(uuid) == false) {
-                //if(versionCheckBypass.contains(uuid) == false) {
+            if(protocolVersion != forcedProtocolVersion && versionCheckBypass.contains(uuid) == false) {
                 event.setCancelled(true);
-                //String currentVersion = "Undeterminable";
-                //if(protocolVersion > forceProtocolVersion) currentVersion = "1.13 or newer";
-                //if(protocolVersion < 340) currentVersion = "1.12.1/1.11 or older";
                 event.setCancelReason("§cPlease use §aMinecraft v1.16.5 §cfor Cubeville.\nhttp://cubeville.org");
-                //event.setCancelReason("§cSorry, the server is currently under maintenance. We will reopen at ca. 1 pm EST");
                 return;
-                //}
             }
         }
         
@@ -129,7 +123,7 @@ public class LoginListener implements Listener
                 SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss z");
                 endOfBan = " until §e" + sdf.format(new Date(pdm.getEndOfTempban(uuid)));
             }
-            event.setCancelReason("§cYou're " + type + " banned from this server" + endOfBan + ".\n§cReason: §e" + pdm.getBanReason(uuid) + "\n§aMore Information: §eYou have been banned because a staff member has decided that you didn't play according to the Cubeville rules. If you think this is a mistake, or if you want to join the server again without violating the rules again, you can apply for an unban. For more information, visit cubeville.org/unban.");
+            event.setCancelReason("§cYou're " + type + " banned from this server" + endOfBan + ".\n§cReason: §e" + pdm.getBanReason(uuid) + "\n§aMore Information: §eYou have been banned because a staff member has decided that you didn't play according to the Cubeville rules. If you think this is a mistake, or if you want to join the server again without violating the rules again, you can apply for an unban. For more information, visit §acubeville.org/unban§e.");
             return;
         }
 

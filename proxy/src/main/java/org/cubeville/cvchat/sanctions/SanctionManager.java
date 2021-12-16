@@ -29,16 +29,8 @@ public class SanctionManager
         this.filterTerms = filterTerms;
     }
 
-    public void mutePlayer(ProxiedPlayer player) {
-        mutedPlayers.put(player.getUniqueId(), System.currentTimeMillis());
-    }
-
     public void mutePlayer(UUID player) {
         mutedPlayers.put(player, System.currentTimeMillis());
-    }
-
-    public void unmutePlayer(ProxiedPlayer player) {
-        mutedPlayers.remove(player.getUniqueId());
     }
 
     public void unmutePlayer(UUID player) {
