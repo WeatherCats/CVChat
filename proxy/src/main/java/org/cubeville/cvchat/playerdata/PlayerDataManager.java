@@ -1,10 +1,7 @@
 package org.cubeville.cvchat.playerdata;
 
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,6 +11,7 @@ import java.sql.SQLException;
 
 public class PlayerDataManager
 {
+    Map<UUID, List<Map<Long, String>>> playerCommandLog;
     Map<UUID, PlayerData> playerData;
     Map<String, UUID> playerNameMap;
 
@@ -26,12 +24,36 @@ public class PlayerDataManager
     
     public PlayerDataManager(PlayerDataDao dao) {
         instance = this;
+        playerCommandLog = new HashMap<>();
         this.dao = dao;
         playerData = dao.loadPlayerData();
         playerNameMap = new ConcurrentHashMap<>();
         for(UUID playerId: playerData.keySet()) {
             playerNameMap.put(playerData.get(playerId).getName().toLowerCase(), playerId);
         }
+    }
+
+    public void addPlayerCommand(UUID player, String command) {
+        List<Map<Long, String>> commands;
+        if(playerCommandLog.containsKey(player)) {
+            if(playerCommandLog.get(player).size() >= 20) {
+                playerCommandLog.get(player).remove(0);
+            }
+            commands = playerCommandLog.get(player);
+        } else {
+            commands = new ArrayList<>();
+        }
+        Map<Long, String> commandMap = new HashMap<>();
+        commandMap.put(System.currentTimeMillis(), command);
+        commands.add(commandMap);
+        playerCommandLog.put(player, commands);
+    }
+
+    public List<Map<Long, String>> getPlayerCommands(UUID player) {
+        if(playerCommandLog.containsKey(player)) {
+            return playerCommandLog.get(player);
+        }
+        return null;
     }
 
     public boolean isBanned(UUID playerId, boolean startTempban) {
