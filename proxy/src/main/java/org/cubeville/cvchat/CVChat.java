@@ -33,6 +33,7 @@ import org.cubeville.cvchat.commands.ChatCommand;
 import org.cubeville.cvchat.commands.CheckCommand;
 import org.cubeville.cvchat.commands.CheckbanCommand;
 import org.cubeville.cvchat.commands.ClearchatCommand;
+import org.cubeville.cvchat.commands.CommandCheckCommand;
 import org.cubeville.cvchat.commands.DibsCommand;
 import org.cubeville.cvchat.commands.DoneCommand;
 import org.cubeville.cvchat.commands.FinishCommand;
@@ -59,6 +60,7 @@ import org.cubeville.cvchat.commands.RCommand;
 import org.cubeville.cvchat.commands.ReopenCommand;
 import org.cubeville.cvchat.commands.RlCommand;
 import org.cubeville.cvchat.commands.SuCommand;
+import org.cubeville.cvchat.commands.SwearCheckCommand;
 import org.cubeville.cvchat.commands.TempbanCommand;
 import org.cubeville.cvchat.commands.TestCommand;
 import org.cubeville.cvchat.commands.TpidCommand;
@@ -92,6 +94,7 @@ public class CVChat extends Plugin {
     private PlayerDataManager playerDataManager;
 
     private Logger logger;
+    private Set<String> commandLoggingBlacklist;
 
     private long startupTime;
     
@@ -110,6 +113,7 @@ public class CVChat extends Plugin {
     public void onEnable() {
         instance = this;
 
+        commandLoggingBlacklist = new HashSet<>();
         startupTime = System.currentTimeMillis();
         ProxyServer.getInstance().getScheduler().schedule(this, new Runnable() {
                 public void run() {
@@ -166,6 +170,7 @@ public class CVChat extends Plugin {
             for(Channel channel: channelManager.getChannels()) {
                 for(String command: channel.getCommands()) {
                     pm.registerCommand(this, new ChatCommand(command, channel));
+                    commandLoggingBlacklist.add(command);
                 }
             }
 
@@ -187,7 +192,7 @@ public class CVChat extends Plugin {
                 commandWhitelist.put(whitelist, new HashSet<String>(whitelistConfig.getStringList(whitelist)));
             }
 
-            ChatListener chatListener = new ChatListener(local, commandWhitelist, textCommandManager, ticketManager, ipc);
+            ChatListener chatListener = new ChatListener(local, commandWhitelist, textCommandManager, ticketManager, ipc, commandLoggingBlacklist);
 	    List<HashMap> aliasconf = (List<HashMap>)config.getList("aliases");
 	    for(HashMap a: aliasconf) {
 		List<String> cmds;
@@ -232,12 +237,16 @@ public class CVChat extends Plugin {
             
             // Load swear filter words 
             sanctionManager = new SanctionManager(config.getStringList("filter"));
+            pm.registerCommand(this, new SwearCheckCommand(this));
 
             {
                 // Initialize private message chat commands
                 pm.registerCommand(this, new MsgCommand());
                 pm.registerCommand(this, new RCommand());
                 pm.registerCommand(this, new RlCommand());
+                commandLoggingBlacklist.add("msg");
+                commandLoggingBlacklist.add("r");
+                commandLoggingBlacklist.add("rl");
                 
                 // Sanction commands
                 pm.registerCommand(this, new KickCommand());
@@ -285,6 +294,7 @@ public class CVChat extends Plugin {
 
                     pm.registerCommand(this, new ProfileCommand(this));
                     pm.registerCommand(this, new NoteCommand(this));
+                    pm.registerCommand(this, new CommandCheckCommand(this));
                 }
                 else {
                     System.out.println("No playerdata dao configuration found.");
