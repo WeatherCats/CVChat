@@ -40,7 +40,7 @@ public class ChatListener implements Listener, IPCInterface {
 
     private Set<String> commandLoggingBlacklist;
     
-    public ChatListener(Channel localChannel, Map<String, Set<String>> commandWhitelist, TextCommandManager textCommandManager, TicketManager ticketManager, CVIPC ipc) {
+    public ChatListener(Channel localChannel, Map<String, Set<String>> commandWhitelist, TextCommandManager textCommandManager, TicketManager ticketManager, CVIPC ipc, Set<String> commandLoggingBlacklist) {
         this.localChannel = localChannel;
         this.commandWhitelist = commandWhitelist;
         this.textCommandManager = textCommandManager;
@@ -50,7 +50,7 @@ public class ChatListener implements Listener, IPCInterface {
         ipc.registerInterface("unlocktutorialchat", this);
         ipc.registerInterface("finishtutorial", this);
         aliases = new ArrayList<>();
-        this.commandLoggingBlacklist = CVChat.getInstance().getCommandLoggingBlacklist();
+        this.commandLoggingBlacklist = commandLoggingBlacklist;
     }
 
     public void unlockTutorialChat(UUID playerId) {
@@ -82,9 +82,10 @@ public class ChatListener implements Listener, IPCInterface {
         ProxiedPlayer player = (ProxiedPlayer)event.getSender();
 
         if(event.getMessage().contains("/")) {
-            String[] commandSplit = event.getMessage().substring(1).split(" ");
-            if(commandLoggingBlacklist.contains(commandSplit[0])) return;
-            PlayerDataManager.getInstance().addPlayerCommand(player.getUniqueId(), event.getMessage());
+            String[] commandSplit = event.getMessage().split(" ");
+            if(commandSplit[0].contains("/") && !commandLoggingBlacklist.contains(commandSplit[0].substring(1)) && !commandSplit[0].substring(1, 2).equalsIgnoreCase("y")) {
+                PlayerDataManager.getInstance().addPlayerCommand(player.getUniqueId(), event.getMessage());
+            }
         }
 
         event.setMessage(event.getMessage().replace("§", ""));

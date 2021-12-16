@@ -108,10 +108,6 @@ public class CVChat extends Plugin {
         uptime /= 1000;
         return uptime;
     }
-
-    public Set<String> getCommandLoggingBlacklist() {
-        return commandLoggingBlacklist;
-    }
     
     @Override
     public void onEnable() {
@@ -196,7 +192,7 @@ public class CVChat extends Plugin {
                 commandWhitelist.put(whitelist, new HashSet<String>(whitelistConfig.getStringList(whitelist)));
             }
 
-            ChatListener chatListener = new ChatListener(local, commandWhitelist, textCommandManager, ticketManager, ipc);
+            ChatListener chatListener = new ChatListener(local, commandWhitelist, textCommandManager, ticketManager, ipc, commandLoggingBlacklist);
 	    List<HashMap> aliasconf = (List<HashMap>)config.getList("aliases");
 	    for(HashMap a: aliasconf) {
 		List<String> cmds;

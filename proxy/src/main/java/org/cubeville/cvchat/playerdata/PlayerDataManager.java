@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 public class PlayerDataManager
 {
-    Map<UUID, List<Map<Long, String>>> playerCommands;
+    Map<UUID, List<Map<Long, String>>> playerCommandLog;
     Map<UUID, PlayerData> playerData;
     Map<String, UUID> playerNameMap;
 
@@ -24,7 +24,7 @@ public class PlayerDataManager
     
     public PlayerDataManager(PlayerDataDao dao) {
         instance = this;
-        playerCommands = new HashMap<>();
+        playerCommandLog = new HashMap<>();
         this.dao = dao;
         playerData = dao.loadPlayerData();
         playerNameMap = new ConcurrentHashMap<>();
@@ -35,23 +35,23 @@ public class PlayerDataManager
 
     public void addPlayerCommand(UUID player, String command) {
         List<Map<Long, String>> commands;
-        if(playerCommands.containsKey(player)) {
-            if(playerCommands.get(player).size() >= 20) {
-                playerCommands.get(player).remove(0);
+        if(playerCommandLog.containsKey(player)) {
+            if(playerCommandLog.get(player).size() >= 20) {
+                playerCommandLog.get(player).remove(0);
             }
-            commands = playerCommands.get(player);
+            commands = playerCommandLog.get(player);
         } else {
             commands = new ArrayList<>();
         }
         Map<Long, String> commandMap = new HashMap<>();
         commandMap.put(System.currentTimeMillis(), command);
         commands.add(commandMap);
-        playerCommands.put(player, commands);
+        playerCommandLog.put(player, commands);
     }
 
     public List<Map<Long, String>> getPlayerCommands(UUID player) {
-        if(playerCommands.containsKey(player)) {
-            return playerCommands.get(player);
+        if(playerCommandLog.containsKey(player)) {
+            return playerCommandLog.get(player);
         }
         return null;
     }
