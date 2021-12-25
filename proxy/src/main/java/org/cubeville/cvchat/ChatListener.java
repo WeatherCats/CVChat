@@ -27,8 +27,6 @@ import org.cubeville.cvchat.tickets.TicketManager;
 public class ChatListener implements Listener, IPCInterface {
 
     private Channel localChannel;
-    //private Set<String> commandWhitelist;
-    //private Set<String> commandWhitelistTutorial;
     private Map<String, Set<String>> commandWhitelist;
     
     private TextCommandManager textCommandManager;
@@ -40,7 +38,7 @@ public class ChatListener implements Listener, IPCInterface {
 
     private Set<String> commandLoggingBlacklist;
     
-    public ChatListener(Channel localChannel, Map<String, Set<String>> commandWhitelist, TextCommandManager textCommandManager, TicketManager ticketManager, CVIPC ipc, Set<String> commandLoggingBlacklist) {
+    public ChatListener(Channel localChannel, TextCommandManager textCommandManager, TicketManager ticketManager, CVIPC ipc, Set<String> commandLoggingBlacklist) {
         this.localChannel = localChannel;
         this.commandWhitelist = commandWhitelist;
         this.textCommandManager = textCommandManager;
@@ -53,6 +51,10 @@ public class ChatListener implements Listener, IPCInterface {
         this.commandLoggingBlacklist = commandLoggingBlacklist;
     }
 
+    public void setCommandWhitelist(Map<String, Set<String>> commandWhitelist) {
+        this.commandWhitelist = commandWhitelist;
+    }
+    
     public void unlockTutorialChat(UUID playerId) {
         tutorialChatUnlocked.add(playerId);
         System.out.println("Unlocking tutorial chat for player " + playerId);
