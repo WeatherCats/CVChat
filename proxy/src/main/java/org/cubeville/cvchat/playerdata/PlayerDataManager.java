@@ -3,11 +3,6 @@ package org.cubeville.cvchat.playerdata;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.sql.SQLException;
 
 public class PlayerDataManager
 {
@@ -113,6 +108,27 @@ public class PlayerDataManager
         return playerNameMap.get(playerName.toLowerCase());
     }
 
+    public String getPlayerDisplayName(UUID playerId) {
+        PlayerData pd = playerData.get(playerId);
+        if(pd == null) return null;
+        return pd.getDisplayName();
+    }
+
+    public void setPlayerDisplayName(UUID player, String displayName) {
+        PlayerData pd = playerData.get(player);
+        if(pd == null) return;
+        pd.setDisplayName(displayName);
+        dao.updatePlayerData(pd);
+    }
+    
+    public String getPlayerVisibleName(UUID playerId) {
+        PlayerData pd = playerData.get(playerId);
+        if(pd == null) return "";
+        String displayName = pd.getDisplayName();
+        if(displayName == null) return pd.getName();
+        return displayName;
+    }
+    
     public List<String> getMatchingPlayerNames(List<String> search) {
         List<String> ret = new ArrayList<>();
         for(String name: playerNameMap.keySet()) {

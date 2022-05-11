@@ -71,6 +71,15 @@ public abstract class CommandBase extends Command
         return ProxyServer.getInstance().getPlayer(playerName);
     }
 
+    public ProxiedPlayer getPlayerByVisibleName(String playerName) {
+        for(ProxiedPlayer player: getAllPlayers()) {
+            if(player.getDisplayName().toLowerCase().equals(playerName.toLowerCase())) {
+                return player;
+            }
+        }
+        return null;
+    }
+    
     public boolean verifyNotLessArguments(CommandSender sender, String[] args, int min) {
         if(args.length < min) {
             sender.sendMessage("§cToo few arguments.");

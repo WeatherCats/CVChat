@@ -50,14 +50,12 @@ public class DaoBase
         info.put("characterEncoding", "utf8");
         String url = "jdbc:mysql://localhost:3306/" + dbDatabase + "?useSSL=false";
 
-        System.out.println("Connecting to database " + url + " with user = " + dbUser + " and password " +  dbPassword);
-        
         connection = null;
         try {
             connection = DriverManager.getConnection(url, info);
         }
         catch(SQLException e) {
-            System.out.println("Can't open SQL connection!");
+            System.out.println("Can't open SQL connection to " + url);
             throw new RuntimeException("SQL connection error!");
         }
     }

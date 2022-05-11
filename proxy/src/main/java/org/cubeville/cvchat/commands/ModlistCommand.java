@@ -30,7 +30,7 @@ public class ModlistCommand extends CommandBase
         int cnt = 0;
         for(ProxiedPlayer player: ProxyServer.getInstance().getPlayers()) {
             if(RankManager.getInstance().getPriority(player) < 20) continue;
-            if(args.length > 0 && player.getName().toUpperCase().indexOf(args[0].toUpperCase()) == -1) continue;
+            if(args.length > 0 && player.getDisplayName().toUpperCase().indexOf(args[0].toUpperCase()) == -1) continue;
             if(!Util.getPlayerVisibilityFor(sender, player)) continue;
             if(list.length() > 0) list += "§r, ";
             list += "§" + RankManager.getInstance().getColor(player);
@@ -40,7 +40,7 @@ public class ModlistCommand extends CommandBase
             else if(Util.getPlayerInvisibilityStatusFor(sender, player)) {
                 list += "§o";
             }
-            list += player.getName();
+            list += player.getDisplayName();
             cnt++;
         }
         sender.sendMessage("§6Cubeville §a(" + cnt + ")§r: " + list);

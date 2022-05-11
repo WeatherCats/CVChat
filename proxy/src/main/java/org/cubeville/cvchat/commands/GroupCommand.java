@@ -1,21 +1,16 @@
 package org.cubeville.cvchat.commands;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Command;
 
 import org.cubeville.cvchat.Util;
 
 import org.cubeville.cvchat.channels.ChannelManager;
 import org.cubeville.cvchat.channels.GroupChannel;
 
-public class GroupCommand extends Command
+public class GroupCommand extends CommandBase
 {
     private static GroupChannel channel;
 
@@ -24,7 +19,7 @@ public class GroupCommand extends Command
         this.channel = channel;
     }
 
-    public void execute(CommandSender commandSender, String[] args) {
+    public void executeC(CommandSender commandSender, String[] args) {
         if(!(commandSender instanceof ProxiedPlayer)) return;
         ProxiedPlayer player = (ProxiedPlayer) commandSender;
 
@@ -35,7 +30,7 @@ public class GroupCommand extends Command
                 return;
             }
 
-            ProxiedPlayer groupPlayer = ProxyServer.getInstance().getPlayer(args[1]);
+            ProxiedPlayer groupPlayer = getPlayerByVisibleName(args[1]);
             if(groupPlayer == null) {
                 player.sendMessage("§cNo players by that name found.");
                 return;
@@ -59,7 +54,7 @@ public class GroupCommand extends Command
                 player.sendMessage("§c/group invite <player>");
                 return;
             }
-            ProxiedPlayer invitedPlayer = ProxyServer.getInstance().getPlayer(args[1]);
+            ProxiedPlayer invitedPlayer = getPlayerByVisibleName(args[1]);
             if(invitedPlayer == null) {
                 player.sendMessage("§cNo player by that name found.");
                 return;

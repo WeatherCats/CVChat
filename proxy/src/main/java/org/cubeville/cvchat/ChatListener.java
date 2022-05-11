@@ -85,7 +85,8 @@ public class ChatListener implements Listener, IPCInterface {
 
         if(event.getMessage().contains("/")) {
             String[] commandSplit = event.getMessage().split(" ");
-            if(commandSplit[0].contains("/") && !commandLoggingBlacklist.contains(commandSplit[0].substring(1).toLowerCase()) && !commandSplit[0].substring(1, 2).equalsIgnoreCase("y")) {
+            if(commandSplit[0].contains("/") && !commandLoggingBlacklist.contains(commandSplit[0].substring(1).toLowerCase()) && (commandSplit[0].length() == 1 || !commandSplit[0].substring(1, 2).equalsIgnoreCase("y"))) {
+                // if(commandSplit[0].contains("/") && !commandLoggingBlacklist.contains(commandSplit[0].substring(1).toLowerCase()) && !commandSplit[0].substring(1, 2).equalsIgnoreCase("y")) {
                 PlayerDataManager.getInstance().addPlayerCommand(player.getUniqueId(), event.getMessage());
             }
         }

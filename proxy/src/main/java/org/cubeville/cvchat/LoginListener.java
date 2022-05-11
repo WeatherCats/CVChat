@@ -32,6 +32,7 @@ import org.cubeville.cvchat.channels.ChannelManager;
 import org.cubeville.cvchat.playerdata.PlayerDataManager;
 import org.cubeville.cvchat.ranks.RankManager;
 import org.cubeville.cvchat.tickets.TicketManager;
+import org.checkerframework.checker.units.qual.Time;
 
 public class LoginListener implements Listener
 {
@@ -85,14 +86,15 @@ public class LoginListener implements Listener
     public void onLogin(final LoginEvent event) {
         PlayerDataManager pdm = PlayerDataManager.getInstance();
         PendingConnection connection = event.getConnection();
+        
         UUID uuid = connection.getUniqueId();
 
         {
-            int forcedProtocolVersion = 754;
+            int forcedProtocolVersion = 758;
             int protocolVersion = connection.getVersion();
             if(protocolVersion != forcedProtocolVersion && versionCheckBypass.contains(uuid) == false) {
                 event.setCancelled(true);
-                event.setCancelReason("§cPlease use §aMinecraft v1.16.5 §cfor Cubeville.\nhttp://cubeville.org");
+                event.setCancelReason("§cPlease use §aMinecraft v1.18.2 §cfor Cubeville.\nhttp://cubeville.org/version");
                 return;
             }
         }
@@ -176,12 +178,17 @@ public class LoginListener implements Listener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPostLogin(final PostLoginEvent event) {
         ProxiedPlayer player = event.getPlayer();
-
+        
         channelManager.playerLogin(player);
         
         PlayerDataManager pdm = PlayerDataManager.getInstance();
         UUID playerId = player.getUniqueId();
 
+        {
+            String displayName = pdm.getPlayerDisplayName(playerId);
+            if(displayName != null) player.setDisplayName(displayName);
+        }
+        
         boolean newPlayer = false;
 
         String ip = getStrippedIpAddress(player);
@@ -195,11 +202,13 @@ public class LoginListener implements Listener
                 newPlayerLogins.put(playerId, System.currentTimeMillis());
             }
             else {
-                if(pdm.getPlayerName(playerId).equals(player.getName())) {
+                if(pdm.getPlayerName(playerId).equals(player.getName()) || pdm.getPlayerDisplayName(playerId) != null) {
                     sendPublicMessage(player.getDisplayName(), "joined", false);
                 }
                 else {
                     sendPublicMessage(player.getDisplayName() + " (formerly known as " + pdm.getPlayerName(playerId) + ")", "joined", false);
+                }
+                if(!pdm.getPlayerName(playerId).equals(player.getName())) {
                     pdm.changePlayerName(playerId, player.getName());
                 }
             }
@@ -218,7 +227,7 @@ public class LoginListener implements Listener
                         }
                     }
                     if(names.size() > 0) {
-                        sendIPMatchMessage(player.getName(), names, permbanned, tempbanned);
+                        sendIPMatchMessage(player.getDisplayName(), names, permbanned, tempbanned);
                     }
                     playerIP.get(ip).add(playerId);
                 }
@@ -259,15 +268,6 @@ public class LoginListener implements Listener
 
         System.out.println("Player " + player.getName() + " logged in" + (newPlayer ? " for the first time: " : ": ") + ip);
 
-        // if(users115.contains(player.getName())) {
-        //     int protocolVersion = player.getPendingConnection().getVersion();
-        //     if(protocolVersion == 575 && player.getReconnectServer().getName().equals("t115") == false) {
-        //         player.connect(ProxyServer.getInstance().getServerInfo("t115"));
-        //     }
-        //     else if(protocolVersion == 340 && player.getReconnectServer().getName().equals("t115")) {
-        //         player.connect(ProxyServer.getInstance().getServerInfo("survival"));
-        //     }
-        // }
     }
 
     private String getStrippedIpAddress(Connection player) {

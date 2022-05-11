@@ -36,7 +36,7 @@ public class NewCommand extends CommandBase
 
         for(ProxiedPlayer player: ProxyServer.getInstance().getPlayers()) {
             if(pdm.getFirstLogin(player.getUniqueId()) >= now - milliseconds) {
-                newPlayers.add(player.getName());
+                newPlayers.add(player.getDisplayName());
             }
         }
         newPlayers.sort(Comparator.comparing(String::toString));
