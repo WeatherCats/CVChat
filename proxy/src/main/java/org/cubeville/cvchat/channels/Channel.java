@@ -1,12 +1,6 @@
 package org.cubeville.cvchat.channels;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.UUID;
+import java.util.*;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -107,7 +101,17 @@ public class Channel
 
         if(filtered && (player instanceof ProxiedPlayer)) {
             ProxiedPlayer pp = (ProxiedPlayer) player;
-            if(SanctionManager.getInstance().checkFilter(message)) {
+            StringBuilder newMessage = new StringBuilder(message);
+            HashMap<String, List<String>> unicodeTranslations = SanctionManager.getInstance().getUnicodeTranslations();
+            for(int i = 0; i <= message.length() -1; i++) {
+                for(String letter : unicodeTranslations.keySet()) {
+                    if(unicodeTranslations.get(letter).contains(String.valueOf(message.charAt(i)).toLowerCase())) {
+                        newMessage.setCharAt(i, letter.charAt(0));
+                        break;
+                    }
+                }
+            }
+            if(SanctionManager.getInstance().checkFilter(newMessage.toString())) {
                 String fm = message; //SanctionManager.getInstance().getFilterHighlight();
                 if(player.hasPermission("cvchat.nofilterkick")) {
                     player.sendMessage("§cMessage filtered for swearing!");
