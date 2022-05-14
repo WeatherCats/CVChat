@@ -311,6 +311,7 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                 }
             }
 
+            Bukkit.getPluginManager().callEvent(new SendLocal(player, message.substring(player.getName().length() + 5)));
             player.sendMessage(recipientCount == 0 ? darkGreyMessage : message);
 
             for(Player p: vanishedClosePlayers) {
