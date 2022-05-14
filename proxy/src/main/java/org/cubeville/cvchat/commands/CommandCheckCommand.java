@@ -15,7 +15,7 @@ public class CommandCheckCommand extends CommandBase {
 
     public CommandCheckCommand(CVChat plugin) {
         super("commandcheck", "cvchat.commandcheck");
-        setUsage("§c/commandcheck <player> [number of commands(up to 20)]");
+        setUsage("§c/commandcheck <player> [number of commands(up to 50)]");
         this.plugin = plugin;
         dateFormat = new SimpleDateFormat("HH:mm");
     }

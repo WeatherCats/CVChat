@@ -269,6 +269,7 @@ public class CVChat extends Plugin {
                 pm.registerCommand(this, new ProfileCommand(this));
                 pm.registerCommand(this, new NoteCommand(this));
                 pm.registerCommand(this, new CommandCheckCommand(this));
+                pm.registerCommand(this, new SCommand());
             }
             else {
                 System.out.println("No playerdata dao configuration found.");

@@ -31,7 +31,7 @@ public class PlayerDataManager
     public void addPlayerCommand(UUID player, String command) {
         List<Map<Long, String>> commands;
         if(playerCommandLog.containsKey(player)) {
-            if(playerCommandLog.get(player).size() >= 20) {
+            if(playerCommandLog.get(player).size() >= 50) {
                 playerCommandLog.get(player).remove(0);
             }
             commands = playerCommandLog.get(player);
