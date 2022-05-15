@@ -14,18 +14,24 @@ public class SanctionManager
     boolean allChatMuted;
     Map<UUID, Long> mutedPlayers;
     List<String> filterTerms;
+    HashMap<String, List<String>> unicodeTranslations;
     
     private static SanctionManager instance;
     public static SanctionManager getInstance() {
         return instance;
     }
 
-    public SanctionManager(List<String> filterTerms) {
+    public SanctionManager(List<String> filterTerms, HashMap<String, List<String>> unicodeTranslations) {
         instance = this;
         filteredMessages = new HashMap<>();
         allChatMuted = false;
         mutedPlayers = new HashMap<>();
         this.filterTerms = filterTerms;
+        this.unicodeTranslations = unicodeTranslations;
+    }
+
+    public HashMap<String, List<String>> getUnicodeTranslations() {
+        return this.unicodeTranslations;
     }
 
     public void mutePlayer(UUID player) {

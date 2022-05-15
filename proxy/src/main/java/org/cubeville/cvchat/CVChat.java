@@ -204,9 +204,17 @@ public class CVChat extends Plugin {
         Configuration ranksList = (Configuration) config.get("ranks");
         Configuration prefixesList = (Configuration) config.get("prefixes");
         RankManager rankManager = new RankManager(ranksList, prefixesList);
-            
-        // Load swear filter words 
-        sanctionManager = new SanctionManager(config.getStringList("filter"));
+
+        // Load unicode characters
+        HashMap<String, List<String>> unicodeTranslations = new HashMap<>();
+        List<HashMap> letters = (List<HashMap>) config.getList("unicode");
+        for(HashMap letter : letters) {
+            List<String> values = (List<String>) letter.values().iterator().next();
+            unicodeTranslations.put(letter.keySet().toArray()[0].toString(), values);
+        }
+
+        // Load swear filter words
+        sanctionManager = new SanctionManager(config.getStringList("filter"), unicodeTranslations);
         pm.registerCommand(this, new SwearCheckCommand(this));
 
         {
