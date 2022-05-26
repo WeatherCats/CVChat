@@ -29,7 +29,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
@@ -255,7 +254,7 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                     mutedIds.add(UUID.fromString(tk.nextToken()));
                 }
             }
-               
+
             Player player = getServer().getPlayer(playerId);
             if(player == null) return;
             Location loc = player.getLocation();
@@ -311,7 +310,11 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                 }
             }
 
-            Bukkit.getPluginManager().callEvent(new SendLocal(player, message.substring(player.getName().length() + 5)));
+            {
+                String msg = message.substring(message.indexOf('>') + 2);
+                Bukkit.getPluginManager().callEvent(new SendLocal(player, msg));
+            }
+
             player.sendMessage(recipientCount == 0 ? darkGreyMessage : message);
 
             for(Player p: vanishedClosePlayers) {
