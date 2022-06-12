@@ -105,7 +105,7 @@ public class Channel
             HashMap<String, List<String>> unicodeTranslations = SanctionManager.getInstance().getUnicodeTranslations();
             for(int i = 0; i <= message.length() -1; i++) {
                 for(String letter : unicodeTranslations.keySet()) {
-                    if(unicodeTranslations.get(letter).contains(String.valueOf(message.charAt(i)).toLowerCase())) {
+                    if(unicodeTranslations.get(letter).contains(String.valueOf(message.charAt(i)))) {
                         newMessage.setCharAt(i, letter.charAt(0));
                         break;
                     }

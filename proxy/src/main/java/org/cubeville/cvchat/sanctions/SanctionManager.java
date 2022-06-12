@@ -124,7 +124,7 @@ public class SanctionManager
     }
 
     public boolean checkCaps(String message) {
-        if(message.length() < 10) return false;
+        if(message.length() <= 30) return false;
         int cnt = 0;
         int maxcnt = message.length() / 3;
         for(int i = 0; i < message.length(); i++) {
