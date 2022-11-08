@@ -1,12 +1,11 @@
 package org.cubeville.cvchat.channels;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.CommandSender;
 
@@ -45,14 +44,40 @@ public class LocalChannel extends Channel
         String msg = "locchat|" + idlist + "|" + formattedMessage;
         ChannelManager.getInstance().getIPC().sendMessage(serverName, msg);
     }
-    
+
     public void sendMonitorMessage(String server, String formattedMessage) {
-        String finalMessage = formattedMessage;
+        //String finalMessage = formattedMessage;
+        String iv = formattedMessage.substring(0, formattedMessage.indexOf("|"));
+        Set<UUID> ivFormatted = new HashSet<>();
+        //UUID playerId;
+        //playerId = UUID.fromString(iv.substring(0, iv.indexOf(",")));
+        StringTokenizer tk = new StringTokenizer(iv, ",");
+        while(tk.hasMoreTokens()) {
+            ivFormatted.add(UUID.fromString(tk.nextToken()));
+        }
+        String finalMessage = formattedMessage.substring(formattedMessage.indexOf("|") + 1);
+        TextComponent out = new TextComponent(finalMessage);
+        if(ivFormatted.size() > 0) {
+            out.addExtra(" ");
+            TextComponent hover = new TextComponent("§3(" + ivFormatted.size() + ")");
+            String inRange = "";
+            int i = ivFormatted.size();
+            for(UUID p : ivFormatted) {
+                inRange = inRange + ProxyServer.getInstance().getPlayer(p).getName();
+                i--;
+                if(i > 0) {
+                    //inRange = inRange + ", ";
+                    inRange = inRange + "\n";
+                }
+            }
+            hover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(inRange)));
+            out.addExtra(hover);
+        }
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
             if(p.hasPermission("cvchat.monitor.local")) {
                 if(!p.getServer().getInfo().getName().equals(server)) {
                     if(!localMuted.contains(p.getUniqueId())) {
-                        p.sendMessage(finalMessage);
+                        p.sendMessage(out);
                     }
                 }
             }
