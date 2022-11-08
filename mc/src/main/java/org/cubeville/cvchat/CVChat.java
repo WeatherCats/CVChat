@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -272,7 +275,7 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
             }
                
             Collection<Player> players = (Collection<Player>) getServer().getOnlinePlayers();
-            int recipientCount = 0;
+            List<Player> recipients = new ArrayList<>();
             List<Player> vanishedClosePlayers = new ArrayList<>();
             List<Player> monitoringFarPlayers = new ArrayList<>();
             
@@ -301,7 +304,7 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                         }
                         else {
                             p.sendMessage(message);
-                            recipientCount++;
+                            recipients.add(p);
                         }
                     }
                     else if(p.hasPermission("cvchat.monitor.local") && false == mutedIds.contains(p.getUniqueId())) {
@@ -315,18 +318,45 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                 Bukkit.getPluginManager().callEvent(new SendLocal(player, msg));
             }
 
-            player.sendMessage(recipientCount == 0 ? darkGreyMessage : message);
+            player.sendMessage(recipients.size() == 0 ? darkGreyMessage : message);
 
             for(Player p: vanishedClosePlayers) {
                 String m = message;
-                if(recipientCount == 0) m += " §4*";
+                if(recipients.size() == 0) m += " §4*";
                 p.sendMessage(m);
             }
 
-            if(recipientCount == 0) greyMessage += " §4*";
-            ipc.sendMessage("localmonitor|" + greyMessage);
+            TextComponent greyMessageOut;
+            if(recipients.size() == 0) {
+                greyMessage += " §4*";
+                greyMessageOut = new TextComponent(greyMessage);
+            } else {
+                greyMessageOut = new TextComponent(greyMessage);
+                greyMessageOut.addExtra(" ");
+                TextComponent hover = new TextComponent("§3(" + recipients.size() + ")");
+                String inRange = "";
+                int i = recipients.size();
+                for(Player p : recipients) {
+                    inRange = inRange + p.getName();
+                    i--;
+                    if(i > 0) {
+                        //inRange = inRange + ", ";
+                        inRange = inRange + "\n";
+                    }
+                }
+                hover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(inRange)));
+                greyMessageOut.addExtra(hover);
+
+
+            }
+            String iv = "";
+            for(Player p : recipients) {
+                if(iv.length() > 0) iv += ",";
+                iv += p.getUniqueId().toString();
+            }
+            ipc.sendMessage("localmonitor|" + iv + "|" + greyMessage);
             for(Player p: monitoringFarPlayers) {
-                p.sendMessage(greyMessage);
+                p.spigot().sendMessage(greyMessageOut);
             }
             
             int gtidx = message.indexOf(">");
