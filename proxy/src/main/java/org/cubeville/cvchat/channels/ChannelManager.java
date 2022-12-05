@@ -94,6 +94,7 @@ public class ChannelManager implements IPCInterface
             }
         }
         else if(channel.equals("localmonitor")){
+            System.out.println("Localmonitor message: " + serverName + " -> " + message);
             getLocalChannel().sendMonitorMessage(serverName, message);
         }
     }

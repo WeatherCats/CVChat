@@ -335,19 +335,13 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                 greyMessageOut.addExtra(" ");
                 TextComponent hover = new TextComponent("§3(" + recipients.size() + ")");
                 String inRange = "";
-                int i = recipients.size();
                 for(Player p : recipients) {
-                    inRange = inRange + p.getName();
-                    i--;
-                    if(i > 0) {
-                        //inRange = inRange + ", ";
+                    if(! inRange.isEmpty())
                         inRange = inRange + "\n";
-                    }
+                    inRange = inRange + p.getName();
                 }
                 hover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(inRange)));
                 greyMessageOut.addExtra(hover);
-
-
             }
             String iv = "";
             for(Player p : recipients) {
@@ -371,7 +365,6 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                     fusRoDah(player, 3);
                 }
             }
-            
         }
     }
 
@@ -387,11 +380,11 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
     private boolean isVanished(Player player) {
         return cvvanish.isPlayerInvisible(player);
     }
-    
+
     private void fusRoDah(Player dragonBorn, int level) {
         final double fusHoriStrength[] = {.5,2,7};
         final double fusVertStrength[] = {.5,.7,1.5};
-        
+
         int distance = 5 * level;
         Vector heading = dragonBorn.getEyeLocation().getDirection();
 

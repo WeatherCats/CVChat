@@ -6,8 +6,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import org.cubeville.cvchat.CVChat;
 import org.cubeville.cvchat.playerdata.ProfileEntry;
@@ -45,30 +49,38 @@ public class ProfileCommand extends CommandBase
         if(searchTerms.size() == 1) {
             playerId = getPDM().getPlayerId(searchTerms.get(0));
         }
-        
+
         if(playerId == null) {
             List<String> searchNames = getPDM().getMatchingPlayerNames(searchTerms);
             if(searchNames.size() == 0 || args[0].length() < 4) {
                 sender.sendMessage("§cPlayer not found.");
+                return;
+            }
+            else if(searchNames.size() == 1) {
+                playerId = getPDM().getPlayerId(searchNames.get(0));
             }
             else {
-                String n = "";
+                ComponentBuilder n = new ComponentBuilder();
+                n.append("Player not found. Did you mean ").color(ChatColor.RED);
+                int cnt = 0;
                 for(String name: searchNames) {
-                    if(n.length() > 0) n += ", ";
-                    if(n.length() >= 150) {
-                        n += "... ";
+                    if(cnt > 0) {
+                        n.append(", ").color(ChatColor.WHITE);
+                        cnt += 2;
+                    }
+                    if(cnt >= 150) {
+                        n.append("...").color(ChatColor.WHITE);
                         break;
                     }
-                    n += name;
+                    TextComponent nn = new TextComponent(name);
+                    nn.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/profile " + name));
+                    n.append(nn).color(ChatColor.GREEN);
+                    cnt += name.length();
                 }
-                if(n.length() > 0) {
-                    sender.sendMessage("§cPlayer not found. Did you mean §a" + n + "?");
-                }
-                else {
-                    sender.sendMessage("§cPlayer not found.");
-                }
+                n.append("?").color(ChatColor.WHITE);
+                sender.sendMessage(n.create());
+                return;
             }
-            return;
         }
         if(!sender.hasPermission("cvchat.profile.unlimited")) {
             if(!verifyOutranks(sender, playerId)) return;
@@ -77,7 +89,7 @@ public class ProfileCommand extends CommandBase
         String playerName = getPDM().getPlayerName(playerId);
         boolean isOnline = ProxyServer.getInstance().getPlayer(playerId) != null;
         boolean finishedTutorial = getPDM().finishedTutorial(playerId);
-        
+
         sender.sendMessage("§4* §r" + playerName);
         if(finishedTutorial == false) {
             sender.sendMessage("§4! §cPlayer has not finished the tutorial");

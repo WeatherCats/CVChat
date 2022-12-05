@@ -228,15 +228,18 @@ public class TicketManager implements IPCInterface
             sender.sendMessage("§7" + ticket.getText());
             sender.sendMessage("§6Mod comment - §7" + ticket.getModeratorText());
         }
+        else {
+            sender.sendMessage("§7" + ticket.getText());
+        }
     }
-    
+
     private Ticket getTicketById(int id) {
         for(Ticket ticket: tickets) {
             if(id == ticket.getId()) return ticket;
         }
         return null;
     }
-    
+
     public void claimTicket(CommandSender sender, int ticketId) {
         if(!(sender instanceof ProxiedPlayer)) return;
         ProxiedPlayer player = (ProxiedPlayer) sender;
