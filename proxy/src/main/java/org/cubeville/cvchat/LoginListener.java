@@ -86,7 +86,7 @@ public class LoginListener implements Listener
     public void onLogin(final LoginEvent event) {
         PlayerDataManager pdm = PlayerDataManager.getInstance();
         PendingConnection connection = event.getConnection();
-        
+
         UUID uuid = connection.getUniqueId();
 
         {
