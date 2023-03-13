@@ -11,12 +11,13 @@ import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvipc.CVIPC;
@@ -66,7 +67,19 @@ public class TicketManager implements IPCInterface
             tickets.add(ticket);
             int ticketId = dao.createTicket(ticket);
             player.sendMessage("§6Thank you. Your message has been sent. A moderator should be with you shortly.");
-            sendNotification("§6New mod request #" + ticketId + " filed; use /check for more.");
+            TextComponent notify1 = new TextComponent("New mod request #" + ticketId + " filed; use ");
+            notify1.setColor(ChatColor.GOLD);
+            TextComponent notify2 = new TextComponent("/");
+            notify2.setColor(ChatColor.AQUA);
+            notify2.addExtra(ChatColor.GREEN + "check");
+            notify2.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/check " + ticketId));
+            notify2.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Check #" + ticket)));
+            TextComponent notify3 = new TextComponent(" for more.");
+            notify3.setColor(ChatColor.GOLD);
+            notify1.addExtra(notify2);
+            notify1.addExtra(notify3);
+            sendNotification(notify1);
+            //sendNotification("§6New mod request #" + ticketId + " filed; use /check for more.");
             updateOpenTicketPlayerList();
         }
         catch(RuntimeException e) {
@@ -107,6 +120,14 @@ public class TicketManager implements IPCInterface
     
     private void sendNotification(String text) {
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
+            if(p.hasPermission("cvchat.ticket.notify")) {
+                p.sendMessage(text);
+            }
+        }
+    }
+
+    private void sendNotification(TextComponent text) {
+        for(ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
             if(p.hasPermission("cvchat.ticket.notify")) {
                 p.sendMessage(text);
             }
@@ -167,7 +188,7 @@ public class TicketManager implements IPCInterface
                     t.addExtra("  ");
                     TextComponent c = new TextComponent("§b[§aCheck§b]");
                     c.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/check " + id));
-                    c.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to check #" + id).create()));
+                    c.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to check #" + id)));
                     t.addExtra(c);
                     out.add(t);
                 }
@@ -211,12 +232,12 @@ public class TicketManager implements IPCInterface
         t.addExtra("  ");
         TextComponent name = new TextComponent("§b[§aProfile§b]");
         name.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/profile " + p));
-        name.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to profile " + p).create()));
+        name.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to profile " + p)));
         t.addExtra(name);
         t.addExtra("  ");
         TextComponent tp = new TextComponent("§b[§aTeleport§b]");
         tp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpid " + id));
-        tp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to teleport to modreq #" + id).create()));
+        tp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to teleport to modreq #" + id)));
         t.addExtra(tp);
         sender.sendMessage(t);
         if(!ticket.isClosed() && ticket.isClaimed()) {
