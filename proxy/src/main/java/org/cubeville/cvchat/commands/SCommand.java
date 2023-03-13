@@ -1,6 +1,7 @@
 package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -20,8 +21,16 @@ public class SCommand extends CommandBase {
         if(!(commandSender instanceof ProxiedPlayer)) return;
         ProxiedPlayer sender = (ProxiedPlayer) commandSender;
 
+        boolean immediate = false;
         String searchstr = "";
-        if(args.length >= 1) searchstr = args[0];
+
+        if(args.length >= 2 && args[0].equals("i")) {
+            immediate = true;
+            searchstr = args[1];
+        }
+        else if(args.length >= 1) {
+            searchstr = args[0];
+        }
 
         UUID playerId = sender.getUniqueId();
 
@@ -31,11 +40,22 @@ public class SCommand extends CommandBase {
             for(Map<Long, String> messages: playerCommands) {
                 for(Map.Entry<Long, String> message: messages.entrySet()) {
                     String command = message.getValue();
-                    if(command.indexOf(searchstr) >= 0 && command.startsWith("/s ") == false && command.equals("/s") == false)
+                    if(command.indexOf(searchstr) >= 0 && command.startsWith("/s ") == false && command.equals("/s") == false && command.startsWith("/si ") == false)
                         entries.add(command);
                 }
             }
+
             if(entries.size() > 0) {
+                if(immediate) {
+                    String cmd = entries.get(entries.size() - 1).substring(1);
+                    commandSender.sendMessage(">> /" + cmd);
+                    if(!ProxyServer.getInstance().getPluginManager().dispatchCommand(commandSender, cmd)) {
+                        ProxiedPlayer player = (ProxiedPlayer) commandSender;
+                        player.chat("/" + cmd);
+                    }
+                    return;
+                }
+                
                 Collections.sort(entries);
                 String lastentry = "";
                 for(String entry: entries) {
