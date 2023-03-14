@@ -73,7 +73,7 @@ public class TicketManager implements IPCInterface
             notify2.setColor(ChatColor.AQUA);
             notify2.addExtra(ChatColor.GREEN + "check");
             notify2.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/check " + ticketId));
-            notify2.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Check #" + ticket)));
+            notify2.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Check #" + ticketId)));
             TextComponent notify3 = new TextComponent(" for more.");
             notify3.setColor(ChatColor.GOLD);
             notify1.addExtra(notify2);
