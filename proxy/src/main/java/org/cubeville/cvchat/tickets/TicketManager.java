@@ -239,6 +239,11 @@ public class TicketManager implements IPCInterface
         tp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpid " + id));
         tp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to teleport to modreq #" + id)));
         t.addExtra(tp);
+        t.addExtra("  ");
+        TextComponent dibs = new TextComponent("§b[§aDibs§b]");
+        dibs.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dibs " + id));
+        dibs.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to dibs modreq #" + id)));
+        t.addExtra(dibs);
         sender.sendMessage(t);
         if(!ticket.isClosed() && ticket.isClaimed()) {
             sender.sendMessage("§eClaimed by §d" + ticket.getModeratorName() + "§e at §d" + getDateStr(ticket.getModeratorTimestamp()));

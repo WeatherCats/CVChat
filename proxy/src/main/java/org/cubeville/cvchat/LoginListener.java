@@ -14,8 +14,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -256,7 +261,16 @@ public class LoginListener implements Listener
         if(player.hasPermission("cvchat.ticket")) {
             int cnt = ticketManager.getNumberOfOpenTickets();
             if(cnt > 0) {
-                player.sendMessage("§a" + cnt + " open modreq(s).");
+                TextComponent out = new TextComponent(cnt + " open modreq(s).");
+                out.setColor(ChatColor.GREEN);
+                TextComponent check = new TextComponent(" /");
+                check.setColor(ChatColor.GOLD);
+                check.addExtra(ChatColor.GREEN + "check");
+                check.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/check"));
+                check.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Check ticket queue")));
+                out.addExtra(check);
+                out.addExtra(" for more.");
+                player.sendMessage(out);
             }
         }
 
