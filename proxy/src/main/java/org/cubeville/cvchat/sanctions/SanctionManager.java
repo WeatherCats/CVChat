@@ -4,6 +4,7 @@ import java.util.*;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvchat.playerdata.PlayerDataManager;
@@ -82,7 +83,7 @@ public class SanctionManager
         if(player != null) {
             String kname = "Console";
             if(sender instanceof ProxiedPlayer) kname = ((ProxiedPlayer) sender).getDisplayName();
-            player.disconnect("§6You have been " + (duration != 0 ? "temporarily " : "") + "banned by §e" + kname + "§6.\nReason: §e" + banReason);
+            player.disconnect(new TextComponent("§6You have been " + (duration != 0 ? "temporarily " : "") + "banned by §e" + kname + "§6.\nReason: §e" + banReason));
         }
 
         return true;

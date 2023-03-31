@@ -2,6 +2,7 @@ package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import org.cubeville.cvchat.Util;
 import org.cubeville.cvchat.tickets.TicketManager;
 
@@ -18,23 +19,23 @@ public class DoneCommand extends CommandBase
         if(args.length != 0) {
             try {
                 int id = Integer.parseInt(args[0]);
-                String text = "";
+                StringBuilder text = new StringBuilder();
                 for(int i = 1; i < args.length; i++) {
-                    if(i > 1) text += " ";
-                    text += args[i];
+                    if(i > 1) text.append(" ");
+                    text.append(args[i]);
                 }
                 if(commandSender.hasPermission("cvchat.ticket.color")) {
-                    text = Util.translateAlternateColorCodes(text);
+                    text = new StringBuilder(Util.translateAlternateColorCodes(text.toString()));
                 }
-                ticketManager.closeTicket(commandSender, id, text);
+                ticketManager.closeTicket(commandSender, id, text.toString());
             }
             catch (NumberFormatException e) {
-                commandSender.sendMessage("§cInvalid ticket id.");                
+                commandSender.sendMessage(new TextComponent("§cInvalid ticket id."));
             }
         }
         else {
-            commandSender.sendMessage("§cWrong number of arguments.");
-            commandSender.sendMessage("§c/done <modreq-id> [mod-comment]");
+            commandSender.sendMessage(new TextComponent("§cWrong number of arguments."));
+            commandSender.sendMessage(new TextComponent("§c/done <modreq-id> [mod-comment]"));
         }
     }
 }

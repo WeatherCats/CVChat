@@ -55,7 +55,7 @@ public class TicketManager implements IPCInterface
         if(player == null) return;
 
         if(!player.hasPermission("cvchat.ticket.multiple") && playerHasTicket(player.getUniqueId())) {
-            player.sendMessage("§6You already have an open mod request. Please wait for it to be completed.");
+            player.sendMessage(new TextComponent("§6You already have an open mod request. Please wait for it to be completed."));
             return;
         }
 
@@ -66,7 +66,7 @@ public class TicketManager implements IPCInterface
                                        System.currentTimeMillis());
             tickets.add(ticket);
             int ticketId = dao.createTicket(ticket);
-            player.sendMessage("§6Thank you. Your message has been sent. A moderator should be with you shortly.");
+            player.sendMessage(new TextComponent("§6Thank you. Your message has been sent. A moderator should be with you shortly."));
             TextComponent notify1 = new TextComponent("New mod request #" + ticketId + " filed; use ");
             notify1.setColor(ChatColor.GOLD);
             TextComponent notify2 = new TextComponent("/");
@@ -83,7 +83,7 @@ public class TicketManager implements IPCInterface
             updateOpenTicketPlayerList();
         }
         catch(RuntimeException e) {
-            player.sendMessage("§cTicket creation failed. Please contact an administrator.");
+            player.sendMessage(new TextComponent("§cTicket creation failed. Please contact an administrator."));
         }
     }
 
@@ -97,13 +97,11 @@ public class TicketManager implements IPCInterface
                 final String ticketText = ticket.getText();
                 final String moderatorText = ticket.getModeratorText();
                 final long ticketId = ticket.getId();
-                ProxyServer.getInstance().getScheduler().schedule(plugin, new Runnable() {
-                        public void run() {
-                            sendPlayerNotification(playerId, "§6" + moderatorName + "§6 has completed your request while you were offline:");
-                            sendPlayerNotification(playerId, "§6Request - §7" + ticketText);
-                            sendPlayerNotification(playerId, "§6Mod comment - §7" + moderatorText);
-                        }
-                    }, 5, TimeUnit.SECONDS );
+                ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
+                    sendPlayerNotification(playerId, "§6" + moderatorName + "§6 has completed your request while you were offline:");
+                    sendPlayerNotification(playerId, "§6Request - §7" + ticketText);
+                    sendPlayerNotification(playerId, "§6Mod comment - §7" + moderatorText);
+                }, 5, TimeUnit.SECONDS );
             }
         }
     }
@@ -121,7 +119,7 @@ public class TicketManager implements IPCInterface
     private void sendNotification(String text) {
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
             if(p.hasPermission("cvchat.ticket.notify")) {
-                p.sendMessage(text);
+                p.sendMessage(new TextComponent(text));
             }
         }
     }
@@ -137,7 +135,7 @@ public class TicketManager implements IPCInterface
     private boolean sendPlayerNotification(UUID playerId, String text) {
         ProxiedPlayer player = ProxyServer.getInstance().getPlayer(playerId);
         if(player != null) {
-            player.sendMessage(text);
+            player.sendMessage(new TextComponent(text));
             return true;
         }
         return false;
@@ -198,12 +196,12 @@ public class TicketManager implements IPCInterface
             String msg = "No open open modreqs. Also there are no closed open and no open closed modreqs.";
             if(held) msg = "No held modreqs.";
             if(closed) msg = "No closed modreqs.";
-            sender.sendMessage(msg);
+            sender.sendMessage(new TextComponent(msg));
             return;
         }
         int from = page * 5 - 4;
         int to = Math.min(page * 5, cnt + 1);
-        sender.sendMessage("--------- " + ++cnt + " " + (held ? "held" : (closed ? "closed" : "open")) + " modreqs, showing " + from + "-" + to + " ---------");
+        sender.sendMessage(new TextComponent("--------- " + ++cnt + " " + (held ? "held" : (closed ? "closed" : "open")) + " modreqs, showing " + from + "-" + to + " ---------"));
         for(TextComponent s: out) {
             sender.sendMessage(s);
         }
@@ -212,7 +210,7 @@ public class TicketManager implements IPCInterface
     public void showTicketDetail(CommandSender sender, int id) {
         Ticket ticket = getTicketById(id);
         if(ticket == null) {
-            sender.sendMessage("§cInvalid ticket id.");
+            sender.sendMessage(new TextComponent("§cInvalid ticket id."));
             return;
         }
 
@@ -223,7 +221,7 @@ public class TicketManager implements IPCInterface
             else if(ticket.isHeld()) hl += "§dOn Hold";
             else hl += "§eOpen";
             hl += "§b ---------";
-            sender.sendMessage(hl);
+            sender.sendMessage(new TextComponent(hl));
         }
 
         String p = ticket.getPlayerName();
@@ -246,16 +244,16 @@ public class TicketManager implements IPCInterface
         t.addExtra(dibs);
         sender.sendMessage(t);
         if(!ticket.isClosed() && ticket.isClaimed()) {
-            sender.sendMessage("§eClaimed by §d" + ticket.getModeratorName() + "§e at §d" + getDateStr(ticket.getModeratorTimestamp()));
-            sender.sendMessage("§7" + ticket.getText());
+            sender.sendMessage(new TextComponent("§eClaimed by §d" + ticket.getModeratorName() + "§e at §d" + getDateStr(ticket.getModeratorTimestamp())));
+            sender.sendMessage(new TextComponent("§7" + ticket.getText()));
         }
         else if(ticket.isClosed()) {
-            sender.sendMessage("§eHandled by §d" + ticket.getModeratorName() + "§e at §d" + getDateStr(ticket.getModeratorTimestamp()));
-            sender.sendMessage("§7" + ticket.getText());
-            sender.sendMessage("§6Mod comment - §7" + ticket.getModeratorText());
+            sender.sendMessage(new TextComponent("§eHandled by §d" + ticket.getModeratorName() + "§e at §d" + getDateStr(ticket.getModeratorTimestamp())));
+            sender.sendMessage(new TextComponent("§7" + ticket.getText()));
+            sender.sendMessage(new TextComponent("§6Mod comment - §7" + ticket.getModeratorText()));
         }
         else {
-            sender.sendMessage("§7" + ticket.getText());
+            sender.sendMessage(new TextComponent("§7" + ticket.getText()));
         }
     }
 
@@ -272,17 +270,17 @@ public class TicketManager implements IPCInterface
 
         Ticket ticket = getTicketById(ticketId);
         if(ticket == null) {
-            player.sendMessage("§cInvalid ticket id.");
+            player.sendMessage(new TextComponent("§cInvalid ticket id."));
             return;
         }
 
         if(ticket.isClosed()) {
-            player.sendMessage("§cCan't claim a closed ticket.");
+            player.sendMessage(new TextComponent("§cCan't claim a closed ticket."));
             return;
         }
 
         if(ticket.isClaimed()) {
-            player.sendMessage("§cTicket is already claimed.");
+            player.sendMessage(new TextComponent("§cTicket is already claimed."));
             return;
         }
 
@@ -302,12 +300,12 @@ public class TicketManager implements IPCInterface
 
         Ticket ticket = getTicketById(ticketId);
         if(ticket == null) {
-            player.sendMessage("§cInvalid ticket id.");
+            player.sendMessage(new TextComponent("§cInvalid ticket id."));
             return;
         }
 
         if(ticket.isClosed()) {
-            player.sendMessage("§cTicket is already closed.");
+            player.sendMessage(new TextComponent("§cTicket is already closed."));
             return;
         }
 
@@ -334,12 +332,12 @@ public class TicketManager implements IPCInterface
 
         Ticket ticket = getTicketById(ticketId);
         if(ticket == null) {
-            player.sendMessage("§cInvalid ticket id.");
+            player.sendMessage(new TextComponent("§cInvalid ticket id."));
             return;
         }
 
         if(!ticket.isClosed() && !ticket.isClaimed()) {
-            player.sendMessage("§cTicket is not closed.");
+            player.sendMessage(new TextComponent("§cTicket is not closed."));
             return;
         }
 
@@ -363,17 +361,17 @@ public class TicketManager implements IPCInterface
 
         Ticket ticket = getTicketById(ticketId);
         if(ticket == null) {
-            player.sendMessage("§cInvalid ticket id.");
+            player.sendMessage(new TextComponent("§cInvalid ticket id."));
             return;
         }
 
         if(ticket.isClosed()) {
-            player.sendMessage("§cTicket is closed.");
+            player.sendMessage(new TextComponent("§cTicket is closed."));
             return;
         }
 
         if(!ticket.isClaimed()) {
-            player.sendMessage("§cTicket is not claimed.");
+            player.sendMessage(new TextComponent("§cTicket is not claimed."));
             return;
         }
 
@@ -393,17 +391,17 @@ public class TicketManager implements IPCInterface
 
         Ticket ticket = getTicketById(ticketId);
         if(ticket == null) {
-            player.sendMessage("§cInvalid ticket id.");
+            player.sendMessage(new TextComponent("§cInvalid ticket id."));
             return;
         }
 
         if(ticket.isClosed()) {
-            player.sendMessage("§cClosed tickets can't be held.");
+            player.sendMessage(new TextComponent("§cClosed tickets can't be held."));
             return;
         }
 
         if(ticket.isHeld()) {
-            player.sendMessage("§cTicket is already held.");
+            player.sendMessage(new TextComponent("§cTicket is already held."));
             return;
         }
 
@@ -424,17 +422,17 @@ public class TicketManager implements IPCInterface
         
         Ticket ticket = getTicketById(ticketId);
         if(ticket == null) {
-            player.sendMessage("§cInvalid ticket id.");
+            player.sendMessage(new TextComponent("§cInvalid ticket id."));
             return;
         }
         
         if(ticket.isClosed()) {
-          player.sendMessage("§cTicket is closed, cannot hold");
+          player.sendMessage(new TextComponent("§cTicket is closed, cannot hold"));
           return;
         }
         
         if(!(ticket.isHeld())) {
-          player.sendMessage("§cTicket is not held.");
+          player.sendMessage(new TextComponent("§cTicket is not held."));
           return;
         }
         
@@ -455,7 +453,7 @@ public class TicketManager implements IPCInterface
 
         Ticket ticket = getTicketById(ticketId);
         if(ticket == null) {
-            player.sendMessage("§cInvalid ticket id.");
+            player.sendMessage(new TextComponent("§cInvalid ticket id."));
             return;
         }
 

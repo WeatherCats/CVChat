@@ -2,6 +2,7 @@ package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import org.cubeville.cvchat.sanctions.SanctionManager;
 
 public class UnbanCommand extends CommandBase
@@ -26,7 +27,7 @@ public class UnbanCommand extends CommandBase
         String bannedPlayerName = SanctionManager.getInstance().unbanPlayer(sender, args[offset], silent);
 
         if(bannedPlayerName == null) {
-            sender.sendMessage("§cUnknown player §e" + args[offset]);
+            sender.sendMessage(new TextComponent("§cUnknown player §e" + args[offset]));
             return;
         }
 

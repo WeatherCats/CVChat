@@ -2,6 +2,7 @@ package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvchat.Util;
@@ -25,14 +26,14 @@ public class MuteCommand extends CommandBase
 
         UUID pUUID = getPDM().getPlayerId(args[0]);
         if(pUUID == null) {
-            sender.sendMessage("§cNo player found!");
+            sender.sendMessage(new TextComponent("§cNo player found!"));
             return;
         }
 
         if(!verify(sender, !pUUID.equals(sender.getUniqueId()), "§cYou can't mute yourself, silly!")) return;
 
         if(!verifyOutranks(sender, pUUID)) {
-            if(ProxyServer.getInstance().getPlayer(pUUID) != null) ProxyServer.getInstance().getPlayer(pUUID).sendMessage(sender.getDisplayName() + "§c tried to mute you. Should we instaban that person, your majesty?");
+            if(ProxyServer.getInstance().getPlayer(pUUID) != null) ProxyServer.getInstance().getPlayer(pUUID).sendMessage(new TextComponent(sender.getDisplayName() + "§c tried to mute you. Should we instaban that person, your majesty?"));
             return;
         }
 
@@ -42,7 +43,7 @@ public class MuteCommand extends CommandBase
 
         String reason = "";
         if(args.length > 1) reason = " Reason: " + Util.joinStrings(args, 1);
-        if(ProxyServer.getInstance().getPlayer(pUUID) != null) ProxyServer.getInstance().getPlayer(pUUID).sendMessage("§cYou have been muted." + reason);
+        if(ProxyServer.getInstance().getPlayer(pUUID) != null) ProxyServer.getInstance().getPlayer(pUUID).sendMessage(new TextComponent("§cYou have been muted." + reason));
         String msg = "§a" + getPDM().getPlayerName(pUUID) + "§a has been muted by " + sender.getDisplayName() + "§a." + reason;
         sendMessage(getAllPlayersWithPermission("cvchat.mute.notify"), msg);
     }

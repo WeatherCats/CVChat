@@ -3,6 +3,7 @@ package org.cubeville.cvchat.commands;
 import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class ForceTutorialFinishCommand extends CommandBase
 {
@@ -17,12 +18,12 @@ public class ForceTutorialFinishCommand extends CommandBase
 
         UUID playerId = getPDM().getPlayerId(args[0]);
         if(playerId == null) {
-            sender.sendMessage("§cPlayer not found.");
+            sender.sendMessage(new TextComponent("§cPlayer not found."));
             return;
         }
         
         getPDM().setFinishedTutorial(playerId);
 
-        sender.sendMessage("§aPlayer's tutorial status set to finished.");
+        sender.sendMessage(new TextComponent("§aPlayer's tutorial status set to finished."));
     }
 }

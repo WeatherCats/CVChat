@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
 
@@ -38,7 +39,7 @@ public class TextCommandManager
         for(TextCommand textCommand: textCommands) {
             if(textCommand.matches(command)) {
                 for(String s: textCommand.getText()) {
-                    sender.sendMessage(s);
+                    sender.sendMessage(new TextComponent(s));
                 }
                 if(sender instanceof ProxiedPlayer) {
                     UUID playerId = ((ProxiedPlayer) sender).getUniqueId();

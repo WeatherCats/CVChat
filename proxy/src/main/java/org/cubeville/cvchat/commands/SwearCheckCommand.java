@@ -1,6 +1,7 @@
 package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.cubeville.cvchat.CVChat;
 import org.cubeville.cvchat.sanctions.SanctionManager;
@@ -30,19 +31,19 @@ public class SwearCheckCommand extends CommandBase {
 
         UUID playerId = getPDM().getPlayerId(args[0]);
         if(playerId == null) {
-            sender.sendMessage("§cPlayer not found.");
+            sender.sendMessage(new TextComponent("§cPlayer not found."));
             return;
         }
 
         if(SanctionManager.getInstance().getFilteredMessages(playerId) != null) {
-            sender.sendMessage("§cToday's Swear Kicks for " + args[0] + ":");
+            sender.sendMessage(new TextComponent("§cToday's Swear Kicks for " + args[0] + ":"));
             for(Map<Long, String> messages : SanctionManager.getInstance().getFilteredMessages(playerId)) {
                 for(Map.Entry<Long, String> message : messages.entrySet()) {
-                    sender.sendMessage("(" + dateFormat.format(new Date(message.getKey())) + ")§6 - " + message.getValue());
+                    sender.sendMessage(new TextComponent("(" + dateFormat.format(new Date(message.getKey())) + ")§6 - " + message.getValue()));
                 }
             }
         } else {
-            sender.sendMessage("§cWoo! " + args[0] + " has not been swear kicked today.");
+            sender.sendMessage(new TextComponent("§cWoo! " + args[0] + " has not been swear kicked today."));
         }
     }
 }

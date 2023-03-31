@@ -1,5 +1,6 @@
 package org.cubeville.cvchat.commands;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.CommandSender;
 
@@ -20,20 +21,20 @@ public class LocalCommand extends CommandBase
         ProxiedPlayer sender = (ProxiedPlayer) commandSender;
 
         if(args.length != 1) {
-            sender.sendMessage("§c/local <on|off>");
+            sender.sendMessage(new TextComponent("§c/local <on|off>"));
             return;
         }
 
         if(args[0].equals("on")) {
             localChannel.setLocalMonitorMute(sender.getUniqueId(), false);            
-            sender.sendMessage("§aLocal chat monitor activated.");
+            sender.sendMessage(new TextComponent("§aLocal chat monitor activated."));
         }
         else if(args[0].equals("off")) {
             localChannel.setLocalMonitorMute(sender.getUniqueId(), true);
-            sender.sendMessage("§aLocal chat monitor deactivated.");
+            sender.sendMessage(new TextComponent("§aLocal chat monitor deactivated."));
         }
         else {
-            sender.sendMessage("§c/local <on|off>");
+            sender.sendMessage(new TextComponent("§c/local <on|off>"));
         }
     }
 

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
@@ -38,7 +39,7 @@ public abstract class CommandBase extends Command
     
     public boolean verifyPermission(CommandSender sender, String permission) {
         if(!sender.hasPermission(permission)) {
-            sender.sendMessage("§cNo permission.");
+            sender.sendMessage(new TextComponent("§cNo permission."));
             return false;
         }
         return true;
@@ -48,7 +49,7 @@ public abstract class CommandBase extends Command
         if(!(commandSender instanceof ProxiedPlayer)) return false;
         ProxiedPlayer sender = (ProxiedPlayer) commandSender;
         if(!getPDM().outranks(sender.getUniqueId(), player)) {
-            sender.sendMessage("§cNo permission.");
+            sender.sendMessage(new TextComponent("§cNo permission."));
             return false;
         }
         return true;
@@ -60,7 +61,7 @@ public abstract class CommandBase extends Command
 
     public boolean verifyOnline(CommandSender sender, String playerName) {
         if(ProxyServer.getInstance().getPlayer(playerName) == null) {
-            sender.sendMessage("§cPlayer not found!");
+            sender.sendMessage(new TextComponent("§cPlayer not found!"));
             return false;
         }
         return true;
@@ -72,7 +73,7 @@ public abstract class CommandBase extends Command
 
     public ProxiedPlayer getPlayerByVisibleName(String playerName) {
         for(ProxiedPlayer player: getAllPlayers()) {
-            if(player.getDisplayName().toLowerCase().equals(playerName.toLowerCase())) {
+            if(player.getDisplayName().equalsIgnoreCase(playerName)) {
                 return player;
             }
         }
@@ -81,8 +82,8 @@ public abstract class CommandBase extends Command
     
     public boolean verifyNotLessArguments(CommandSender sender, String[] args, int min) {
         if(args.length < min) {
-            sender.sendMessage("§cToo few arguments.");
-            if(usage != null) sender.sendMessage(usage);
+            sender.sendMessage(new TextComponent("§cToo few arguments."));
+            if(usage != null) sender.sendMessage(new TextComponent(usage));
             return false;
         }
         return true;
@@ -90,8 +91,8 @@ public abstract class CommandBase extends Command
 
     public boolean verifyNotMoreArguments(CommandSender sender, String[] args, int max) {
         if(args.length > max) {
-            sender.sendMessage("§cToo many arguments.");
-            if(usage != null) sender.sendMessage(usage);
+            sender.sendMessage(new TextComponent("§cToo many arguments."));
+            if(usage != null) sender.sendMessage(new TextComponent(usage));
             return false;
         }
         return true;
@@ -113,17 +114,17 @@ public abstract class CommandBase extends Command
     
     public void sendMessage(Collection<ProxiedPlayer> players, String message) {
         for(ProxiedPlayer player: players) {
-            player.sendMessage(message);
+            player.sendMessage(new TextComponent(message));
         }
     }
 
     public void sendMessage(ProxiedPlayer player, String message) {
-        player.sendMessage(message);
+        player.sendMessage(new TextComponent(message));
     }
     
     public boolean verify(ProxiedPlayer sender, boolean check, String message) {
         if(!check) {
-            sender.sendMessage(message);
+            sender.sendMessage(new TextComponent(message));
             return false;
         }
         return true;

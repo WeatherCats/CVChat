@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvchat.playerdata.PlayerDataManager;
@@ -40,10 +41,10 @@ public class NewCommand extends CommandBase
         newPlayers.sort(Comparator.comparing(String::toString));
 
         if(newPlayers.size() == 0) {
-            sender.sendMessage("§cNo new players joined in the last " + minutes + " minutes.");
+            sender.sendMessage(new TextComponent("§cNo new players joined in the last " + minutes + " minutes."));
         }
         else {
-            sender.sendMessage("§aJoined in the last " + minutes + " minutes: §e" + String.join(", ", newPlayers));
+            sender.sendMessage(new TextComponent("§aJoined in the last " + minutes + " minutes: §e" + String.join(", ", newPlayers)));
         }
     }
 }

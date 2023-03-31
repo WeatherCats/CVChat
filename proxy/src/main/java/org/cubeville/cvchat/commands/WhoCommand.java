@@ -2,6 +2,7 @@ package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvchat.Util;
@@ -15,8 +16,8 @@ public class WhoCommand extends CommandBase
 
     public void executeC(CommandSender sender, String[] args) {
         if(args.length > 1) {
-            sender.sendMessage("§cToo many arguments.");
-            sender.sendMessage("§c/who [filter]");
+            sender.sendMessage(new TextComponent("§cToo many arguments."));
+            sender.sendMessage(new TextComponent("§c/who [filter]"));
             return;
         }
 
@@ -36,6 +37,6 @@ public class WhoCommand extends CommandBase
             list.append(player.getDisplayName());
             cnt++;
         }
-        sender.sendMessage("§6Cubeville §a(" + cnt + ")§r: " + list);
+        sender.sendMessage(new TextComponent("§6Cubeville §a(" + cnt + ")§r: " + list));
     }
 }

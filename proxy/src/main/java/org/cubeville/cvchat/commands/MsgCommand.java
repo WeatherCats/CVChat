@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvchat.Util;
@@ -54,22 +55,22 @@ public class MsgCommand extends CommandBase
 
         if(sender.hasPermission("cvchat.refusepm")) {
             if(args.length == 0) {
-                sender.sendMessage("§aYou " + (disabledRefusal(sender.getUniqueId()) ? "can" : "can't") + " receive private messages when you're vanished.");
+                sender.sendMessage(new TextComponent("§aYou " + (disabledRefusal(sender.getUniqueId()) ? "can" : "can't") + " receive private messages when you're vanished."));
                 return;
             }
             else if(args.length == 1) {
                 switch (args[0]) {
                     case "on":
                         disableRefusal.put(sender.getUniqueId(), 0L);
-                        sender.sendMessage("§aYou will receive private messages now.");
+                        sender.sendMessage(new TextComponent("§aYou will receive private messages now."));
                         return;
                     case "tmp":
                         disableRefusal.put(sender.getUniqueId(), System.currentTimeMillis());
-                        sender.sendMessage("§aYou will receive private messages temporarily now.");
+                        sender.sendMessage(new TextComponent("§aYou will receive private messages temporarily now."));
                         return;
                     case "off":
                         disableRefusal.remove(sender.getUniqueId());
-                        sender.sendMessage("§aYou will not receive private messages now.");
+                        sender.sendMessage(new TextComponent("§aYou will not receive private messages now."));
                         return;
                 }
             }
@@ -83,21 +84,21 @@ public class MsgCommand extends CommandBase
         
         if(recipient == null ||
            (Util.playerIsUnlisted(recipient) && recipient.hasPermission("cvchat.refusepm") && !sender.hasPermission("cvchat.showvanished") && !disabledRefusal(recipient.getUniqueId()))) {
-            sender.sendMessage("§cPlayer not found!");
+            sender.sendMessage(new TextComponent("§cPlayer not found!"));
             if(recipient == null) return;
             fakeNotFound = true;
         }
         
         if(SanctionManager.getInstance().isPlayerMuted(sender)) {
             if(!recipient.hasPermission("cvchat.mute.staff")) {
-                sender.sendMessage("§cYou are muted. You can only send messages to staff members.");
+                sender.sendMessage(new TextComponent("§cYou are muted. You can only send messages to staff members."));
                 return;
             }
         }
 
         if(SanctionManager.getInstance().isAllChatMuted() && !sender.hasPermission("cvchat.muteallbypass")) {
             if(!recipient.hasPermission("cvchat.mute.staff")) {
-                sender.sendMessage("§cAll chat is muted. You can only send messages to staff members.");
+                sender.sendMessage(new TextComponent("§cAll chat is muted. You can only send messages to staff members."));
                 return;
             }
         }
@@ -105,7 +106,7 @@ public class MsgCommand extends CommandBase
         long senderFirstLogin = PlayerDataManager.getInstance().getFirstLogin(sender.getUniqueId());
         if(senderFirstLogin == 0 || System.currentTimeMillis() - senderFirstLogin < 600000) {
             if(!recipient.hasPermission("cvchat.mute.staff")) {
-                sender.sendMessage("§cNo permission.");
+                sender.sendMessage(new TextComponent("§cNo permission."));
                 return;
             }
         }
@@ -113,7 +114,7 @@ public class MsgCommand extends CommandBase
         long recipientFirstLogin = PlayerDataManager.getInstance().getFirstLogin(recipient.getUniqueId());
         if(recipientFirstLogin == 0 || System.currentTimeMillis() - recipientFirstLogin < 600000) {
             if(!sender.hasPermission("cvchat.mute.staff")) {
-                sender.sendMessage("§cYou currently have no permission to message this player.");
+                sender.sendMessage(new TextComponent("§cYou currently have no permission to message this player."));
                 return;
             }
         }
@@ -124,10 +125,10 @@ public class MsgCommand extends CommandBase
     protected static void sendMessage(ProxiedPlayer sender, ProxiedPlayer recipient, String[] args, int argsOffset, boolean fakeNotFound) {
         String message = Util.removeSectionSigns(Util.joinStrings(args, argsOffset));
 
-        if(!fakeNotFound) sender.sendMessage("§3(To " + recipient.getDisplayName() + "§3): §r" + message);
+        if(!fakeNotFound) sender.sendMessage(new TextComponent("§3(To " + recipient.getDisplayName() + "§3): §r" + message));
         String mark = "";
         if(fakeNotFound) mark = "§c*";
-        recipient.sendMessage("§3(From " + sender.getDisplayName() + mark + "§3): §r" + message);
+        recipient.sendMessage(new TextComponent("§3(From " + sender.getDisplayName() + mark + "§3): §r" + message));
 
         if(!fakeNotFound) {
             lastMessageSent.put(sender.getUniqueId(), recipient.getUniqueId());

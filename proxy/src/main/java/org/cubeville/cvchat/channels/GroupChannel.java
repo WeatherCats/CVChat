@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvchat.Util;
@@ -101,7 +102,7 @@ public class GroupChannel extends Channel
     }
 
     protected void sendFailureMessage(CommandSender player) {
-        player.sendMessage("§cYou're not member of a group.");
+        player.sendMessage(new TextComponent("§cYou're not member of a group."));
     }
 
     public boolean isInGroup(ProxiedPlayer player) {

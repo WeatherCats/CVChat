@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import org.cubeville.cvchat.sanctions.SanctionManager;
 
 public class BanCommand extends CommandBase
@@ -28,7 +29,7 @@ public class BanCommand extends CommandBase
         String banReason = joinStrings(args, offset + 1);
         UUID bannedPlayerId = getPDM().getPlayerId(args[offset]);
         if(bannedPlayerId == null) {
-            sender.sendMessage("§cUnknown player §e" + args[offset]);
+            sender.sendMessage(new TextComponent("§cUnknown player §e" + args[offset]));
             return;
         }
         if(!verifyOutranks(sender, bannedPlayerId)) return;
@@ -42,10 +43,10 @@ public class BanCommand extends CommandBase
                 sendMessage(getAllPlayersWithPermission("cvchat.ban.notifysilent"), "§c[Silent] §e" + bannedPlayerName + "§6 was banned by §e" + senderName + "§6. Reason: §e" + banReason);
             }
 
-            sender.sendMessage("§dPlease don't forget to make a /note!");
+            sender.sendMessage(new TextComponent("§dPlease don't forget to make a /note!"));
         }
         else {
-            sender.sendMessage("§cPlayer is already banned permanently.");
+            sender.sendMessage(new TextComponent("§cPlayer is already banned permanently."));
         }
     }
 }

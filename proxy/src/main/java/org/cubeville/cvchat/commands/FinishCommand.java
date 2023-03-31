@@ -1,6 +1,7 @@
 package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
@@ -25,19 +26,19 @@ public class FinishCommand extends Command
         ProxiedPlayer sender = (ProxiedPlayer) commandSender;
         
         if(args.length > 0) {
-            sender.sendMessage("§cToo many arguments.");
+            sender.sendMessage(new TextComponent("§cToo many arguments."));
             return;
         }
 
         PlayerDataManager pdm = PlayerDataManager.getInstance();
 
         if(pdm.finishedTutorial(sender.getUniqueId())) {
-            sender.sendMessage("§cYou already finished the tutorial. Enter /hub to teleport to the spawn hub.");
+            sender.sendMessage(new TextComponent("§cYou already finished the tutorial. Enter /hub to teleport to the spawn hub."));
             return;
         }
 
         if(!textCommandManager.mandatoryCommandsEntered(sender)) {
-            sender.sendMessage("§cBefore finishing the tutorial, you have to enter the list of commands on the signs, one by one, and read each response carefully. Start with /help, then next enter /help 2 and so on.");
+            sender.sendMessage(new TextComponent("§cBefore finishing the tutorial, you have to enter the list of commands on the signs, one by one, and read each response carefully. Start with /help, then next enter /help 2 and so on."));
             return;
         }
         

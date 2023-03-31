@@ -52,7 +52,7 @@ public class ProfileCommand extends CommandBase
         if(playerId == null) {
             List<String> searchNames = getPDM().getMatchingPlayerNames(searchTerms);
             if(searchNames.size() == 0 || args[0].length() < 4) {
-                sender.sendMessage("§cPlayer not found.");
+                sender.sendMessage(new TextComponent("§cPlayer not found."));
                 return;
             }
             else if(searchNames.size() == 1) {
@@ -89,17 +89,17 @@ public class ProfileCommand extends CommandBase
         boolean isOnline = ProxyServer.getInstance().getPlayer(playerId) != null;
         boolean finishedTutorial = getPDM().finishedTutorial(playerId);
 
-        sender.sendMessage("§4* §r" + playerName);
+        sender.sendMessage(new TextComponent("§4* §r" + playerName));
         if(!finishedTutorial) {
-            sender.sendMessage("§4! §cPlayer has not finished the tutorial");
+            sender.sendMessage(new TextComponent("§4! §cPlayer has not finished the tutorial"));
         }
 
         if(SanctionManager.getInstance().getFilteredMessages(playerId) != null) {
-            sender.sendMessage("§cToday's Swear Kicks: §6" + SanctionManager.getInstance().getFilteredMessages(playerId).size());
+            sender.sendMessage(new TextComponent("§cToday's Swear Kicks: §6" + SanctionManager.getInstance().getFilteredMessages(playerId).size()));
         }
         
         if(sender.hasPermission("cvchat.profile.extended")) {
-            sender.sendMessage("§4- §r" + (isOnline ? "Peer" : "Last") + " address: §9" + getPDM().getIPAddress(playerId));
+            sender.sendMessage(new TextComponent("§4- §r" + (isOnline ? "Peer" : "Last") + " address: §9" + getPDM().getIPAddress(playerId)));
         }
 
         String lastOnline;
@@ -149,16 +149,16 @@ public class ProfileCommand extends CommandBase
                 cnt++;
                 if(cnt <= 4 || fShowFullProfile) {
                     String txt = "§c" + dateFormat.format(new Date(entry.getCommentTime())) + "§r " + entry.getComment() + " [" + getPDM().getPlayerName(entry.getAuthor()) + "]";
-                    sender.sendMessage(txt);
+                    sender.sendMessage(new TextComponent(txt));
                 }
                 else
                     more++;
             }
             if(more > 0) {
-                sender.sendMessage("§c...and " + more + " more, to view them enter /profile <player> full");
+                sender.sendMessage(new TextComponent("§c...and " + more + " more, to view them enter /profile <player> full"));
             }
-            sender.sendMessage(firstLoginMessage);
-            sender.sendMessage(lastOnlineMessage);
+            sender.sendMessage(new TextComponent(firstLoginMessage));
+            sender.sendMessage(new TextComponent(lastOnlineMessage));
         });
     }
 }

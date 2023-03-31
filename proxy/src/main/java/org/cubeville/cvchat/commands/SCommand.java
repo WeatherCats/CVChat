@@ -48,7 +48,7 @@ public class SCommand extends CommandBase {
             if(entries.size() > 0) {
                 if(immediate) {
                     String cmd = entries.get(entries.size() - 1).substring(1);
-                    commandSender.sendMessage(">> /" + cmd);
+                    commandSender.sendMessage(new TextComponent(">> /" + cmd));
                     if(!ProxyServer.getInstance().getPluginManager().dispatchCommand(commandSender, cmd)) {
                         ProxiedPlayer player = (ProxiedPlayer) commandSender;
                         player.chat("/" + cmd);
@@ -72,11 +72,11 @@ public class SCommand extends CommandBase {
                 }
             }
             else {
-                sender.sendMessage("§cNo matching commands found.");
+                sender.sendMessage(new TextComponent("§cNo matching commands found."));
             }
         }
         else {
-            sender.sendMessage("§cNo matching commands found.");            
+            sender.sendMessage(new TextComponent("§cNo matching commands found."));
         }
 
     }

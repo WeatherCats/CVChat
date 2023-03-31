@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.cubeville.cvvanish.CVVanish;
 
@@ -16,7 +17,7 @@ public class SetAliasCommand extends CommandBase
 
     public void executeC(CommandSender sender, String[] args) {
         if(args.length > 3 || args.length < 2 || (args.length == 3 && !args[2].equalsIgnoreCase("-notab"))) {
-            sender.sendMessage("§c/setalias <player> [<alias>|none] [-notab]");
+            sender.sendMessage(new TextComponent("§c/setalias <player> [<alias>|none] [-notab]"));
             return;
         }
 
@@ -27,7 +28,7 @@ public class SetAliasCommand extends CommandBase
         
         UUID playerId = getPDM().getPlayerId(playerName);
         if(playerId == null) {
-            sender.sendMessage("§cPlayer not found!");
+            sender.sendMessage(new TextComponent("§cPlayer not found!"));
             return;
         }
 
@@ -41,6 +42,6 @@ public class SetAliasCommand extends CommandBase
             }
         }
         
-        sender.sendMessage("§aAlias changed.");
+        sender.sendMessage(new TextComponent("§aAlias changed."));
     }
 }

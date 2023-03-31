@@ -1,6 +1,7 @@
 package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.cubeville.cvchat.CVChat;
 import org.cubeville.cvchat.playerdata.PlayerDataManager;
@@ -28,7 +29,7 @@ public class CommandCheckCommand extends CommandBase {
 
         UUID playerId = getPDM().getPlayerId(args[0]);
         if(playerId == null) {
-            sender.sendMessage("§cPlayer not found.");
+            sender.sendMessage(new TextComponent("§cPlayer not found."));
             return;
         }
 
@@ -41,7 +42,7 @@ public class CommandCheckCommand extends CommandBase {
             try {
                 commands = Integer.parseInt(args[1]);
             } catch(NumberFormatException e) {
-                sender.sendMessage("§c" + args[1] + " is not a number.");
+                sender.sendMessage(new TextComponent("§c" + args[1] + " is not a number."));
                 return;
             }
         }
@@ -55,14 +56,14 @@ public class CommandCheckCommand extends CommandBase {
                 }
             }
             Collections.reverse(entries);
-            sender.sendMessage("§dLast " + commands + " commands entered by " + args[0] + ":");
+            sender.sendMessage(new TextComponent("§dLast " + commands + " commands entered by " + args[0] + ":"));
             for(String command : entries) {
-                sender.sendMessage(command);
+                sender.sendMessage(new TextComponent(command));
                 i++;
                 if(i >= commands) break;
             }
         } else {
-            sender.sendMessage("§c" + args[0] + " has not entered any commands today.");
+            sender.sendMessage(new TextComponent("§c" + args[0] + " has not entered any commands today."));
         }
     }
 }

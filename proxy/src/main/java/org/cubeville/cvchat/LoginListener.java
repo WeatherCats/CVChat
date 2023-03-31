@@ -37,7 +37,6 @@ import org.cubeville.cvchat.channels.ChannelManager;
 import org.cubeville.cvchat.playerdata.PlayerDataManager;
 import org.cubeville.cvchat.ranks.RankManager;
 import org.cubeville.cvchat.tickets.TicketManager;
-import org.checkerframework.checker.units.qual.Time;
 
 public class LoginListener implements Listener
 {
@@ -47,7 +46,7 @@ public class LoginListener implements Listener
     Map<UUID, Long> newPlayerLogins;
     boolean newPlayerBlocker = false;
     
-    Set<UUID> versionCheckBypass = new HashSet<>();
+    Set<UUID> versionCheckBypass;
 
     Map<String, Set<UUID>> playerIP = new HashMap<>();
     Map<UUID, String> confirmationIP = new HashMap<>();
@@ -74,7 +73,7 @@ public class LoginListener implements Listener
         for(ProxiedPlayer p: players) {
             if(playerName.equals(p.getName())) {
                 event.setCancelled(true);
-                event.setCancelReason("§cYou're already logged in to this server.");
+                event.setCancelReason(new TextComponent("§cYou're already logged in to this server."));
                 return;
             }
         }
@@ -102,7 +101,7 @@ public class LoginListener implements Listener
             int protocolVersion = connection.getVersion();
             if(protocolVersion != forcedProtocolVersion && !versionCheckBypass.contains(uuid)) {
                 event.setCancelled(true);
-                event.setCancelReason("§cPlease use §aMinecraft v1.18.2 §cfor Cubeville.\nhttp://cubeville.org/version");
+                event.setCancelReason(new TextComponent("§cPlease use §aMinecraft v1.18.2 §cfor Cubeville.\nhttp://cubeville.org/version"));
                 return;
             }
         }
@@ -119,7 +118,7 @@ public class LoginListener implements Listener
                     System.out.println(connection.getName() + " blocked from logging on. Cause: Limiter (2 minutes: " + c2min + ", 10 minutes: " + c10min);
                 }
                 event.setCancelled(true);
-                event.setCancelReason("§cSorry, all login slots are currently occupied.\n§cPlease try again in a few minutes.");
+                event.setCancelReason(new TextComponent("§cSorry, all login slots are currently occupied.\n§cPlease try again in a few minutes."));
                 return;
             }
         }
@@ -133,7 +132,7 @@ public class LoginListener implements Listener
                 SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss z");
                 endOfBan = " until §e" + sdf.format(new Date(pdm.getEndOfTempban(uuid)));
             }
-            event.setCancelReason("§cYou're " + type + " banned from this server" + endOfBan + ".\n§cReason: §e" + pdm.getBanReason(uuid) + "\n§aMore Information: §eYou have been banned because a staff member has decided that you didn't play according to the Cubeville rules. If you think this is a mistake, or if you want to join the server again without violating the rules again, you can apply for an unban. For more information, visit §acubeville.org/unban§e.");
+            event.setCancelReason(new TextComponent("§cYou're " + type + " banned from this server" + endOfBan + ".\n§cReason: §e" + pdm.getBanReason(uuid) + "\n§aMore Information: §eYou have been banned because a staff member has decided that you didn't play according to the Cubeville rules. If you think this is a mistake, or if you want to join the server again without violating the rules again, you can apply for an unban. For more information, visit §acubeville.org/unban§e."));
             return;
         }
 
@@ -161,14 +160,14 @@ public class LoginListener implements Listener
             }
             if(!ipConfirmValid) {
                 if(confirmationIP.get(uuid) == null || !confirmationIP.get(uuid).equals(ip)) {
-                    File confirmation = new File("/var/www/2falogin/players/" + uuid.toString());
+                    File confirmation = new File("/var/www/2falogin/players/" + uuid);
                     long period = 1000000;
                     if(confirmation.exists()) {
                         period = System.currentTimeMillis() - confirmation.lastModified();
                     }
                     if(period > 300000) {
                         event.setCancelled(true);
-                        event.setCancelReason("§cPermission denied.");
+                        event.setCancelReason(new TextComponent("§cPermission denied."));
                         return;
                     }
                     confirmationIP.put(uuid, ip);
@@ -318,10 +317,10 @@ public class LoginListener implements Listener
     private void sendPublicMessage(String playerName, String status, boolean newPlayer) {
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
             if(newPlayer && p.hasPermission("cvchat.informnewplayer")) {
-                p.sendMessage("§e" + playerName + "§e " + status + " the game. §a(New player)");
+                p.sendMessage(new TextComponent("§e" + playerName + "§e " + status + " the game. §a(New player)"));
             }
             else {
-                p.sendMessage("§e" + playerName + "§e " + status + " the game.");
+                p.sendMessage(new TextComponent("§e" + playerName + "§e " + status + " the game."));
             }
         }
     }
@@ -329,14 +328,14 @@ public class LoginListener implements Listener
     private void sendSilentMessage(String playerName, String status) {
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
             if(p.hasPermission("cvchat.silent.view")) {
-                p.sendMessage("§3" + playerName + "§3 " + status + " the game silently.");
+                p.sendMessage(new TextComponent("§3" + playerName + "§3 " + status + " the game silently."));
             }
         }
     }
 
     private void sendWelcomeMessage(String playerName) {
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
-            p.sendMessage("§eEveryone welcome Cubeville's newest player, " + playerName + "§e!");
+            p.sendMessage(new TextComponent("§eEveryone welcome Cubeville's newest player, " + playerName + "§e!"));
         }        
     }
 
@@ -359,7 +358,7 @@ public class LoginListener implements Listener
         
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
             if(p.hasPermission("cvchat.notifyipmatch")) {
-                p.sendMessage(message.toString());
+                p.sendMessage(new TextComponent(message.toString()));
             }
         }
     }

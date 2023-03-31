@@ -2,6 +2,7 @@ package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import org.cubeville.cvchat.tickets.TicketManager;
 
 import java.util.UUID;
@@ -32,42 +33,42 @@ public class CheckCommand extends CommandBase
                 try {
                     page = Integer.parseInt(arg.substring(2));
                 } catch (NumberFormatException e) {
-                    commandSender.sendMessage("§6The p: parameter must be numeric.");
+                    commandSender.sendMessage(new TextComponent("§6The p: parameter must be numeric."));
                     return;
                 }
             } else if (arg.startsWith("u:")) {
                 playerId = getPDM().getPlayerId(arg.substring(2));
                 if (playerId == null) {
-                    commandSender.sendMessage("§6The u: parameter must be used with their current name.");
+                    commandSender.sendMessage(new TextComponent("§6The u: parameter must be used with their current name."));
                     return;
                 }
             } else if (arg.startsWith("m:")) {
                 if (!commandSender.hasPermission("cvchat.ticket.search.mod")) {
-                    commandSender.sendMessage("§cNo permission.");
+                    commandSender.sendMessage(new TextComponent("§cNo permission."));
                     return;
                 }
                 modId = getPDM().getPlayerId(arg.substring(2));
                 if (modId == null) {
-                    commandSender.sendMessage("§6The m: parameter must be used with their current name.");
+                    commandSender.sendMessage(new TextComponent("§6The m: parameter must be used with their current name."));
                     return;
                 }
             } else {
                 try {
                     id = Integer.parseInt(arg);
                 } catch (NumberFormatException e) {
-                    commandSender.sendMessage("§6Ticket # must be numeric.");
+                    commandSender.sendMessage(new TextComponent("§6Ticket # must be numeric."));
                     return;
                 }
             }
         }
 
         if(held && closed) {
-            commandSender.sendMessage("§6Only one type argument permitted.");
+            commandSender.sendMessage(new TextComponent("§6Only one type argument permitted."));
             return;
         }
         
         if(id >= 0 && (page >= 0 || held || closed || playerId != null || modId != null)) {
-            commandSender.sendMessage("§6Ticket # can not be combined with other parameters.");
+            commandSender.sendMessage(new TextComponent("§6Ticket # can not be combined with other parameters."));
             return;
         }
 

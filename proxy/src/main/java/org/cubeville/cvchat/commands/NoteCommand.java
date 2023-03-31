@@ -3,6 +3,7 @@ package org.cubeville.cvchat.commands;
 import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvchat.CVChat;
@@ -27,12 +28,12 @@ public class NoteCommand extends CommandBase
         
         UUID playerId = getPDM().getPlayerId(args[0]);
         if(playerId == null) {
-            sender.sendMessage("§cPlayer not found.");
+            sender.sendMessage(new TextComponent("§cPlayer not found."));
             return;
         }
 
         ProfileEntry entry = new ProfileEntry(System.currentTimeMillis(), joinStrings(args, 1), sender.getUniqueId());
         ProfilesDao.getInstance().addProfileEntry(playerId, entry);
-        sender.sendMessage("§aNote added.");
+        sender.sendMessage(new TextComponent("§aNote added."));
     }
 }

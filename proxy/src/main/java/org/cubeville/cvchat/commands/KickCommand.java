@@ -1,6 +1,7 @@
 package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvchat.Util;
@@ -32,13 +33,14 @@ public class KickCommand extends CommandBase
         if(!verifyOutranks(sender, player)) return;
 
         String reason = Util.joinStrings(args, offset + 1);
-        player.disconnect("§6You have been kicked by §e" + sender.getDisplayName() + "§6." + (reason.length() > 0 ? " Reason: §e" + reason : ""));
+        String s = reason.length() > 0 ? " Reason: §e" + reason : "";
+        player.disconnect(new TextComponent("§6You have been kicked by §e" + sender.getDisplayName() + "§6." + s));
 
         if(!silent) {
-            sendMessage(getAllPlayers(), "§e" + player.getDisplayName() + "§6 was kicked by §e" + sender.getDisplayName() + "§6." + (reason.length() > 0 ? " Reason: §e" + reason : ""));
+            sendMessage(getAllPlayers(), "§e" + player.getDisplayName() + "§6 was kicked by §e" + sender.getDisplayName() + "§6." + s);
         }
         else {
-            sendMessage(getAllPlayersWithPermission("cvchat.kick.notifysilent"), "§c[Silent] §e" + player.getDisplayName() + "§6 was kicked by §e" + sender.getDisplayName() + "§6." + (reason.length() > 0 ? " Reason: §e" + reason : ""));
+            sendMessage(getAllPlayersWithPermission("cvchat.kick.notifysilent"), "§c[Silent] §e" + player.getDisplayName() + "§6 was kicked by §e" + sender.getDisplayName() + "§6." + s);
         }
     }
 }

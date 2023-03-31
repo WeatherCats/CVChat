@@ -1,5 +1,6 @@
 package org.cubeville.cvchat.commands;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
@@ -21,18 +22,18 @@ public class ChannelCommand extends Command
 
         if(args.length > 0 && ("join".startsWith(args[0]) || "leave".startsWith(args[0]))) {
             if(args.length != 2) {
-                if(args.length == 1) player.sendMessage("§cToo few arguments.");
-                else player.sendMessage("§cToo many arguments.");
-                player.sendMessage("§c/channel " + args[0] + " <name>");
+                if(args.length == 1) player.sendMessage(new TextComponent("§cToo few arguments."));
+                else player.sendMessage(new TextComponent("§cToo many arguments."));
+                player.sendMessage(new TextComponent("§c/channel " + args[0] + " <name>"));
                 return;
             }
 
             String channelName = args[1].toLowerCase();
             if(!channelManager.getChannelMap().containsKey(channelName)) {
-                player.sendMessage("§cThat channel doesn't exist.");
+                player.sendMessage(new TextComponent("§cThat channel doesn't exist."));
                 return;
             }
-            boolean changed = false;
+            boolean changed;
             if (args[0].charAt(0) == 'l') {
                 changed = channelManager.getChannelMap().get(channelName).leave(player);
             }
@@ -43,8 +44,8 @@ public class ChannelCommand extends Command
         }
         else if(args.length > 0 && "list".startsWith(args[0])) {
             if(args.length != 1) {
-                player.sendMessage("§cToo many arguments.");
-                player.sendMessage("§c/channel list");
+                player.sendMessage(new TextComponent("§cToo many arguments."));
+                player.sendMessage(new TextComponent("§c/channel list"));
                 return;
             }
             StringBuilder channelList = new StringBuilder();
@@ -54,11 +55,11 @@ public class ChannelCommand extends Command
                     channelList.append(channel);
                 }
             }
-            player.sendMessage("§e----- §6Channel List§e -----------");
-            player.sendMessage(channelList.toString());
+            player.sendMessage(new TextComponent("§e----- §6Channel List§e -----------"));
+            player.sendMessage(new TextComponent(channelList.toString()));
         }
         else {
-            player.sendMessage("§c/channel <leave|join|list>");
+            player.sendMessage(new TextComponent("§c/channel <leave|join|list>"));
         }
     }
 }

@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import org.cubeville.cvchat.sanctions.SanctionManager;
 
 public class TempbanCommand extends CommandBase
@@ -32,7 +33,7 @@ public class TempbanCommand extends CommandBase
             amount = Integer.parseInt(args[offset + 1]);
         }
         catch(NumberFormatException e) {
-            sender.sendMessage("§cAmount parameter must be numeric.");
+            sender.sendMessage(new TextComponent("§cAmount parameter must be numeric."));
             return;
         }
 
@@ -47,24 +48,24 @@ public class TempbanCommand extends CommandBase
             amount *= 60;
         }
         else {
-            sender.sendMessage("§cUnit must be minutes, hours or days.");
+            sender.sendMessage(new TextComponent("§cUnit must be minutes, hours or days."));
             return;
         }
 
         if(amount > 3600 && sender.hasPermission("cvchat.tempban.limited") && !sender.hasPermission("cvchat.tempban.unlimited")) {
-            sender.sendMessage("§cYou can't tempban for more than 1 hour.");
+            sender.sendMessage(new TextComponent("§cYou can't tempban for more than 1 hour."));
             return;
         }
         
         if(amount > 604800 && !sender.hasPermission("cvchat.tempban.unlimited")) {
-            sender.sendMessage("§cYou can't tempban for more than 7 days.");
+            sender.sendMessage(new TextComponent("§cYou can't tempban for more than 7 days."));
             return;
         }
 
         String banReason = joinStrings(args, offset + 3);
         UUID bannedPlayerId = getPDM().getPlayerId(args[offset]);
         if(bannedPlayerId == null) {
-            sender.sendMessage("§cUnknown player §e" + args[offset]);
+            sender.sendMessage(new TextComponent("§cUnknown player §e" + args[offset]));
             return;
         }
         if(!verifyOutranks(sender, bannedPlayerId)) return;
@@ -79,6 +80,6 @@ public class TempbanCommand extends CommandBase
             sendMessage(getAllPlayersWithPermission("cvchat.ban.notifysilent"), "§c[Silent] §e" + bannedPlayerName + "§6 was temporarily banned by §e" + senderName + "§6. Reason: §e" + banReason);
         }
 
-        sender.sendMessage("§dPlease don't forget to make a /note!");
+        sender.sendMessage(new TextComponent("§dPlease don't forget to make a /note!"));
     }
 }

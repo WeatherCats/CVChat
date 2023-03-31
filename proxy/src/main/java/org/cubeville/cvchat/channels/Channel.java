@@ -3,6 +3,7 @@ package org.cubeville.cvchat.channels;
 import java.util.*;
 
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.CommandSender;
 
@@ -78,23 +79,23 @@ public class Channel
     
     public void sendMessage(CommandSender player, String message) {
         if(SanctionManager.getInstance().isPlayerMuted(player)) {
-            player.sendMessage("§cYou are muted.");
+            player.sendMessage(new TextComponent("§cYou are muted."));
             return;
         }
 
         if(SanctionManager.getInstance().isAllChatMuted() && !player.hasPermission("cvchat.muteallbypass")) {
-            player.sendMessage("§cAll chat is muted.");
+            player.sendMessage(new TextComponent("§cAll chat is muted."));
             return;
         }
         
         if(((!sendPermission.equals("default")) && !player.hasPermission(sendPermission)) || ((!viewPermission.equals("default")) && !player.hasPermission(viewPermission))) {
-            player.sendMessage("§cPermission denied.");
+            player.sendMessage(new TextComponent("§cPermission denied."));
             return;
         }
         
         if(player instanceof ProxiedPlayer) {
             if(!members.contains(((ProxiedPlayer) player).getUniqueId())) {
-                player.sendMessage("§cYou're currently not a member of this channel. Join with /ch join " + name + ".");
+                player.sendMessage(new TextComponent("§cYou're currently not a member of this channel. Join with /ch join " + name + "."));
                 return;
             }
         }
@@ -114,27 +115,27 @@ public class Channel
             if(SanctionManager.getInstance().checkFilter(newMessage.toString())) {
                 String fm = message; //SanctionManager.getInstance().getFilterHighlight();
                 if(player.hasPermission("cvchat.nofilterkick")) {
-                    player.sendMessage("§cMessage filtered for swearing!");
+                    player.sendMessage(new TextComponent("§cMessage filtered for swearing!"));
                 }
                 else {
-                    pp.disconnect("§cKicked for swearing:\n" + fm);
+                    pp.disconnect(new TextComponent("§cKicked for swearing:\n" + fm));
                     SanctionManager.getInstance().addFilteredMessage(pp.getUniqueId(), message);
                     for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
-                        p.sendMessage("§e" + pp.getDisplayName() + "§c got kicked for swearing.");
-                        if(p.hasPermission("cvchat.showfiltercause")) p.sendMessage("§cMessage: §r" + fm);
+                        p.sendMessage(new TextComponent("§e" + pp.getDisplayName() + "§c got kicked for swearing."));
+                        if(p.hasPermission("cvchat.showfiltercause")) p.sendMessage(new TextComponent("§cMessage: §r" + fm));
                     }
                 }
                 return;
             }
             if(SanctionManager.getInstance().checkCaps(message)) {
                 if(!player.hasPermission("cvchat.bypasscapsfilter")) {
-                    player.sendMessage("§cPlease turn off caps lock or use less caps, message filtered.");
+                    player.sendMessage(new TextComponent("§cPlease turn off caps lock or use less caps, message filtered."));
                     return;
                 }
             }
             if(SanctionManager.getInstance().checkSpam(message)) {
                 if(!player.hasPermission("cvchat.bypasscapsfilter")) {
-                    player.sendMessage("§cPlease avoid repetition of the same character or character sequence, message filtered.");
+                    player.sendMessage(new TextComponent("§cPlease avoid repetition of the same character or character sequence, message filtered."));
                     return;
                 }
             }
@@ -230,7 +231,7 @@ public class Channel
         }
         for(ProxiedPlayer p: recipientList) {
             if(members.contains(p.getUniqueId())) {
-                p.sendMessage(formattedMessage);
+                p.sendMessage(new TextComponent(formattedMessage));
             }
         }
     }
@@ -240,7 +241,7 @@ public class Channel
     }
 
     protected void sendFailureMessage(CommandSender player) {
-        player.sendMessage("§cNobody hears your message.");
+        player.sendMessage(new TextComponent("§cNobody hears your message."));
     }
     
     private boolean hasViewPermission(ProxiedPlayer player) {
@@ -255,30 +256,30 @@ public class Channel
     
     public boolean join(ProxiedPlayer player) {
         if(members.contains(player.getUniqueId())) {
-            player.sendMessage("§cYou are already in that channel.");
+            player.sendMessage(new TextComponent("§cYou are already in that channel."));
         }
         else if(hasViewPermission(player) && (users == null || users.contains(player.getUniqueId().toString()))) {
             members.add(player.getUniqueId());
-            player.sendMessage("§aYou have joined channel '" + name + "'.");
+            player.sendMessage(new TextComponent("§aYou have joined channel '" + name + "'."));
             return true;
         }
         else {
-            player.sendMessage("§cYou do not have permission to join that channel.");
+            player.sendMessage(new TextComponent("§cYou do not have permission to join that channel."));
         }
         return false;
     }
 
     public boolean leave(ProxiedPlayer player) {
         if(!members.contains(player.getUniqueId())) {
-            player.sendMessage("§cYou are not in that channel.");
+            player.sendMessage(new TextComponent("§cYou are not in that channel."));
         }
         else if(leavePermission.equals("default") || player.hasPermission(leavePermission)) {
             members.remove(player.getUniqueId());
-            player.sendMessage("§aYou have left channel '" + name + "'.");
+            player.sendMessage(new TextComponent("§aYou have left channel '" + name + "'."));
             return true;
         }
         else {
-            player.sendMessage("§cYou can't leave this channel.");
+            player.sendMessage(new TextComponent("§cYou can't leave this channel."));
         }
         return false;
     }

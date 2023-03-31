@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.ProxyServer;
 
@@ -18,7 +19,7 @@ public class PTrCommand extends CommandBase
 
     public void executeC(CommandSender commandSender, String[] args) {
         if(args.length < 2) {
-            commandSender.sendMessage("§c/ptr [!]<player>[,player...] <message>");
+            commandSender.sendMessage(new TextComponent("§c/ptr [!]<player>[,player...] <message>"));
             return;
         }
 
@@ -51,7 +52,7 @@ public class PTrCommand extends CommandBase
 
         if(notFound.length() > 0) {
             if(commandSender instanceof ProxiedPlayer) {
-                commandSender.sendMessage("§cPlayers not found: " + notFound + ", not sending any messages.");
+                commandSender.sendMessage(new TextComponent("§cPlayers not found: " + notFound + ", not sending any messages."));
                 return;
             }
         }
@@ -62,6 +63,6 @@ public class PTrCommand extends CommandBase
         }
         
         if(commandSender instanceof ProxiedPlayer)
-            commandSender.sendMessage("§8ptr: §r" + message);
+            commandSender.sendMessage(new TextComponent("§8ptr: §r" + message));
     }
 }

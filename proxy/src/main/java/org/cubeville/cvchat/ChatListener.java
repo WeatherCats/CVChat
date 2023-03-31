@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
@@ -97,7 +98,7 @@ public class ChatListener implements Listener, IPCInterface {
         
         boolean finishedTutorial = PlayerDataManager.getInstance().finishedTutorial(player.getUniqueId());
         if(!finishedTutorial && !tutorialChatUnlocked.contains(player.getUniqueId()) && !player.hasPermission("cvchat.bypasstutorial")) {
-            player.sendMessage("§cNo permission. Please proceed first.");
+            player.sendMessage(new TextComponent("§cNo permission. Please proceed first."));
             event.setCancelled(true);
             System.out.println("Cancelling command due to tutorial intro for player " + player.getName());
             return;
@@ -145,14 +146,14 @@ public class ChatListener implements Listener, IPCInterface {
             cmd = cmd.toLowerCase();
 
             if(commandWhitelist == null || commandWhitelist.get("tutorial") == null) {
-                player.sendMessage("§cCommand verification problems, please tell a server administrator.");
+                player.sendMessage(new TextComponent("§cCommand verification problems, please tell a server administrator."));
                 event.setCancelled(true);
                 return;
             }
             
             if(!finishedTutorial) {
                 if(commandWhitelist.get("tutorial").contains(cmd)) return;
-                player.sendMessage("§cYou have limited permissions, please finish the tutorial first.");
+                player.sendMessage(new TextComponent("§cYou have limited permissions, please finish the tutorial first."));
                 event.setCancelled(true);
                 System.out.println("Cancelling command for player, not contained in tutorial whitelist: " + player.getName());
                 return;
@@ -162,7 +163,7 @@ public class ChatListener implements Listener, IPCInterface {
                 if(commandWhitelist.get(whitelist).contains(cmd) && player.hasPermission("cvchat.whitelist." + whitelist)) return;
             }
 
-            player.sendMessage("§cNo permission.");
+            player.sendMessage(new TextComponent("§cNo permission."));
             event.setCancelled(true);
             return;
         }
@@ -176,7 +177,7 @@ public class ChatListener implements Listener, IPCInterface {
                 if(message.length() == 0) return;
             }
             else {
-                player.sendMessage("§cAdd a / to speak in local chat when you're in /v.");
+                player.sendMessage(new TextComponent("§cAdd a / to speak in local chat when you're in /v."));
                 return;
             }
         }

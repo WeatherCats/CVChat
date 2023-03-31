@@ -3,6 +3,7 @@ package org.cubeville.cvchat.commands;
 import java.util.Map;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
@@ -20,8 +21,8 @@ public class PrefixCommand extends Command
         ProxiedPlayer sender = (ProxiedPlayer) commandSender;
 
         if(args.length != 1) {
-            if(args.length > 1) sender.sendMessage("§cToo many arguments.");
-            sender.sendMessage("§c/prefix <list|rank>");
+            if(args.length > 1) sender.sendMessage(new TextComponent("§cToo many arguments."));
+            sender.sendMessage(new TextComponent("§c/prefix <list|rank>"));
             return;
         }
 
@@ -33,17 +34,17 @@ public class PrefixCommand extends Command
                 if(l.length() > 0) l.append(", ");
                 l.append(s);
             }
-            sender.sendMessage("§e---------- §rPrefix list §e----------");
-            sender.sendMessage(l.toString());
+            sender.sendMessage(new TextComponent("§e---------- §rPrefix list §e----------"));
+            sender.sendMessage(new TextComponent(l.toString()));
         }
 
         else {
             if(p.containsKey(args[0])) {
                 PlayerDataManager.getInstance().changePrefix(sender.getUniqueId(), p.get(args[0]));
-                sender.sendMessage("§aPrefix changed.");
+                sender.sendMessage(new TextComponent("§aPrefix changed."));
             }
             else {
-                sender.sendMessage("§cInvalid prefix.");
+                sender.sendMessage(new TextComponent("§cInvalid prefix."));
             }
         }
     }

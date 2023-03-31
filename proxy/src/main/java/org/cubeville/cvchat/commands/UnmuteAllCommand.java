@@ -1,6 +1,7 @@
 package org.cubeville.cvchat.commands;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.cubeville.cvchat.Util;
 import org.cubeville.cvchat.sanctions.SanctionManager;
@@ -17,7 +18,7 @@ public class UnmuteAllCommand extends CommandBase {
         ProxiedPlayer sender = (ProxiedPlayer) commandSender;
 
         if(!getSanctionManager().isAllChatMuted()) {
-            sender.sendMessage("§cAll chat is not muted.");
+            sender.sendMessage(new TextComponent("§cAll chat is not muted."));
             return;
         }
 
