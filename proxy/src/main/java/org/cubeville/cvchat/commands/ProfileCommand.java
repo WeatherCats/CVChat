@@ -36,12 +36,11 @@ public class ProfileCommand extends CommandBase
 
         boolean showFullProfile = false;
         List<String> searchTerms = new ArrayList<>();
-        for(int i = 0; i < args.length; i++) {
-            if(args[i].equals("full")) {
+        for (String arg : args) {
+            if (arg.equals("full")) {
                 showFullProfile = true;
-            }
-            else {
-                searchTerms.add(args[i]);
+            } else {
+                searchTerms.add(arg);
             }
         }
 
@@ -91,7 +90,7 @@ public class ProfileCommand extends CommandBase
         boolean finishedTutorial = getPDM().finishedTutorial(playerId);
 
         sender.sendMessage("§4* §r" + playerName);
-        if(finishedTutorial == false) {
+        if(!finishedTutorial) {
             sender.sendMessage("§4! §cPlayer has not finished the tutorial");
         }
 
@@ -115,19 +114,19 @@ public class ProfileCommand extends CommandBase
                 lastOnline ="just now";
             }
             else if(diff < 7200) {
-                lastOnline += String.valueOf(diff / 60) + " minutes ago";
+                lastOnline += diff / 60 + " minutes ago";
             }
             else if(diff < 172800) {
-                lastOnline += String.valueOf(diff / 3600) + " hours ago";
+                lastOnline += diff / 3600 + " hours ago";
             }
             else if(diff < 1209600) {
-                lastOnline += String.valueOf(diff / 86400) + " days ago";
+                lastOnline += diff / 86400 + " days ago";
             }
             else if(diff < 5356800) {
-                lastOnline += String.valueOf(diff / 604800) + " weeks ago";
+                lastOnline += diff / 604800 + " weeks ago";
             }
             else {
-                lastOnline += String.valueOf(diff / 2592000) + " months ago";
+                lastOnline += diff / 2592000 + " months ago";
             }
             lastOnline += "§r (" + dateFormat.format(new Date(lastOnlineTime)) + ")";
         }
@@ -142,26 +141,24 @@ public class ProfileCommand extends CommandBase
         // TODO: current location
         final UUID fPlayerId = playerId;
         boolean fShowFullProfile = showFullProfile;
-        ProxyServer.getInstance().getScheduler().runAsync(plugin, new Runnable() {
-                public void run() {
-                    List<ProfileEntry> entries = ProfilesDao.getInstance().getProfileEntries(fPlayerId);
-                    int cnt = 0;
-                    int more = 0;
-                    for(ProfileEntry entry: entries) {
-                        cnt++;
-                        if(cnt <= 4 || fShowFullProfile) {
-                            String txt = "§c" + dateFormat.format(new Date(entry.getCommentTime())) + "§r " + entry.getComment() + " [" + getPDM().getPlayerName(entry.getAuthor()) + "]";
-                            sender.sendMessage(txt);
-                        }
-                        else
-                            more++;
-                    }
-                    if(more > 0) {
-                        sender.sendMessage("§c...and " + more + " more, to view them enter /profile <player> full");
-                    }
-                    sender.sendMessage(firstLoginMessage);
-                    sender.sendMessage(lastOnlineMessage);
+        ProxyServer.getInstance().getScheduler().runAsync(plugin, () -> {
+            List<ProfileEntry> entries = ProfilesDao.getInstance().getProfileEntries(fPlayerId);
+            int cnt = 0;
+            int more = 0;
+            for(ProfileEntry entry: entries) {
+                cnt++;
+                if(cnt <= 4 || fShowFullProfile) {
+                    String txt = "§c" + dateFormat.format(new Date(entry.getCommentTime())) + "§r " + entry.getComment() + " [" + getPDM().getPlayerName(entry.getAuthor()) + "]";
+                    sender.sendMessage(txt);
                 }
-            });
+                else
+                    more++;
+            }
+            if(more > 0) {
+                sender.sendMessage("§c...and " + more + " more, to view them enter /profile <player> full");
+            }
+            sender.sendMessage(firstLoginMessage);
+            sender.sendMessage(lastOnlineMessage);
+        });
     }
 }

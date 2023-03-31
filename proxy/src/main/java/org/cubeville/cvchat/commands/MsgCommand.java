@@ -1,15 +1,11 @@
 package org.cubeville.cvchat.commands;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Command;
 
 import org.cubeville.cvchat.Util;
 import org.cubeville.cvchat.playerdata.PlayerDataManager;
@@ -32,7 +28,7 @@ public class MsgCommand extends CommandBase
     }
 
     public static boolean disabledRefusal(UUID player) {
-        if(!disableRefusal.keySet().contains(player)) return false;
+        if(!disableRefusal.containsKey(player)) return false;
         if(disableRefusal.get(player) == 0) return true;
         if(System.currentTimeMillis() - disableRefusal.get(player) > temporaryDisableTimeout) {
             disableRefusal.remove(player);
@@ -44,7 +40,7 @@ public class MsgCommand extends CommandBase
     }
 
     public static void resetTemporarilyDisabledRefusal(UUID player) {
-        if(!disableRefusal.keySet().contains(player)) return;
+        if(!disableRefusal.containsKey(player)) return;
         if(disableRefusal.get(player) == 0) return;
         if(System.currentTimeMillis() - disableRefusal.get(player) > temporaryDisableTimeout)
             disableRefusal.remove(player);
@@ -62,20 +58,19 @@ public class MsgCommand extends CommandBase
                 return;
             }
             else if(args.length == 1) {
-                if(args[0].equals("on")) {
-                    disableRefusal.put(sender.getUniqueId(), 0L);
-                    sender.sendMessage("§aYou will receive private messages now.");
-                    return;
-                }
-                else if(args[0].equals("tmp")) {
-                    disableRefusal.put(sender.getUniqueId(), System.currentTimeMillis());
-                    sender.sendMessage("§aYou will receive private messages temporarily now.");
-                    return;
-                }
-                else if(args[0].equals("off")) {
-                    disableRefusal.remove(sender.getUniqueId());
-                    sender.sendMessage("§aYou will not receive private messages now.");
-                    return;
+                switch (args[0]) {
+                    case "on":
+                        disableRefusal.put(sender.getUniqueId(), 0L);
+                        sender.sendMessage("§aYou will receive private messages now.");
+                        return;
+                    case "tmp":
+                        disableRefusal.put(sender.getUniqueId(), System.currentTimeMillis());
+                        sender.sendMessage("§aYou will receive private messages temporarily now.");
+                        return;
+                    case "off":
+                        disableRefusal.remove(sender.getUniqueId());
+                        sender.sendMessage("§aYou will not receive private messages now.");
+                        return;
                 }
             }
         }
@@ -87,7 +82,7 @@ public class MsgCommand extends CommandBase
         ProxiedPlayer recipient = getPlayerByVisibleName(args[0]);
         
         if(recipient == null ||
-           (Util.playerIsUnlisted(recipient) == true && recipient.hasPermission("cvchat.refusepm") == true && sender.hasPermission("cvchat.showvanished") == false && disabledRefusal(recipient.getUniqueId()) == false)) {
+           (Util.playerIsUnlisted(recipient) && recipient.hasPermission("cvchat.refusepm") && !sender.hasPermission("cvchat.showvanished") && !disabledRefusal(recipient.getUniqueId()))) {
             sender.sendMessage("§cPlayer not found!");
             if(recipient == null) return;
             fakeNotFound = true;

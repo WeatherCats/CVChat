@@ -17,7 +17,7 @@ public class DoneCommand extends CommandBase
     public void executeC(CommandSender commandSender, String[] args) {
         if(args.length != 0) {
             try {
-                int id = Integer.valueOf(args[0]);
+                int id = Integer.parseInt(args[0]);
                 String text = "";
                 for(int i = 1; i < args.length; i++) {
                     if(i > 1) text += " ";

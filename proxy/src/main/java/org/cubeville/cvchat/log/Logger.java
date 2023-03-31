@@ -40,7 +40,7 @@ public class Logger implements Runnable
             bufferedWriter = new BufferedWriter(fileWriter);
             printWriter = new PrintWriter(bufferedWriter);
         }
-        catch(IOException e) {}
+        catch(IOException ignored) {}
 
     }
     

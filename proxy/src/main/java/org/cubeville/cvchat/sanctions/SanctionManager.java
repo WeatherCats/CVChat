@@ -118,7 +118,7 @@ public class SanctionManager
 
     public boolean checkFilter(String message) {
         for(String term: filterTerms) {
-            if(message.toLowerCase().indexOf(term) != -1) return true;
+            if(message.toLowerCase().contains(term)) return true;
         }
         return false;
     }

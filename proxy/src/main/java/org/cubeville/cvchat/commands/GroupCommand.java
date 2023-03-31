@@ -36,7 +36,7 @@ public class GroupCommand extends CommandBase
                 return;
             }
 
-            if(channel.isInvited(player, groupPlayer) == false) {
+            if(!channel.isInvited(player, groupPlayer)) {
                 if(!player.hasPermission("cvchat.channel.group.forcejoin")) {
                     player.sendMessage("§cThat player has not invited you to their group!");
                     return;
@@ -75,11 +75,11 @@ public class GroupCommand extends CommandBase
                 return;
             }
             Collection<ProxiedPlayer> members = channel.getGroupMembers(player);
-            String list = "";
+            StringBuilder list = new StringBuilder();
             for(ProxiedPlayer member: members) {
                 if(!Util.playerIsUnlisted(member)) {
-                    if(list.length() > 0) list += "§r, ";
-                    list += member.getDisplayName();
+                    if(list.length() > 0) list.append("§r, ");
+                    list.append(member.getDisplayName());
                 }
             }
             player.sendMessage("§9[Group]§rMembers online: " + list);

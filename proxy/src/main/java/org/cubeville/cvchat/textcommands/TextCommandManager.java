@@ -24,7 +24,7 @@ public class TextCommandManager
         int id = 0;
         for(String key: commands) {
             Configuration c = (Configuration) config.get(key);
-            Set<String> aliases = new HashSet<String>(c.getStringList("commands"));
+            Set<String> aliases = new HashSet<>(c.getStringList("commands"));
             boolean mandatory = c.getBoolean("mandatory");
             TextCommand tc = new TextCommand(id++, aliases, c.getStringList("text"), mandatory);
             textCommands.add(tc);

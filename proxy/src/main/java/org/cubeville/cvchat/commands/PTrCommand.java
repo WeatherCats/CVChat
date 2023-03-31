@@ -35,17 +35,16 @@ public class PTrCommand extends CommandBase
 
         String[] playerNames = a0.split(",");
 
-        String notFound = "";
+        StringBuilder notFound = new StringBuilder();
 
         Set<UUID> listedPlayers = new HashSet<>();
-        
-        for(int i = 0; i < playerNames.length; i++) {
-            ProxiedPlayer player = ProxyServer.getInstance().getPlayer(playerNames[i]);
-            if(player == null) {
-                if(notFound.length() > 0) notFound += ", ";
-                notFound += playerNames[i];
-            }
-            else {
+
+        for (String playerName : playerNames) {
+            ProxiedPlayer player = ProxyServer.getInstance().getPlayer(playerName);
+            if (player == null) {
+                if (notFound.length() > 0) notFound.append(", ");
+                notFound.append(playerName);
+            } else {
                 listedPlayers.add(player.getUniqueId());
             }
         }

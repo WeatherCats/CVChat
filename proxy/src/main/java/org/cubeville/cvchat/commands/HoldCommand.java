@@ -21,12 +21,11 @@ public class HoldCommand extends CommandBase
         }
 
         try {
-            int id = Integer.valueOf(args[0]);
+            int id = Integer.parseInt(args[0]);
             ticketManager.holdTicket(commandSender, id);
         }
         catch (NumberFormatException e) {
             commandSender.sendMessage("§cInvalid ticket id.");
-            return;
         }
     }
 }

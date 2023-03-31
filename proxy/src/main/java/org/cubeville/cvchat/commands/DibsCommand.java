@@ -16,7 +16,7 @@ public class DibsCommand extends CommandBase
     public void executeC(CommandSender commandSender, String[] args) {
         if(args.length == 1) {
             try {
-                int id = Integer.valueOf(args[0]);
+                int id = Integer.parseInt(args[0]);
                 ticketManager.claimTicket(commandSender, id);
             }
             catch (NumberFormatException e) {

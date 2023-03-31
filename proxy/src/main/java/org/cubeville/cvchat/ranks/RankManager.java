@@ -1,10 +1,6 @@
 package org.cubeville.cvchat.ranks;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -65,7 +61,7 @@ public class RankManager
 
     public boolean isPrefixPermitted(ProxiedPlayer player, String prefix) {
         if(player.hasPermission("cvchat.customprefix")) return true;
-        if(prefix == "") return true;
+        if(Objects.equals(prefix, "")) return true;
         for(Prefix p: prefixes.values()) {
             if(p.getPrefix().equals(prefix)) {
                 return player.hasPermission(p.getPermission());

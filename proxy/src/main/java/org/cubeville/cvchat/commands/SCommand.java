@@ -40,7 +40,7 @@ public class SCommand extends CommandBase {
             for(Map<Long, String> messages: playerCommands) {
                 for(Map.Entry<Long, String> message: messages.entrySet()) {
                     String command = message.getValue();
-                    if(command.indexOf(searchstr) >= 0 && command.startsWith("/s ") == false && command.equals("/s") == false && command.startsWith("/si ") == false)
+                    if(command.contains(searchstr) && !command.startsWith("/s ") && !command.equals("/s") && !command.startsWith("/si "))
                         entries.add(command);
                 }
             }

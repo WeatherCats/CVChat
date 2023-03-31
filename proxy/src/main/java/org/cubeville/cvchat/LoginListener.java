@@ -95,7 +95,7 @@ public class LoginListener implements Listener
         {
             int forcedProtocolVersion = 758;
             int protocolVersion = connection.getVersion();
-            if(protocolVersion != forcedProtocolVersion && versionCheckBypass.contains(uuid) == false) {
+            if(protocolVersion != forcedProtocolVersion && !versionCheckBypass.contains(uuid)) {
                 event.setCancelled(true);
                 event.setCancelReason("§cPlease use §aMinecraft v1.18.2 §cfor Cubeville.\nhttp://cubeville.org/version");
                 return;
@@ -106,7 +106,7 @@ public class LoginListener implements Listener
             // Count number of new players in last two minutes
             int c2min = newPlayerLoginCount(120000);
             int c10min = newPlayerLoginCount(600000);
-            if(c2min >= 4 || c10min >= 6 || newPlayerBlocker == true) {
+            if(c2min >= 4 || c10min >= 6 || newPlayerBlocker) {
                 if(newPlayerBlocker) {
                     System.out.println(connection.getName() + " blocked from logging on. Cause: New player blocker.");
                 }
@@ -139,19 +139,14 @@ public class LoginListener implements Listener
                 File confirmation = new File("/var/www/2falogin/players/ip" + uuid.toString());
                 if(confirmation.exists()) {
                     try {
-                        BufferedReader br = new BufferedReader(new FileReader(confirmation));
-                        try {
+                        try (BufferedReader br = new BufferedReader(new FileReader(confirmation))) {
                             String line = br.readLine();
-                            if(line != null && line.equals(ip)) {
+                            if (line != null && line.equals(ip)) {
                                 System.out.println("Login verification: " + ip + " equals " + line);
                                 ipConfirmValid = true;
-                            }
-                            else {
+                            } else {
                                 System.out.println("Login verification: " + ip + " does not equal " + line);
                             }
-                        }
-                        finally {
-                            br.close();
                         }
                     }
                     catch(Exception e) {
@@ -159,8 +154,8 @@ public class LoginListener implements Listener
                     }
                 }
             }
-            if(ipConfirmValid == false) {
-                if(confirmationIP.get(uuid) == null || confirmationIP.get(uuid).equals(ip) == false) {
+            if(!ipConfirmValid) {
+                if(confirmationIP.get(uuid) == null || !confirmationIP.get(uuid).equals(ip)) {
                     File confirmation = new File("/var/www/2falogin/players/" + uuid.toString());
                     long period = 1000000;
                     if(confirmation.exists()) {
@@ -308,7 +303,7 @@ public class LoginListener implements Listener
     
     private void sendPublicMessage(String playerName, String status, boolean newPlayer) {
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
-            if(newPlayer == true && p.hasPermission("cvchat.informnewplayer")) {
+            if(newPlayer && p.hasPermission("cvchat.informnewplayer")) {
                 p.sendMessage("§e" + playerName + "§e " + status + " the game. §a(New player)");
             }
             else {
@@ -332,25 +327,25 @@ public class LoginListener implements Listener
     }
 
     private void sendIPMatchMessage(String name, List<String> names, List<Boolean> permbanned, List<Boolean> tempbanned) {
-        String message = "";
+        StringBuilder message = new StringBuilder();
         for(int i = 0; i < names.size(); i++) {
-            if(message.length() > 0) message += "§2, ";
+            if(message.length() > 0) message.append("§2, ");
             if(permbanned.get(i)) {
-                message += "§c";
+                message.append("§c");
             }
             else if(tempbanned.get(i)) {
-                message += "§e";
+                message.append("§e");
             }
             else {
-                message += "§a";
+                message.append("§a");
             }
-            message += names.get(i);
+            message.append(names.get(i));
         }
-        message = "§2" + name + " could also be: §a" + message + "§2.";
+        message = new StringBuilder("§2" + name + " could also be: §a" + message + "§2.");
         
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
             if(p.hasPermission("cvchat.notifyipmatch")) {
-                p.sendMessage(message);
+                p.sendMessage(message.toString());
             }
         }
     }

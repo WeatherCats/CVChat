@@ -1,12 +1,9 @@
 package org.cubeville.cvchat.commands;
 
-import java.util.Map;
-
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 
-import org.cubeville.cvchat.channels.Channel;
 import org.cubeville.cvchat.channels.ChannelManager;
 
 public class ChannelCommand extends Command
@@ -50,15 +47,15 @@ public class ChannelCommand extends Command
                 player.sendMessage("§c/channel list");
                 return;
             }
-            String channelList = "";
+            StringBuilder channelList = new StringBuilder();
             for(String channel: channelManager.getChannelMap().keySet()) {
                 if(channelManager.getChannelMap().get(channel).canList(player)) {
-                    if(channelList.length() > 0) channelList += "§a,§r ";
-                    channelList += channel;
+                    if(channelList.length() > 0) channelList.append("§a,§r ");
+                    channelList.append(channel);
                 }
             }
             player.sendMessage("§e----- §6Channel List§e -----------");
-            player.sendMessage(channelList);
+            player.sendMessage(channelList.toString());
         }
         else {
             player.sendMessage("§c/channel <leave|join|list>");

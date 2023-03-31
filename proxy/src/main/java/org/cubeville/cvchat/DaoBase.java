@@ -1,14 +1,9 @@
 package org.cubeville.cvchat;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 
@@ -34,7 +29,7 @@ public class DaoBase
                 return connection;
             }
             catch(SQLException e) {
-                try { connection.close(); } catch(Exception ed) {}
+                try { connection.close(); } catch(Exception ignored) {}
             }
         }
         openConnection();

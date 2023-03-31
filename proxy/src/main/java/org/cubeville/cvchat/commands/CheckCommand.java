@@ -22,44 +22,39 @@ public class CheckCommand extends CommandBase
         UUID playerId = null;
         UUID modId = null;
         int id = -1;
-        
-        for(int i = 0; i < args.length; i++) {
-            if(args[i].equals("t:held")) {
+
+        for (String arg : args) {
+            if (arg.equals("t:held")) {
                 held = true;
-            }
-            else if(args[i].equals("t:closed")) {
+            } else if (arg.equals("t:closed")) {
                 closed = true;
-            }
-            else if(args[i].startsWith("p:")) {
+            } else if (arg.startsWith("p:")) {
                 try {
-                    page = Integer.valueOf(args[i].substring(2));
-                }
-                catch(NumberFormatException e) {
+                    page = Integer.parseInt(arg.substring(2));
+                } catch (NumberFormatException e) {
                     commandSender.sendMessage("§6The p: parameter must be numeric.");
                     return;
                 }
-            } else if(args[i].startsWith("u:")) {
-                playerId = getPDM().getPlayerId(args[i].substring(2));
+            } else if (arg.startsWith("u:")) {
+                playerId = getPDM().getPlayerId(arg.substring(2));
                 if (playerId == null) {
                     commandSender.sendMessage("§6The u: parameter must be used with their current name.");
                     return;
                 }
-            } else if(args[i].startsWith("m:")) {
-                if(!commandSender.hasPermission("cvchat.ticket.search.mod")) {
+            } else if (arg.startsWith("m:")) {
+                if (!commandSender.hasPermission("cvchat.ticket.search.mod")) {
                     commandSender.sendMessage("§cNo permission.");
                     return;
                 }
-                modId = getPDM().getPlayerId(args[i].substring(2));
-                if(modId == null) {
+                modId = getPDM().getPlayerId(arg.substring(2));
+                if (modId == null) {
                     commandSender.sendMessage("§6The m: parameter must be used with their current name.");
                     return;
                 }
-            }
-            else {
+            } else {
                 try {
-                    id = Integer.valueOf(args[i]);
-                }
-                catch(NumberFormatException e) {
+                    id = Integer.parseInt(arg);
+                } catch (NumberFormatException e) {
                     commandSender.sendMessage("§6Ticket # must be numeric.");
                     return;
                 }

@@ -4,8 +4,6 @@ import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
 
-import org.cubeville.cvchat.sanctions.SanctionManager;
-
 public class CheckbanCommand extends CommandBase
 {
     public CheckbanCommand() {

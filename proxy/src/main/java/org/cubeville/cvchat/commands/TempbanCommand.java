@@ -29,7 +29,7 @@ public class TempbanCommand extends CommandBase
 
         int amount;
         try {
-            amount = Integer.valueOf(args[offset + 1]);
+            amount = Integer.parseInt(args[offset + 1]);
         }
         catch(NumberFormatException e) {
             sender.sendMessage("§cAmount parameter must be numeric.");
@@ -51,12 +51,12 @@ public class TempbanCommand extends CommandBase
             return;
         }
 
-        if(amount > 3600 && sender.hasPermission("cvchat.tempban.limited") == true && sender.hasPermission("cvchat.tempban.unlimited") == false) {
+        if(amount > 3600 && sender.hasPermission("cvchat.tempban.limited") && !sender.hasPermission("cvchat.tempban.unlimited")) {
             sender.sendMessage("§cYou can't tempban for more than 1 hour.");
             return;
         }
         
-        if(amount > 604800 && sender.hasPermission("cvchat.tempban.unlimited") == false) {
+        if(amount > 604800 && !sender.hasPermission("cvchat.tempban.unlimited")) {
             sender.sendMessage("§cYou can't tempban for more than 7 days.");
             return;
         }

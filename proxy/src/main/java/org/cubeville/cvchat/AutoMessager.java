@@ -20,7 +20,7 @@ public class AutoMessager
                 public void run() {
                     String msg = messages.get(next);
                     for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
-                        if(p.hasPermission("cvchat.disableautomessages") == false) {
+                        if(!p.hasPermission("cvchat.disableautomessages")) {
                             p.sendMessage(msg);
                         }
                     }

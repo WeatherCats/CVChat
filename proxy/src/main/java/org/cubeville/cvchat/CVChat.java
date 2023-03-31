@@ -70,7 +70,7 @@ public class CVChat extends Plugin {
         Map<String, Set<String>> commandWhitelist = new HashMap<>();
         Configuration whitelistConfig = (Configuration) config.get("whitelist");
         for(String whitelist: whitelistConfig.getKeys()) {
-            commandWhitelist.put(whitelist, new HashSet<String>(whitelistConfig.getStringList(whitelist)));
+            commandWhitelist.put(whitelist, new HashSet<>(whitelistConfig.getStringList(whitelist)));
         }
         chatListener.setCommandWhitelist(commandWhitelist);
     }
@@ -78,8 +78,7 @@ public class CVChat extends Plugin {
     private Configuration loadConfigFile() {
         File configFile = new File(getDataFolder(), "config.yml");
         try {
-            Configuration config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
-            return config;
+            return ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
         }
         catch(Exception e) {
             throw new RuntimeException("Config loading failed: " + e.getMessage());
@@ -92,12 +91,10 @@ public class CVChat extends Plugin {
 
         commandLoggingBlacklist = new HashSet<>();
         startupTime = System.currentTimeMillis();
-        ProxyServer.getInstance().getScheduler().schedule(this, new Runnable() {
-                public void run() {
-                    System.out.println("Uptime: " + (getUptime() / 60) + " minutes");
-                    ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), "who");
-                }
-            }, 60, 60, TimeUnit.SECONDS);
+        ProxyServer.getInstance().getScheduler().schedule(this, () -> {
+            System.out.println("Uptime: " + (getUptime() / 60) + " minutes");
+            ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), "who");
+        }, 60, 60, TimeUnit.SECONDS);
         
         logger = new Logger(new File(getDataFolder(), "logs"));
         ProxyServer.getInstance().getScheduler().schedule(this, logger, 2000, 2000, TimeUnit.MILLISECONDS);

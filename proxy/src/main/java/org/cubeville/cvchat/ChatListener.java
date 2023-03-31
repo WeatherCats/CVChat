@@ -40,7 +40,6 @@ public class ChatListener implements Listener, IPCInterface {
     
     public ChatListener(Channel localChannel, TextCommandManager textCommandManager, TicketManager ticketManager, CVIPC ipc, Set<String> commandLoggingBlacklist) {
         this.localChannel = localChannel;
-        this.commandWhitelist = commandWhitelist;
         this.textCommandManager = textCommandManager;
         this.ticketManager = ticketManager;
         tutorialChatUnlocked = new HashSet<>();
@@ -97,7 +96,7 @@ public class ChatListener implements Listener, IPCInterface {
         cvipc.sendMessage(serverName, "afktrigger|" + player.getUniqueId());
         
         boolean finishedTutorial = PlayerDataManager.getInstance().finishedTutorial(player.getUniqueId());
-        if(finishedTutorial == false && tutorialChatUnlocked.contains(player.getUniqueId()) == false && player.hasPermission("cvchat.bypasstutorial") == false) {
+        if(!finishedTutorial && !tutorialChatUnlocked.contains(player.getUniqueId()) && !player.hasPermission("cvchat.bypasstutorial")) {
             player.sendMessage("§cNo permission. Please proceed first.");
             event.setCancelled(true);
             System.out.println("Cancelling command due to tutorial intro for player " + player.getName());
@@ -108,8 +107,8 @@ public class ChatListener implements Listener, IPCInterface {
             for(Alias alias: aliases) {
 		for(String command: alias.getCommands()) {
 		    boolean complete = command.endsWith("$");
-		    if((complete == false && event.getMessage().toLowerCase().startsWith(command)) ||
-		       (complete == true && event.getMessage().toLowerCase().equals(command))) {
+		    if((!complete && event.getMessage().toLowerCase().startsWith(command)) ||
+		       (complete && event.getMessage().toLowerCase().equals(command))) {
 			if(alias.getServer() == null || alias.getServer().equals(player.getServer().getInfo().getName())) {
 			    String perm = alias.getPermission();
 			    boolean perminv = false;
@@ -118,7 +117,7 @@ public class ChatListener implements Listener, IPCInterface {
 				perm = perm.substring(1);
 			    }
 			    if(perm != null) perm = "cvchat.alias." + perm;
-			    if(perm == null || (perminv == false && player.hasPermission(perm) == true) || (perminv == true && player.hasPermission(perm) == false)) {
+			    if(perm == null || (!perminv && player.hasPermission(perm)) || (perminv && !player.hasPermission(perm))) {
 				List<String> translations = alias.getTranslate();
 				event.setMessage(translations.get(0) + event.getMessage().substring(command.length()));
 				for(int i = 1; i < translations.size(); i++) {
@@ -151,7 +150,7 @@ public class ChatListener implements Listener, IPCInterface {
                 return;
             }
             
-            if(finishedTutorial == false) {
+            if(!finishedTutorial) {
                 if(commandWhitelist.get("tutorial").contains(cmd)) return;
                 player.sendMessage("§cYou have limited permissions, please finish the tutorial first.");
                 event.setCancelled(true);
@@ -213,7 +212,7 @@ public class ChatListener implements Listener, IPCInterface {
                 players = new HashSet<>();
             }
             for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
-                if(Util.playerIsUnlisted(p) == false || player.hasPermission("cvchat.tabcompletion.seehidden")) {
+                if(!Util.playerIsUnlisted(p) || player.hasPermission("cvchat.tabcompletion.seehidden")) {
                     players.add(Util.removeColorCodes(p.getDisplayName()));
                 }
             }

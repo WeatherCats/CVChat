@@ -17,7 +17,7 @@ public class SuCommand extends CommandBase
         ProxyServer server = ProxyServer.getInstance();
 
         CommandSender tplayer;
-        if(args[0].toLowerCase().equals("console")) {
+        if(args[0].equalsIgnoreCase("console")) {
             tplayer = server.getConsole();
         }
         else {

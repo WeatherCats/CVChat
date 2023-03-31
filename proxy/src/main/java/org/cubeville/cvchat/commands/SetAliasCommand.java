@@ -22,8 +22,7 @@ public class SetAliasCommand extends CommandBase
 
         String playerName = args[0];
         String alias = args[1];
-        boolean reloadTab = true;
-        if(args.length == 3 && args[2].equalsIgnoreCase("-notab")) reloadTab = false;
+        boolean reloadTab = args.length != 3 || !args[2].equalsIgnoreCase("-notab");
         if(alias.equals("none")) alias = null;
         
         UUID playerId = getPDM().getPlayerId(playerName);

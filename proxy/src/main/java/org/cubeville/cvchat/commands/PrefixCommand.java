@@ -28,18 +28,17 @@ public class PrefixCommand extends Command
         Map<String, String> p = RankManager.getInstance().getPossiblePrefixes(sender);
         
         if(args[0].equals("list")) {
-            String l = "";
+            StringBuilder l = new StringBuilder();
             for(String s: p.keySet()) {
-                if(l.length() > 0) l += ", ";
-                l += s;
+                if(l.length() > 0) l.append(", ");
+                l.append(s);
             }
             sender.sendMessage("§e---------- §rPrefix list §e----------");
-            sender.sendMessage(l);
-            return;
+            sender.sendMessage(l.toString());
         }
 
         else {
-            if(p.keySet().contains(args[0])) {
+            if(p.containsKey(args[0])) {
                 PlayerDataManager.getInstance().changePrefix(sender.getUniqueId(), p.get(args[0]));
                 sender.sendMessage("§aPrefix changed.");
             }

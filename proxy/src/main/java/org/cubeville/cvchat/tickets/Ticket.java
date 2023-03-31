@@ -1,13 +1,6 @@
 package org.cubeville.cvchat.tickets;
 
-import java.util.StringTokenizer;
 import java.util.UUID;
-
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-
-import org.cubeville.cvipc.CVIPC;
-import org.cubeville.cvipc.IPCInterface;
 
 public class Ticket
 {

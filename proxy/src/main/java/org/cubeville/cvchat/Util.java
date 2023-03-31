@@ -26,20 +26,20 @@ import org.cubeville.cvvanish.CVVanish;
 public class Util
 {
     public static String joinStrings(String[] parts, int offset) {
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
         for(int i = offset; i < parts.length; i++) {
-            if(i > offset) ret += " ";
-            ret += parts[i];
+            if(i > offset) ret.append(" ");
+            ret.append(parts[i]);
         }
-        return ret;
+        return ret.toString();
     }
 
     public static String[] removeEmptyStrings(String[] args) {
         int nr = 0;
-        for(int i = 0; i < args.length; i++) {
-            if(args[i].length() > 0) nr++;
+        for (String arg : args) {
+            if (arg.length() > 0) nr++;
         }
-        String ret[] = new String[nr];
+        String[] ret = new String[nr];
         int c = 0;
         for(int i = 0; i < nr; i++) {
             while(args[c].length() == 0) {
@@ -52,16 +52,14 @@ public class Util
     }
 
     public static String removeSectionSigns(String text) {
-        text.replace("§", "");
-        return text;
+        return text.replace("§", "");
     }
 
     public static boolean getBooleanProperty(String text) {
         if(text.indexOf(':') == -1) return false;
         String s = text.substring(text.indexOf(':') + 1);
         s = s.trim();
-        if(s.equals("true")) return true;
-        return false;
+        return s.equals("true");
     }
 
     public static String getStringProperty(String text) {
@@ -71,55 +69,45 @@ public class Util
     }
 
     public static String getPropertyName(String text) {
-        if(text.indexOf(":") == -1) return null;
+        if(!text.contains(":")) return null;
         return text.substring(0, text.indexOf(':')).trim();
     }
 
     public static void saveFile(File file, List<String> text) {
-        FileWriter fileWriter = null;
-        try {
-            fileWriter = new FileWriter(file);
+        try (FileWriter fileWriter = new FileWriter(file)) {
             BufferedWriter writer = new BufferedWriter(fileWriter);
-            for(String s: text) {
+            for (String s : text) {
                 writer.write(s);
                 writer.newLine();
             }
             writer.close();
-        }
-        catch(IOException exceptin) {}
-        finally {
-            try { fileWriter.close(); } catch (Exception e) {}
+        } catch (IOException ignored) {
         }
     }
 
     public static List<String> readFile(File file) {
         if(!file.exists()) return null;
         List<String> ret = new ArrayList<>();
-        FileReader fileReader = null;
-        try {
-            fileReader = new FileReader(file);
+        try (FileReader fileReader = new FileReader(file)) {
             BufferedReader reader = new BufferedReader(fileReader);
-            while(true) {
+            while (true) {
                 String l = reader.readLine();
-                if(l == null) break;
+                if (l == null) break;
                 ret.add(l);
             }
             reader.close();
-        }
-        catch(IOException exceptin) {}
-        finally {
-            try { fileReader.close(); } catch (Exception e) {}
+        } catch (IOException ignored) {
         }
         return ret;
     }
 
-    private static String[] colorCodes = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "k", "l", "m", "n", "o", "r"};
+    private static final String[] colorCodes = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "k", "l", "m", "n", "o", "r"};
     private static final Pattern colorCodesHex = Pattern.compile("&#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})");
     
     public static String translateAlternateColorCodes(String text) {
         String retp = text;
-        for(int i = 0; i < colorCodes.length; i++) {
-            retp = retp.replace("&" + colorCodes[i], "§" + colorCodes[i]);
+        for (String colorCode : colorCodes) {
+            retp = retp.replace("&" + colorCode, "§" + colorCode);
         }
         Matcher matcher = colorCodesHex.matcher(retp);
         StringBuilder ret = new StringBuilder();
@@ -138,8 +126,8 @@ public class Util
 
     public static String removeColorCodes(String text) {
         String ret = text;
-        for(int i = 0; i < colorCodes.length; i++) {
-            ret = ret.replace("§" + colorCodes[i], "");
+        for (String colorCode : colorCodes) {
+            ret = ret.replace("§" + colorCode, "");
         }
         return ret;
     }

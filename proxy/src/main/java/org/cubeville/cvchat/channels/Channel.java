@@ -65,7 +65,7 @@ public class Channel
     }
 
     public String getConfigurationString(ProxiedPlayer player) {
-        if(autojoin == false) {
+        if(!autojoin) {
             if(members.contains(player.getUniqueId())) return name + ":" + true;
             return name + ":" + false;
         }
@@ -87,7 +87,7 @@ public class Channel
             return;
         }
         
-        if(((!sendPermission.equals("default")) && player.hasPermission(sendPermission) == false) || ((!viewPermission.equals("default")) && player.hasPermission(viewPermission) == false)) {
+        if(((!sendPermission.equals("default")) && !player.hasPermission(sendPermission)) || ((!viewPermission.equals("default")) && !player.hasPermission(viewPermission))) {
             player.sendMessage("§cPermission denied.");
             return;
         }
@@ -148,10 +148,10 @@ public class Channel
             }
         }
         
-        if(formattedMessage.indexOf("%prefix%") >= 0 && player instanceof ProxiedPlayer) {
+        if(formattedMessage.contains("%prefix%") && player instanceof ProxiedPlayer) {
             formattedMessage = formattedMessage.replace("%prefix%", PlayerDataManager.getInstance().getPrefix(((ProxiedPlayer) player).getUniqueId()));
         }
-        if(formattedMessage.indexOf("%postfix%") >= 0) {
+        if(formattedMessage.contains("%postfix%")) {
             if(player instanceof ProxiedPlayer) {
                 String postfix = RankManager.getInstance().getPostfix(player);
                 formattedMessage = formattedMessage.replace("%postfix%", postfix);
@@ -167,13 +167,13 @@ public class Channel
             formattedMessage = formattedMessage.replace("%player%", "Console");
         }
 
-        message.replace("§", "");
+        message = message.replace("§", "");
         if(colorPermission.equals("default") || player.hasPermission(colorPermission)) {
             message = Util.translateAlternateColorCodes(message);
         }
         formattedMessage = formattedMessage.replace("%message%", message);
 
-        if(formattedMessage.indexOf("%health%") >= 0) {
+        if(formattedMessage.contains("%health%")) {
             if(player instanceof ProxiedPlayer) {
                 ProxiedPlayer p = (ProxiedPlayer) player;
                 messageQueueId++;
@@ -202,8 +202,8 @@ public class Channel
         String playerId = tk.nextToken();
         String values = tk.nextToken();
         if(!values.startsWith("health=")) return;
-        Double healthd = Double.valueOf(values.substring(values.indexOf("=") + 1)) / 2.0;
-        int health = healthd.intValue();
+        double healthd = Double.parseDouble(values.substring(values.indexOf("=") + 1)) / 2.0;
+        int health = (int) healthd;
         if(health < 0) health = 0;
         if(health > 10) health = 10;
         String healthBar = health <= 3 ? "§4" : (health <= 8 ? "§e" : "§2");
@@ -217,9 +217,9 @@ public class Channel
     }
 
     private String repeatString(String s, int count) {
-        String ret = "";
-        for(int i = 0; i < count; i++) ret += s;
-        return ret;
+        StringBuilder ret = new StringBuilder();
+        for(int i = 0; i < count; i++) ret.append(s);
+        return ret.toString();
     }
     
     protected void doSendMessage(CommandSender sender, String formattedMessage) {

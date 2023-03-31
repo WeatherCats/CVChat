@@ -18,6 +18,6 @@ public class TpidCommand extends CommandBase
             commandSender.sendMessage("/tpid <modreq-id>");
             return;
         }
-        ticketManager.tpid(commandSender, Integer.valueOf(args[0]));
+        ticketManager.tpid(commandSender, Integer.parseInt(args[0]));
     }
 }

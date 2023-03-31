@@ -1,17 +1,8 @@
 package org.cubeville.cvchat.commands;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
-
-import org.cubeville.cvchat.CVChat;
-import org.cubeville.cvchat.playerdata.ProfileEntry;
-import org.cubeville.cvchat.playerdata.ProfilesDao;
 
 public class ForceTutorialFinishCommand extends CommandBase
 {

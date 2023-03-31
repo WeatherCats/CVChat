@@ -11,7 +11,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
 import org.cubeville.cvchat.Util;
-import org.cubeville.cvchat.ranks.RankManager;
 import org.cubeville.cvchat.playerdata.PlayerDataManager;
 
 public abstract class CommandBase extends Command
@@ -149,12 +148,12 @@ public abstract class CommandBase extends Command
     }
 
     public String joinStrings(String[] args, int offset) {
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
         for(int i = offset; i < args.length; i++) {
-            if(ret.length() > 0) ret += " ";
-            ret += args[i];
+            if(ret.length() > 0) ret.append(" ");
+            ret.append(args[i]);
         }
-        return ret;
+        return ret.toString();
     }
 
     public PlayerDataManager getPDM() {

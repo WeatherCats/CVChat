@@ -19,7 +19,7 @@ public class PlayerData
     private String ipAddress;
     private int priority;
     private String prefix;
-    private String displayName = null;
+    private String displayName;
     
     public PlayerData(UUID playerId, String name, String ipAddress) {
         id = null;

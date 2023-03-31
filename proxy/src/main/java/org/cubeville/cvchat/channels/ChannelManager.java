@@ -107,12 +107,10 @@ public class ChannelManager implements IPCInterface
         UUID uuid = player.getUniqueId();
         ProxyServer.getInstance().getScheduler()
             .runAsync(CVChat.getInstance(),
-                      new Runnable() {
-                          public void run() {
-                              // this feels like it needs a lock, but then also feels like it doesn't?
-                              Util.saveFile(new File(statusFolder, uuid.toString()), list);
-                          }
-                      });
+                    () -> {
+                        // this feels like it needs a lock, but then also feels like it doesn't?
+                        Util.saveFile(new File(statusFolder, uuid.toString()), list);
+                    });
     }
 
     public void playerLogin(ProxiedPlayer player) {

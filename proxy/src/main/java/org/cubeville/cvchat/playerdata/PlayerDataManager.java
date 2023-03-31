@@ -58,7 +58,7 @@ public class PlayerDataManager
             // Perm ban
             if(pd.getBanDuration() == null) return true;
             // TempBan
-            if(startTempban == false) return true;
+            if(!startTempban) return true;
             if(pd.getBanStart() == null) {
                 pd.setBanStart(System.currentTimeMillis());
                 dao.updatePlayerData(pd);
@@ -80,10 +80,7 @@ public class PlayerDataManager
     public boolean needsConfirmation(UUID playerId, String ipAddress) {
         PlayerData pd = playerData.get(playerId);
         if(pd == null) return false;
-        if(pd.getPriority() >= 60) {
-            return true;
-        }
-        return false;
+        return pd.getPriority() >= 60;
     }
     
     public long getEndOfTempban(UUID playerId) {
@@ -139,7 +136,7 @@ public class PlayerDataManager
                     break;
                 }
             }
-            if(failed == false) {
+            if(!failed) {
                 ret.add(playerData.get(playerNameMap.get(name)).getName());
             }
         }

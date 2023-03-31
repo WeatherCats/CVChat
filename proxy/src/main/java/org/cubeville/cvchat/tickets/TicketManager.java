@@ -54,7 +54,7 @@ public class TicketManager implements IPCInterface
         ProxiedPlayer player = ProxyServer.getInstance().getPlayer(playerId);
         if(player == null) return;
 
-        if(player.hasPermission("cvchat.ticket.multiple") == false && playerHasTicket(player.getUniqueId()) == true) {
+        if(!player.hasPermission("cvchat.ticket.multiple") && playerHasTicket(player.getUniqueId())) {
             player.sendMessage("§6You already have an open mod request. Please wait for it to be completed.");
             return;
         }
@@ -62,7 +62,7 @@ public class TicketManager implements IPCInterface
         try {
             StringTokenizer loctk = new StringTokenizer(location, ",");
             Ticket ticket = new Ticket(null, playerId, player.getName(), text, serverName,
-                                       loctk.nextToken(), Integer.valueOf(loctk.nextToken()), Integer.valueOf(loctk.nextToken()), Integer.valueOf(loctk.nextToken()),
+                                       loctk.nextToken(), Integer.parseInt(loctk.nextToken()), Integer.parseInt(loctk.nextToken()), Integer.parseInt(loctk.nextToken()),
                                        System.currentTimeMillis());
             tickets.add(ticket);
             int ticketId = dao.createTicket(ticket);
@@ -90,7 +90,7 @@ public class TicketManager implements IPCInterface
     public void playerLogin(ProxiedPlayer player) {
         UUID playerId = player.getUniqueId();
         for(Ticket ticket: tickets) {
-            if(ticket.isClosed() == true && ticket.playerNotified() == false && ticket.getPlayer().equals(playerId)) {
+            if(ticket.isClosed() && !ticket.playerNotified() && ticket.getPlayer().equals(playerId)) {
                 ticket.setPlayerNotified(true);
                 updateTicketAsync(ticket);
                 final String moderatorName = ticket.getModeratorName();
@@ -110,7 +110,7 @@ public class TicketManager implements IPCInterface
 
     private boolean playerHasTicket(UUID playerId) {
         for(Ticket ticket: tickets) {
-            if(ticket.isClosed() == false && ticket.isHeld() == false && ticket.getPlayer().equals(playerId)) {
+            if(!ticket.isClosed() && !ticket.isHeld() && ticket.getPlayer().equals(playerId)) {
                 return true;
             }
         }
@@ -153,7 +153,7 @@ public class TicketManager implements IPCInterface
     public int getNumberOfOpenTickets() {
         int cnt = 0;
         for(Ticket ticket: tickets) {
-            if(ticket.isClosed() == false && ticket.isHeld() == false) {
+            if(!ticket.isClosed() && !ticket.isHeld()) {
                 cnt++;
             }
         }
@@ -466,23 +466,19 @@ public class TicketManager implements IPCInterface
     }
 
     public void updateTicketAsync(Ticket ticket) {
-        ProxyServer.getInstance().getScheduler().runAsync(plugin, new Runnable() {
-                public void run() {
-                    dao.updateTicket(ticket);
-                }
-            });
+        ProxyServer.getInstance().getScheduler().runAsync(plugin, () -> dao.updateTicket(ticket));
     }
 
     private void updateOpenTicketPlayerList() {
         openTicketPlayerList = new HashSet<>();
         for(Ticket ticket: tickets) {
-            if(ticket.isClosed() == false && ticket.isHeld() == false) {
+            if(!ticket.isClosed() && !ticket.isHeld()) {
                 openTicketPlayerList.add(ticket.getPlayerName());
             }
         }
     }
 
     public Set<String> getOpenTicketPlayerList() {
-        return new HashSet<String>(openTicketPlayerList);
+        return new HashSet<>(openTicketPlayerList);
     }
 }

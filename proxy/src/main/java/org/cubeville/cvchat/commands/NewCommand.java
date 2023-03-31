@@ -8,8 +8,6 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import org.cubeville.cvchat.Util;
-import org.cubeville.cvchat.ranks.RankManager;
 import org.cubeville.cvchat.playerdata.PlayerDataManager;
 
 public class NewCommand extends CommandBase
@@ -24,10 +22,10 @@ public class NewCommand extends CommandBase
 
         int minutes = 15;
         if(args.length == 1) {
-            minutes = Integer.valueOf(args[0]);
+            minutes = Integer.parseInt(args[0]);
         }
 
-        long milliseconds = minutes * 60000;
+        long milliseconds = minutes * 60000L;
         
         PlayerDataManager pdm = PlayerDataManager.getInstance();
         long now = System.currentTimeMillis();

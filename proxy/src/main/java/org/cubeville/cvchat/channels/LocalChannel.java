@@ -25,13 +25,13 @@ public class LocalChannel extends Channel
         // 1) Send to all players who monitor local chat and are on different server
         String serverName = player.getServer().getInfo().getName();
         Collection<ProxiedPlayer> allPlayers = ProxyServer.getInstance().getPlayers();
-        String lm = "";
+        StringBuilder lm = new StringBuilder();
         for(ProxiedPlayer p: allPlayers) {
             if(p.hasPermission("cvchat.monitor.local")) {
                 if(p.getServer().getInfo().getName().equals(serverName)) {
                     if(localMuted.contains(p.getUniqueId())) {
-                        if(lm.length() > 0) lm += ",";
-                        lm += p.getUniqueId().toString();
+                        if(lm.length() > 0) lm.append(",");
+                        lm.append(p.getUniqueId().toString());
                     }
                 }
             }
@@ -60,17 +60,17 @@ public class LocalChannel extends Channel
         if(ivFormatted.size() > 0) {
             out.addExtra(" ");
             TextComponent hover = new TextComponent("§3(" + ivFormatted.size() + ")");
-            String inRange = "";
+            StringBuilder inRange = new StringBuilder();
             int i = ivFormatted.size();
             for(UUID p : ivFormatted) {
-                inRange = inRange + ProxyServer.getInstance().getPlayer(p).getName();
+                inRange.append(ProxyServer.getInstance().getPlayer(p).getName());
                 i--;
                 if(i > 0) {
                     //inRange = inRange + ", ";
-                    inRange = inRange + "\n";
+                    inRange.append("\n");
                 }
             }
-            hover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(inRange)));
+            hover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(inRange.toString())));
             out.addExtra(hover);
         }
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {

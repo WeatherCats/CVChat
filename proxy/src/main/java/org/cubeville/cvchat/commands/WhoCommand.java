@@ -20,20 +20,20 @@ public class WhoCommand extends CommandBase
             return;
         }
 
-        String list = "";
+        StringBuilder list = new StringBuilder();
         int cnt = 0;
         for(ProxiedPlayer player: ProxyServer.getInstance().getPlayers()) {
-            if(args.length > 0 && player.getDisplayName().toUpperCase().indexOf(args[0].toUpperCase()) == -1) continue;
+            if(args.length > 0 && !player.getDisplayName().toUpperCase().contains(args[0].toUpperCase())) continue;
             if(!Util.getPlayerVisibilityFor(sender, player)) continue;
-            if(list.length() > 0) list += "§r, ";
-            list += "§" + RankManager.getInstance().getColor(player);
+            if(list.length() > 0) list.append("§r, ");
+            list.append("§").append(RankManager.getInstance().getColor(player));
             if(Util.getPlayerUnlistedStatusFor(sender, player)) {
-                list += "§m";
+                list.append("§m");
             }
             else if(Util.getPlayerInvisibilityStatusFor(sender, player)) {
-                list += "§o";
+                list.append("§o");
             }
-            list += player.getDisplayName();
+            list.append(player.getDisplayName());
             cnt++;
         }
         sender.sendMessage("§6Cubeville §a(" + cnt + ")§r: " + list);
