@@ -73,7 +73,7 @@ public class TicketManager implements IPCInterface
             notify2.setColor(ChatColor.AQUA);
             notify2.addExtra(ChatColor.GREEN + "check");
             notify2.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/check " + ticketId));
-            notify2.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Check #" + ticketId)));
+            notify2.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Check modreq #" + ticketId)));
             TextComponent notify3 = new TextComponent(" for more.");
             notify3.setColor(ChatColor.GOLD);
             notify1.addExtra(notify2);
@@ -186,7 +186,7 @@ public class TicketManager implements IPCInterface
                     t.addExtra("  ");
                     TextComponent c = new TextComponent("§b[§aCheck§b]");
                     c.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/check " + id));
-                    c.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to check #" + id)));
+                    c.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Check modreq #" + id)));
                     t.addExtra(c);
                     out.add(t);
                 }
@@ -230,18 +230,23 @@ public class TicketManager implements IPCInterface
         t.addExtra("  ");
         TextComponent name = new TextComponent("§b[§aProfile§b]");
         name.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/profile " + p));
-        name.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to profile " + p)));
+        name.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Profile " + p)));
         t.addExtra(name);
         t.addExtra("  ");
         TextComponent tp = new TextComponent("§b[§aTeleport§b]");
         tp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpid " + id));
-        tp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to teleport to modreq #" + id)));
+        tp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Teleport to modreq #" + id)));
         t.addExtra(tp);
         t.addExtra("  ");
         TextComponent dibs = new TextComponent("§b[§aDibs§b]");
         dibs.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dibs " + id));
-        dibs.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to dibs modreq #" + id)));
+        dibs.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Dibs modreq #" + id)));
         t.addExtra(dibs);
+        t.addExtra("  ");
+        TextComponent done = new TextComponent("§b[§aDone§b]");
+        done.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/done " + id + " "));
+        done.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Finish modreq #" + id)));
+        t.addExtra(done);
         sender.sendMessage(t);
         if(!ticket.isClosed() && ticket.isClaimed()) {
             sender.sendMessage(new TextComponent("§eClaimed by §d" + ticket.getModeratorName() + "§e at §d" + getDateStr(ticket.getModeratorTimestamp())));
