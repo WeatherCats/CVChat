@@ -193,7 +193,8 @@ public class CVChat extends Plugin {
         for(String s: versionCheckBypassStrings) {
             versionCheckBypass.add(UUID.fromString(s));
         }
-        LoginListener loginListener = new LoginListener(channelManager, ticketManager, versionCheckBypass);
+        boolean enableAdminMFA = config.getBoolean("enableAdminMFA", true);
+        LoginListener loginListener = new LoginListener(channelManager, ticketManager, versionCheckBypass, enableAdminMFA);
         pm.registerListener(this, loginListener);
         pm.registerCommand(this, new ChannelCommand(channelManager));
             

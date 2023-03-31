@@ -46,13 +46,16 @@ public class LoginListener implements Listener
 
     Map<String, Set<UUID>> playerIP = new HashMap<>();
     Map<UUID, String> confirmationIP = new HashMap<>();
+
+    boolean enableAdminMFA;
     
-    public LoginListener(ChannelManager channelManager, TicketManager ticketManager, Set<UUID> versionCheckBypass) {
+    public LoginListener(ChannelManager channelManager, TicketManager ticketManager, Set<UUID> versionCheckBypass, boolean enableAdminMFA) {
         this.channelManager = channelManager;
         this.ticketManager = ticketManager;
         newPlayerLogins = new HashMap<>();
 
         this.versionCheckBypass = versionCheckBypass;
+        this.enableAdminMFA = enableAdminMFA;
     }
 
     public void addVersionCheckBypass(UUID player) {
@@ -130,7 +133,7 @@ public class LoginListener implements Listener
         }
 
         String ip = getStrippedIpAddress(connection);
-        if(pdm.needsConfirmation(uuid, ip)) {
+        if(pdm.needsConfirmation(uuid, ip) && enableAdminMFA) {
             boolean ipConfirmValid = false;
             {
                 File confirmation = new File("/var/www/2falogin/players/ip" + uuid.toString());
