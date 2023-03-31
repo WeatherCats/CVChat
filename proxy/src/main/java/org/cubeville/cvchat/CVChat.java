@@ -285,6 +285,7 @@ public class CVChat extends Plugin {
         { // Other commands
             pm.registerCommand(this, new FjCommand());
             pm.registerCommand(this, new FqCommand());
+            pm.registerCommand(this, new PingCommand());
         }
             
         { // Chat forward commands for quest
