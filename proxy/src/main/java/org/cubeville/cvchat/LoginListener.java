@@ -101,7 +101,7 @@ public class LoginListener implements Listener
             int protocolVersion = connection.getVersion();
             if(protocolVersion != forcedProtocolVersion && !versionCheckBypass.contains(uuid)) {
                 event.setCancelled(true);
-                event.setCancelReason(new TextComponent("§cPlease use §aMinecraft v1.18.2 §cfor Cubeville.\nhttp://cubeville.org/version"));
+                event.setCancelReason(TextComponent.fromLegacyText("§cPlease use §aMinecraft v1.18.2 §cfor Cubeville.\nhttp://cubeville.org/version"));
                 return;
             }
         }
@@ -132,7 +132,7 @@ public class LoginListener implements Listener
                 SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss z");
                 endOfBan = " until §e" + sdf.format(new Date(pdm.getEndOfTempban(uuid)));
             }
-            event.setCancelReason(new TextComponent("§cYou're " + type + " banned from this server" + endOfBan + ".\n§cReason: §e" + pdm.getBanReason(uuid) + "\n§aMore Information: §eYou have been banned because a staff member has decided that you didn't play according to the Cubeville rules. If you think this is a mistake, or if you want to join the server again without violating the rules again, you can apply for an unban. For more information, visit §acubeville.org/unban§e."));
+            event.setCancelReason(TextComponent.fromLegacyText("§cYou're " + type + " banned from this server" + endOfBan + ".\n§cReason: §e" + pdm.getBanReason(uuid) + "\n§aMore Information: §eYou have been banned because a staff member has decided that you didn't play according to the Cubeville rules. If you think this is a mistake, or if you want to join the server again without violating the rules again, you can apply for an unban. For more information, visit §acubeville.org/unban§e."));
             return;
         }
 
@@ -358,7 +358,7 @@ public class LoginListener implements Listener
         
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
             if(p.hasPermission("cvchat.notifyipmatch")) {
-                p.sendMessage(new TextComponent(message.toString()));
+                p.sendMessage(TextComponent.fromLegacyText(message.toString()));
             }
         }
     }

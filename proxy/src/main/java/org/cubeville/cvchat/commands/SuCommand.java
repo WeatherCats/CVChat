@@ -28,7 +28,7 @@ public class SuCommand extends CommandBase
 
         String cmd = joinStrings(args, 1);
         if(cmd.startsWith("/")) cmd = cmd.substring(1);
-        commandSender.sendMessage(new TextComponent("§aRun as §e" + tplayer.getName() + "§a: " + "/" + cmd));
+        commandSender.sendMessage(TextComponent.fromLegacyText("§aRun as §e" + tplayer.getName() + "§a: " + "/" + cmd));
         if(!server.getPluginManager().dispatchCommand(tplayer, cmd)) {
             if(tplayer instanceof ProxiedPlayer) {
                 ProxiedPlayer player = (ProxiedPlayer) tplayer;

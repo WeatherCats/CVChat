@@ -83,7 +83,7 @@ public abstract class CommandBase extends Command
     public boolean verifyNotLessArguments(CommandSender sender, String[] args, int min) {
         if(args.length < min) {
             sender.sendMessage(new TextComponent("§cToo few arguments."));
-            if(usage != null) sender.sendMessage(new TextComponent(usage));
+            if(usage != null) sender.sendMessage(TextComponent.fromLegacyText(usage));
             return false;
         }
         return true;
@@ -92,7 +92,7 @@ public abstract class CommandBase extends Command
     public boolean verifyNotMoreArguments(CommandSender sender, String[] args, int max) {
         if(args.length > max) {
             sender.sendMessage(new TextComponent("§cToo many arguments."));
-            if(usage != null) sender.sendMessage(new TextComponent(usage));
+            if(usage != null) sender.sendMessage(TextComponent.fromLegacyText(usage));
             return false;
         }
         return true;
@@ -114,17 +114,17 @@ public abstract class CommandBase extends Command
     
     public void sendMessage(Collection<ProxiedPlayer> players, String message) {
         for(ProxiedPlayer player: players) {
-            player.sendMessage(new TextComponent(message));
+            player.sendMessage(TextComponent.fromLegacyText(message));
         }
     }
 
     public void sendMessage(ProxiedPlayer player, String message) {
-        player.sendMessage(new TextComponent(message));
+        player.sendMessage(TextComponent.fromLegacyText(message));
     }
     
     public boolean verify(ProxiedPlayer sender, boolean check, String message) {
         if(!check) {
-            sender.sendMessage(new TextComponent(message));
+            sender.sendMessage(TextComponent.fromLegacyText(message));
             return false;
         }
         return true;

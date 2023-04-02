@@ -119,7 +119,7 @@ public class TicketManager implements IPCInterface
     private void sendNotification(String text) {
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
             if(p.hasPermission("cvchat.ticket.notify")) {
-                p.sendMessage(new TextComponent(text));
+                p.sendMessage(TextComponent.fromLegacyText(text));
             }
         }
     }
@@ -135,7 +135,7 @@ public class TicketManager implements IPCInterface
     private boolean sendPlayerNotification(UUID playerId, String text) {
         ProxiedPlayer player = ProxyServer.getInstance().getPlayer(playerId);
         if(player != null) {
-            player.sendMessage(new TextComponent(text));
+            player.sendMessage(TextComponent.fromLegacyText(text));
             return true;
         }
         return false;

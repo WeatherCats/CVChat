@@ -56,7 +56,7 @@ public class LocalChannel extends Channel
             ivFormatted.add(UUID.fromString(tk.nextToken()));
         }
         String finalMessage = formattedMessage.substring(formattedMessage.indexOf("|") + 1);
-        TextComponent out = new TextComponent(finalMessage);
+        TextComponent out = new TextComponent(TextComponent.fromLegacyText(finalMessage));
         if(ivFormatted.size() > 0) {
             out.addExtra(" ");
             TextComponent hover = new TextComponent("§3(" + ivFormatted.size() + ")");

@@ -48,7 +48,7 @@ public class SCommand extends CommandBase {
             if(entries.size() > 0) {
                 if(immediate) {
                     String cmd = entries.get(entries.size() - 1).substring(1);
-                    commandSender.sendMessage(new TextComponent(">> /" + cmd));
+                    commandSender.sendMessage(TextComponent.fromLegacyText(">> /" + cmd));
                     if(!ProxyServer.getInstance().getPluginManager().dispatchCommand(commandSender, cmd)) {
                         ProxiedPlayer player = (ProxiedPlayer) commandSender;
                         player.chat("/" + cmd);

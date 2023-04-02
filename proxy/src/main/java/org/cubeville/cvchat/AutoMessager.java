@@ -21,7 +21,7 @@ public class AutoMessager
             String msg = messages.get(next);
             for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
                 if(!p.hasPermission("cvchat.disableautomessages")) {
-                    p.sendMessage(new TextComponent(msg));
+                    p.sendMessage(TextComponent.fromLegacyText(msg));
                 }
             }
             next += 1;

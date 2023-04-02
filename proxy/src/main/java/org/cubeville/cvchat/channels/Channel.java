@@ -231,7 +231,7 @@ public class Channel
         }
         for(ProxiedPlayer p: recipientList) {
             if(members.contains(p.getUniqueId())) {
-                p.sendMessage(new TextComponent(formattedMessage));
+                p.sendMessage(TextComponent.fromLegacyText(formattedMessage));
             }
         }
     }

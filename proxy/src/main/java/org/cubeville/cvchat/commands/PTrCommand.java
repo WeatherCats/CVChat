@@ -63,6 +63,6 @@ public class PTrCommand extends CommandBase
         }
         
         if(commandSender instanceof ProxiedPlayer)
-            commandSender.sendMessage(new TextComponent("§8ptr: §r" + message));
+            commandSender.sendMessage(TextComponent.fromLegacyText("§8ptr: §r" + message));
     }
 }

@@ -125,10 +125,10 @@ public class MsgCommand extends CommandBase
     protected static void sendMessage(ProxiedPlayer sender, ProxiedPlayer recipient, String[] args, int argsOffset, boolean fakeNotFound) {
         String message = Util.removeSectionSigns(Util.joinStrings(args, argsOffset));
 
-        if(!fakeNotFound) sender.sendMessage(new TextComponent("§3(To " + recipient.getDisplayName() + "§3): §r" + message));
+        if(!fakeNotFound) sender.sendMessage(TextComponent.fromLegacyText("§3(To " + recipient.getDisplayName() + "§3): §r" + message));
         String mark = "";
         if(fakeNotFound) mark = "§c*";
-        recipient.sendMessage(new TextComponent("§3(From " + sender.getDisplayName() + mark + "§3): §r" + message));
+        recipient.sendMessage(TextComponent.fromLegacyText("§3(From " + sender.getDisplayName() + mark + "§3): §r" + message));
 
         if(!fakeNotFound) {
             lastMessageSent.put(sender.getUniqueId(), recipient.getUniqueId());

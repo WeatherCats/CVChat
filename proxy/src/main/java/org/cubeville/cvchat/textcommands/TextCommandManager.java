@@ -39,7 +39,7 @@ public class TextCommandManager
         for(TextCommand textCommand: textCommands) {
             if(textCommand.matches(command)) {
                 for(String s: textCommand.getText()) {
-                    sender.sendMessage(new TextComponent(s));
+                    sender.sendMessage(TextComponent.fromLegacyText(s));
                 }
                 if(sender instanceof ProxiedPlayer) {
                     UUID playerId = ((ProxiedPlayer) sender).getUniqueId();
