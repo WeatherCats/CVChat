@@ -7,8 +7,8 @@ import net.md_5.bungee.api.plugin.Command;
 
 import org.cubeville.cvipc.CVIPC;
 
-import org.cubeville.cvchat.playerdata.PlayerDataManager;
 import org.cubeville.cvchat.textcommands.TextCommandManager;
+import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 public class FinishCommand extends Command
 {

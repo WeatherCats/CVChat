@@ -21,9 +21,9 @@ import org.cubeville.cvipc.IPCInterface;
 
 import org.cubeville.cvchat.channels.Channel;
 import org.cubeville.cvchat.log.Logger;
-import org.cubeville.cvchat.playerdata.PlayerDataManager;
 import org.cubeville.cvchat.textcommands.TextCommandManager;
 import org.cubeville.cvchat.tickets.TicketManager;
+import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 public class ChatListener implements Listener, IPCInterface {
 

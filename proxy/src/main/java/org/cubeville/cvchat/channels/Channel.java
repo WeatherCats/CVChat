@@ -10,7 +10,7 @@ import net.md_5.bungee.api.CommandSender;
 import org.cubeville.cvchat.Util;
 import org.cubeville.cvchat.ranks.RankManager;
 import org.cubeville.cvchat.sanctions.SanctionManager;
-import org.cubeville.cvchat.playerdata.PlayerDataManager;
+import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 public class Channel
 {

@@ -14,9 +14,10 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import org.cubeville.cvchat.CVChat;
-import org.cubeville.cvchat.playerdata.ProfileEntry;
-import org.cubeville.cvchat.playerdata.ProfilesDao;
 import org.cubeville.cvchat.sanctions.SanctionManager;
+import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
+import org.cubeville.cvplayerdata.playerdata.Profiles;
+import org.cubeville.cvplayerdata.playerdata.ProfilesDao;
 
 public class ProfileCommand extends CommandBase
 {
@@ -46,7 +47,7 @@ public class ProfileCommand extends CommandBase
 
         UUID playerId = null;
         if(searchTerms.size() == 1) {
-            playerId = getPDM().getPlayerId(searchTerms.get(0));
+            playerId = PlayerDataManager.getInstance().getPlayerId(searchTerms.get(0));
         }
 
         if(playerId == null) {
@@ -142,10 +143,10 @@ public class ProfileCommand extends CommandBase
         final UUID fPlayerId = playerId;
         boolean fShowFullProfile = showFullProfile;
         ProxyServer.getInstance().getScheduler().runAsync(plugin, () -> {
-            List<ProfileEntry> entries = ProfilesDao.getInstance().getProfileEntries(fPlayerId);
+            List<Profiles> entries = ProfilesDao.getInstance().getProfileEntries(fPlayerId);
             int cnt = 0;
             int more = 0;
-            for(ProfileEntry entry: entries) {
+            for(Profiles entry: entries) {
                 cnt++;
                 if(cnt <= 4 || fShowFullProfile) {
                     String txt = "§c" + dateFormat.format(new Date(entry.getCommentTime())) + "§r " + entry.getComment() + " [" + getPDM().getPlayerName(entry.getAuthor()) + "]";

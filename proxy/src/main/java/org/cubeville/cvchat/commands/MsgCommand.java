@@ -9,8 +9,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvchat.Util;
-import org.cubeville.cvchat.playerdata.PlayerDataManager;
 import org.cubeville.cvchat.sanctions.SanctionManager;
+import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 public class MsgCommand extends CommandBase
 {

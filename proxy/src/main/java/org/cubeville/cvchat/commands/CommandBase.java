@@ -12,7 +12,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
 import org.cubeville.cvchat.Util;
-import org.cubeville.cvchat.playerdata.PlayerDataManager;
+import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 public abstract class CommandBase extends Command
 {

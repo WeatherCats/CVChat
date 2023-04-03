@@ -33,6 +33,12 @@
       <version>1.19</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.cubeville.proxy</groupId>
+      <artifactId>CVPlayerData</artifactId>
+      <version>1.19</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <repositories>

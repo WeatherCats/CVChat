@@ -7,8 +7,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import org.cubeville.cvchat.CVChat;
-import org.cubeville.cvchat.playerdata.ProfileEntry;
-import org.cubeville.cvchat.playerdata.ProfilesDao;
+import org.cubeville.cvplayerdata.playerdata.Profiles;
+import org.cubeville.cvplayerdata.playerdata.ProfilesDao;
 
 public class NoteCommand extends CommandBase
 {
@@ -32,7 +32,7 @@ public class NoteCommand extends CommandBase
             return;
         }
 
-        ProfileEntry entry = new ProfileEntry(System.currentTimeMillis(), joinStrings(args, 1), sender.getUniqueId());
+        Profiles entry = new Profiles(System.currentTimeMillis(), joinStrings(args, 1), sender.getUniqueId());
         ProfilesDao.getInstance().addProfileEntry(playerId, entry);
         sender.sendMessage(new TextComponent("§aNote added."));
     }

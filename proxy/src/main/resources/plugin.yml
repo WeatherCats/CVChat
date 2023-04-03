@@ -2,4 +2,4 @@ name: CVChat
 main: org.cubeville.cvchat.CVChat
 version: 0.1
 author: FrediW
-depends: ['CVIPC','CVVanish']
+depends: ['CVIPC','CVVanish','CVPlayerData']

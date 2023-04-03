@@ -34,9 +34,9 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
 import org.cubeville.cvchat.channels.ChannelManager;
-import org.cubeville.cvchat.playerdata.PlayerDataManager;
 import org.cubeville.cvchat.ranks.RankManager;
 import org.cubeville.cvchat.tickets.TicketManager;
+import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 public class LoginListener implements Listener
 {

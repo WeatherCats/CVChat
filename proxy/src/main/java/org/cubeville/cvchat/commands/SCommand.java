@@ -5,8 +5,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
-        
-import org.cubeville.cvchat.playerdata.PlayerDataManager;
+import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 import java.util.*;
 

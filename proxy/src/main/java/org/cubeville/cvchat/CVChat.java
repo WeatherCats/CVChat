@@ -30,12 +30,10 @@ import org.cubeville.cvchat.log.Logger;
 
 import org.cubeville.cvchat.ranks.RankManager;
 import org.cubeville.cvchat.sanctions.SanctionManager;
-import org.cubeville.cvchat.playerdata.PlayerDataManager;
-import org.cubeville.cvchat.playerdata.PlayerDataDao;
-import org.cubeville.cvchat.playerdata.ProfilesDao;
 import org.cubeville.cvchat.textcommands.TextCommandManager;
 import org.cubeville.cvchat.tickets.TicketManager;
 import org.cubeville.cvchat.tickets.TicketDao;
+import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 // TODO: Private messaging with afk function :)
 // TODO: hidden staff
@@ -261,24 +259,15 @@ public class CVChat extends Plugin {
         }
 
         { // Install playerdata system
-            Configuration playerDataDaoConfig = (Configuration) config.get("playerdata");
-            if(playerDataDaoConfig != null) {
-                PlayerDataDao playerDataDao = new PlayerDataDao(playerDataDaoConfig.getString("db_user"),
-                                                                playerDataDaoConfig.getString("db_password"),
-                                                                playerDataDaoConfig.getString("db_database"));
-                playerDataManager = new PlayerDataManager(playerDataDao);
-
-                ProfilesDao profilesDao = new ProfilesDao(playerDataDaoConfig.getString("db_user"),
-                                                          playerDataDaoConfig.getString("db_password"),
-                                                          playerDataDaoConfig.getString("db_database"));
-
+            playerDataManager = PlayerDataManager.getInstance();
+            if(playerDataManager != null) {
                 pm.registerCommand(this, new ProfileCommand(this));
                 pm.registerCommand(this, new NoteCommand(this));
                 pm.registerCommand(this, new CommandCheckCommand(this));
                 pm.registerCommand(this, new SCommand());
             }
             else {
-                System.out.println("No playerdata dao configuration found.");
+                System.out.println("Could not load PlayerDataManager from CVPlayerData!");
             }
         }
 

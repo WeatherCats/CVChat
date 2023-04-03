@@ -4,7 +4,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.cubeville.cvchat.CVChat;
-import org.cubeville.cvchat.playerdata.PlayerDataManager;
+import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
