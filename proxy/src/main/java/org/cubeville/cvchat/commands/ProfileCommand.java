@@ -1,23 +1,21 @@
 package org.cubeville.cvchat.commands;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+import net.md_5.bungee.api.chat.hover.content.Text;
+import org.checkerframework.checker.units.qual.C;
 import org.cubeville.cvchat.CVChat;
 import org.cubeville.cvchat.sanctions.SanctionManager;
-import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
-import org.cubeville.cvplayerdata.playerdata.Profiles;
-import org.cubeville.cvplayerdata.playerdata.ProfilesDao;
+import org.cubeville.cvplayerdata.playerdata.*;
 
 public class ProfileCommand extends CommandBase
 {
@@ -90,7 +88,15 @@ public class ProfileCommand extends CommandBase
         boolean isOnline = ProxyServer.getInstance().getPlayer(playerId) != null;
         boolean finishedTutorial = getPDM().finishedTutorial(playerId);
 
-        sender.sendMessage(new TextComponent("§4* §r" + playerName));
+        TextComponent name = new TextComponent("§4* §r" + playerName);
+        TextComponent plus = new TextComponent(" §a(+)");
+        List<NameRecord> records = NameRecordDao.getInstance().getNameRecords(playerId);
+        Collections.reverse(records);
+        plus.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Previous name: " + (records.size() > 1 ? "§6" + records.get(1).getName() + "\n§fClick for more" : "§cunknown"))));
+        plus.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/names " + playerName));
+        name.addExtra(plus);
+        sender.sendMessage(name);
+
         if(!finishedTutorial) {
             sender.sendMessage(new TextComponent("§4! §cPlayer has not finished the tutorial"));
         }

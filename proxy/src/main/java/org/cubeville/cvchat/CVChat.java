@@ -265,6 +265,7 @@ public class CVChat extends Plugin {
                 pm.registerCommand(this, new NoteCommand(this));
                 pm.registerCommand(this, new CommandCheckCommand(this));
                 pm.registerCommand(this, new SCommand());
+                pm.registerCommand(this, new NamesCommand());
             }
             else {
                 System.out.println("Could not load PlayerDataManager from CVPlayerData!");

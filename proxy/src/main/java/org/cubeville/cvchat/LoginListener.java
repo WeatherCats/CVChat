@@ -36,6 +36,8 @@ import net.md_5.bungee.event.EventPriority;
 import org.cubeville.cvchat.channels.ChannelManager;
 import org.cubeville.cvchat.ranks.RankManager;
 import org.cubeville.cvchat.tickets.TicketManager;
+import org.cubeville.cvplayerdata.playerdata.NameRecord;
+import org.cubeville.cvplayerdata.playerdata.NameRecordDao;
 import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 public class LoginListener implements Listener
@@ -275,6 +277,20 @@ public class LoginListener implements Listener
 
         if(!RankManager.getInstance().isPrefixPermitted(player, pdm.getPrefix(playerId))) {
             pdm.changePrefix(playerId, "");
+        }
+
+        List<NameRecord> nameRecords = NameRecordDao.getInstance().getNameRecords(player.getUniqueId());
+        if(nameRecords.isEmpty()) {
+            NameRecordDao.getInstance().addNameEntry(new NameRecord(player.getUniqueId(), player.getName()));
+        } else {
+            NameRecord latestRecord = null;
+            for(NameRecord nR : nameRecords) {
+                if(latestRecord == null) latestRecord = nR;
+                if(latestRecord.getNameTime() < nR.getNameTime()) latestRecord = nR;
+            }
+            if(!latestRecord.getName().equals(player.getName())) {
+                NameRecordDao.getInstance().addNameEntry(new NameRecord(player.getUniqueId(), player.getName()));
+            }
         }
 
         System.out.println("Player " + player.getName() + " logged in" + (newPlayer ? " for the first time: " : ": ") + ip);
