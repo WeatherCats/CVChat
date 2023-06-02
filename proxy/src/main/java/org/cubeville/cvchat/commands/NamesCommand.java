@@ -4,7 +4,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import org.cubeville.cvchat.CVChat;
 import org.cubeville.cvplayerdata.playerdata.NameRecord;
 import org.cubeville.cvplayerdata.playerdata.NameRecordDao;
 
@@ -15,7 +14,8 @@ public class NamesCommand extends CommandBase {
 
     public NamesCommand() {
         super("names", "cvchat.names");
-        setUsage("§c/names <player name or uuid>");
+        setUsage("§c/names <player name or uuid> [full]");
+
     }
 
     public void executeC(CommandSender commandSender, String[] args) {
@@ -23,7 +23,7 @@ public class NamesCommand extends CommandBase {
         ProxiedPlayer sender = (ProxiedPlayer) commandSender;
 
         if(!verifyNotLessArguments(sender, args, 1)) return;
-        if(!verifyNotMoreArguments(sender, args, 1)) return;
+        if(!verifyNotMoreArguments(sender, args, 2)) return;
 
         UUID playerId = getPDM().getPlayerId(args[0]);
         if(playerId == null) {
@@ -39,10 +39,21 @@ public class NamesCommand extends CommandBase {
             }
         }
 
+        boolean full = false;
+        if(args.length == 2) {
+            if(args[1].equalsIgnoreCase("full")) {
+                full = true;
+            } else {
+                sender.sendMessage(new TextComponent("§c/names <player name or uuid> [full]"));
+                return;
+            }
+        }
+
         List<NameRecord> records = NameRecordDao.getInstance().getNameRecords(playerId);
         Collections.sort(records);
         Collections.reverse(records);
         Iterator<NameRecord> iterator = records.iterator();
+        int i = 0;
         while(iterator.hasNext()) {
             NameRecord record = iterator.next();
             TextComponent r = new TextComponent();
@@ -54,6 +65,8 @@ public class NamesCommand extends CommandBase {
             r.addExtra(ChatColor.AQUA + " - ");
             r.addExtra(ChatColor.GOLD + record.getName());
             sender.sendMessage(r);
+            if(i >= 4) break;
+            if(!full) i++;
         }
     }
 }
