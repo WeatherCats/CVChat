@@ -9,10 +9,7 @@ import org.cubeville.cvplayerdata.playerdata.NameRecord;
 import org.cubeville.cvplayerdata.playerdata.NameRecordDao;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class NamesCommand extends CommandBase {
 
@@ -43,10 +40,17 @@ public class NamesCommand extends CommandBase {
         }
 
         List<NameRecord> records = NameRecordDao.getInstance().getNameRecords(playerId);
+        Collections.sort(records);
         Collections.reverse(records);
-        for(NameRecord record : records) {
+        Iterator<NameRecord> iterator = records.iterator();
+        while(iterator.hasNext()) {
+            NameRecord record = iterator.next();
             TextComponent r = new TextComponent();
-            r.addExtra(ChatColor.RED + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date(record.getNameTime())));
+            if(iterator.hasNext()) {
+                r.addExtra(ChatColor.RED + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date(record.getNameTime())));
+            } else {
+                r.addExtra(ChatColor.RED + "First Known Name");
+            }
             r.addExtra(ChatColor.AQUA + " - ");
             r.addExtra(ChatColor.GOLD + record.getName());
             sender.sendMessage(r);
