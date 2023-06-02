@@ -1,11 +1,6 @@
 package org.cubeville.cvchat;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -13,6 +8,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.api.event.TabCompleteResponseEvent;
+import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
@@ -105,6 +101,7 @@ public class ChatListener implements Listener, IPCInterface {
         }
 
         if (event.isCommand()) {
+            boolean isAlias = false;
             for(Alias alias: aliases) {
 		for(String command: alias.getCommands()) {
 		    boolean complete = command.endsWith("$");
@@ -120,6 +117,7 @@ public class ChatListener implements Listener, IPCInterface {
 			    if(perm != null) perm = "cvchat.alias." + perm;
 			    if(perm == null || (!perminv && player.hasPermission(perm)) || (perminv && !player.hasPermission(perm))) {
 				List<String> translations = alias.getTranslate();
+                isAlias = true;
 				event.setMessage(translations.get(0) + event.getMessage().substring(command.length()));
 				for(int i = 1; i < translations.size(); i++) {
 				    ProxyServer.getInstance().getPluginManager().dispatchCommand(player, translations.get(i));
@@ -136,7 +134,13 @@ public class ChatListener implements Listener, IPCInterface {
                 return;
             }
 
-            if(player.hasPermission("cvchat.nowhitelist")) return;
+            if(player.hasPermission("cvchat.nowhitelist")) {
+                if(!isProxyCommand(player, event.getMessage()) && isAlias) {
+                    dispatchServerCommand(player, event.getMessage().replaceFirst("/", ""));
+                    event.setCancelled(true);
+                }
+                return;
+            }
 
             String cmd = event.getMessage();
 
@@ -160,13 +164,20 @@ public class ChatListener implements Listener, IPCInterface {
             }
 
             for(String whitelist: commandWhitelist.keySet()) {
-                if(commandWhitelist.get(whitelist).contains(cmd) && player.hasPermission("cvchat.whitelist." + whitelist)) return;
+                if(commandWhitelist.get(whitelist).contains(cmd) && player.hasPermission("cvchat.whitelist." + whitelist)) {
+                    if(!isProxyCommand(player, cmd) && isAlias) {
+                        dispatchServerCommand(player, cmd.replaceFirst("/", ""));
+                        event.setCancelled(true);
+                    }
+                    return;
+                }
             }
 
             player.sendMessage(new TextComponent("§cNo permission."));
             event.setCancelled(true);
             return;
         }
+
         
         event.setCancelled(true);
 
@@ -184,6 +195,25 @@ public class ChatListener implements Listener, IPCInterface {
 
         localChannel.sendMessage(player, message.trim());
     }
+
+    public boolean isProxyCommand(ProxiedPlayer player, String cmd) {
+        String[] cmds = cmd.split(" ");
+        return ProxyServer.getInstance().getPluginManager().isExecutableCommand(cmds[0].replaceFirst("/", ""), player);
+    }
+
+    public void dispatchServerCommand(ProxiedPlayer player, String cmd) {
+        CVIPC.getInstance().sendMessage(player.getServer().getInfo().getName(), "cmd|" + player.getUniqueId() + "|" + cmd);
+        //System.out.println("not proxy command: " + cmd + " sending to server: " + player.getServer().getInfo().getName());
+    }
+
+    /*public boolean isProxyCommand(String cmd) {
+        Collection<Map.Entry<String, Command>> collectionCommands = new ArrayList<>(ProxyServer.getInstance().getPluginManager().getCommands());
+        for(Map.Entry<String, Command> entry : collectionCommands) {
+            System.out.println("Compare " + entry.getValue().getName() + " to " + cmd.replace("/", ""));
+            if(entry.getValue().getName().equalsIgnoreCase(cmd.replace("/", ""))) return true;
+        }
+        return false;
+    }*/
 
     @EventHandler
     public void OnTabCompleteResponseEvent(final TabCompleteResponseEvent event) {
