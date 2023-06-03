@@ -279,9 +279,9 @@ public class CVChat extends Plugin {
         }
             
         { // Chat forward commands for quest
-            for(int i = 0; i < 20; i++) {
+            /*for(int i = 0; i < 20; i++) {
                 pm.registerCommand(this, new ForwardCommand(String.valueOf(i), String.valueOf(i)));
-            }
+            }*/
         }
     }
 }
