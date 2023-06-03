@@ -166,7 +166,7 @@ public class ChatListener implements Listener, IPCInterface {
             for(String whitelist: commandWhitelist.keySet()) {
                 if(commandWhitelist.get(whitelist).contains(cmd) && player.hasPermission("cvchat.whitelist." + whitelist)) {
                     if(!isProxyCommand(player, cmd) && isAlias) {
-                        dispatchServerCommand(player, cmd.replaceFirst("/", ""));
+                        dispatchServerCommand(player, event.getMessage().replaceFirst("/", ""));
                         event.setCancelled(true);
                     }
                     return;

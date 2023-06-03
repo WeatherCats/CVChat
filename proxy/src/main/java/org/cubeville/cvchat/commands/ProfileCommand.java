@@ -91,6 +91,7 @@ public class ProfileCommand extends CommandBase
         TextComponent name = new TextComponent("§4* §r" + playerName);
         TextComponent plus = new TextComponent(" §a(+)");
         List<NameRecord> records = NameRecordDao.getInstance().getNameRecords(playerId);
+        Collections.sort(records);
         Collections.reverse(records);
         plus.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Previous name: " + (records.size() > 1 ? "§6" + records.get(1).getName() + "\n§fClick for more" : "§cunknown"))));
         plus.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/names " + playerName));
