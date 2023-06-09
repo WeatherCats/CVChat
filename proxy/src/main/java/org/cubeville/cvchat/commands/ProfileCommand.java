@@ -103,7 +103,12 @@ public class ProfileCommand extends CommandBase
         }
 
         if(SanctionManager.getInstance().getFilteredMessages(playerId) != null) {
-            sender.sendMessage(new TextComponent("§cToday's Swear Kicks: §6" + SanctionManager.getInstance().getFilteredMessages(playerId).size()));
+            TextComponent swearKicks = new TextComponent("§cToday's Swear Kicks: §6" + SanctionManager.getInstance().getFilteredMessages(playerId).size());
+            if(sender.hasPermission("cvchat.swearcheck")) {
+                swearKicks.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Check swear history.")));
+                swearKicks.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/swearcheck " + playerName));
+            }
+            sender.sendMessage(swearKicks);
         }
         
         if(sender.hasPermission("cvchat.profile.extended")) {
