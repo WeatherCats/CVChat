@@ -21,3 +21,6 @@ commands:
   localchardistance:
     permission: cvchat.localchatdistance
     description: Change local chat default distance temporarily
+  locchat:
+    permissions: cvchat.locchat
+    description: Toggle

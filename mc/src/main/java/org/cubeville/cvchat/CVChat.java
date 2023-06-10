@@ -24,18 +24,16 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.Vector;
 
 import org.cubeville.cvvanish.CVVanish;
@@ -55,6 +53,8 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
     int localChatDistance;
     
     Map<UUID, Long> lastGlobalChatInfo = new HashMap<>();
+
+    private Set<UUID> locChatEnabled;
     
     public void onEnable() {
         PluginManager pm = getServer().getPluginManager();
@@ -77,6 +77,7 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
 
         localChatDistance = getConfig().getInt("localchatdistance", 55);
         System.out.println("Local chat distance is " + localChatDistance);
+        this.locChatEnabled = new HashSet<>();
     }
 
     public void onDisable() {
@@ -112,6 +113,12 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage(null);
+    }
+
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
+        if(locChatEnabled.contains(event.getPlayer().getUniqueId())) return;
+        event.setCancelled(true);
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -210,6 +217,15 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
             }
             else {
                 sender.sendMessage("§c/localchatregion list|add|remove");
+            }
+            return true;
+        } else if(command.getName().equalsIgnoreCase("locchat")) {
+            if(args.length != 1) return false;
+            UUID uuid = UUID.fromString(args[0]);
+            if(locChatEnabled.contains(uuid)) {
+                locChatEnabled.remove(uuid);
+            } else {
+                locChatEnabled.add(uuid);
             }
             return true;
         }

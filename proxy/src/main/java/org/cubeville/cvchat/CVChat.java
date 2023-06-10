@@ -247,7 +247,7 @@ public class CVChat extends Plugin {
             // other commands
             pm.registerCommand(this, new PrefixCommand());
             pm.registerCommand(this, new LocalCommand(local));
-            pm.registerCommand(this, new LocchatCommand());
+            pm.registerCommand(this, new LocchatCommand(chatListener));
             pm.registerCommand(this, new TrCommand());
             pm.registerCommand(this, new PTrCommand());
             pm.registerCommand(this, new GTrCommand());

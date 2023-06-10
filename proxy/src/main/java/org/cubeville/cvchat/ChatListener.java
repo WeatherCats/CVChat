@@ -4,7 +4,9 @@ import java.util.*;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.api.event.TabCompleteResponseEvent;
@@ -12,6 +14,7 @@ import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import net.md_5.bungee.event.EventPriority;
 import org.cubeville.cvipc.CVIPC;
 import org.cubeville.cvipc.IPCInterface;
 
@@ -34,6 +37,8 @@ public class ChatListener implements Listener, IPCInterface {
     private CVIPC cvipc;
 
     private Set<String> commandLoggingBlacklist;
+
+    private Set<UUID> locChatEnabled;
     
     public ChatListener(Channel localChannel, TextCommandManager textCommandManager, TicketManager ticketManager, CVIPC ipc, Set<String> commandLoggingBlacklist) {
         this.localChannel = localChannel;
@@ -45,6 +50,7 @@ public class ChatListener implements Listener, IPCInterface {
         ipc.registerInterface("finishtutorial", this);
         aliases = new ArrayList<>();
         this.commandLoggingBlacklist = commandLoggingBlacklist;
+        this.locChatEnabled = new HashSet<>();
     }
 
     public void setCommandWhitelist(Map<String, Set<String>> commandWhitelist) {
@@ -68,6 +74,24 @@ public class ChatListener implements Listener, IPCInterface {
         }
     }
 
+    public boolean isLocChatEnabled(UUID player) {
+        return this.locChatEnabled.contains(player);
+    }
+
+    public void addLocChatEnabled(UUID player) {
+        this.locChatEnabled.add(player);
+        for(ServerInfo s : ProxyServer.getInstance().getServers().values()) {
+            CVIPC.getInstance().sendMessage(s.getName(), "cmd|console" + "|locchat " + player);
+        }
+    }
+
+    public void removeLocChatEnabled(UUID player) {
+        this.locChatEnabled.remove(player);
+        for(ServerInfo s : ProxyServer.getInstance().getServers().values()) {
+            CVIPC.getInstance().sendMessage(s.getName(), "cmd|console" + "|locchat " + player);
+        }
+    }
+
     @EventHandler
     public void onChat(final ChatEvent event) {
         String name;
@@ -78,6 +102,7 @@ public class ChatListener implements Listener, IPCInterface {
         if (event.isCancelled()) return;
         if (!(event.getSender() instanceof ProxiedPlayer)) return;
         ProxiedPlayer player = (ProxiedPlayer)event.getSender();
+        if(isLocChatEnabled(player.getUniqueId())) return;
 
         if(event.getMessage().contains("/")) {
             String[] commandSplit = event.getMessage().split(" ");
@@ -178,8 +203,7 @@ public class ChatListener implements Listener, IPCInterface {
             return;
         }
 
-        
-        event.setCancelled(true);
+        //event.setCancelled(true);
 
         String message = Util.removeSectionSigns(event.getMessage());
         if(Util.playerIsHidden(player)) {
