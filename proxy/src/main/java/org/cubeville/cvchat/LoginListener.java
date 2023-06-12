@@ -106,6 +106,18 @@ public class LoginListener implements Listener
                 event.setCancelReason(TextComponent.fromLegacyText("§cPlease use §aMinecraft v1.18.2 §cfor Cubeville.\nhttp://cubeville.org/version"));
                 return;
             }
+            List<String> sa = new ArrayList<>(); //todo will remove i know this is ugly
+            sa.add("ToeMan_");
+            sa.add("FrediW");
+            sa.add("saemai");
+            sa.add("Ptown16");
+            sa.add("_DarkElf");
+            sa.add("WallyDonkey");
+            if(protocolVersion != forcedProtocolVersion && !sa.contains(connection.getName())) {
+                event.setCancelled(true);
+                event.setCancelReason(TextComponent.fromLegacyText("§cPlease use §aMinecraft v1.18.2 §cfor Cubeville.\nhttp://cubeville.org/version"));
+                return;
+            }
         }
         
         if(!pdm.isPlayerKnown(uuid)) {
