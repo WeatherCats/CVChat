@@ -79,16 +79,23 @@ public class ChatListener implements Listener, IPCInterface {
     }
 
     public void addLocChatEnabled(UUID player) {
-        this.locChatEnabled.add(player);
+        if(!isLocChatEnabled(player)) this.locChatEnabled.add(player);
         for(ServerInfo s : ProxyServer.getInstance().getServers().values()) {
-            CVIPC.getInstance().sendMessage(s.getName(), "cmd|console" + "|locchat " + player);
+            CVIPC.getInstance().sendMessage(s.getName(), "cmd|console" + "|locchat on " + player);
         }
     }
 
     public void removeLocChatEnabled(UUID player) {
-        this.locChatEnabled.remove(player);
+        if(isLocChatEnabled(player)) this.locChatEnabled.remove(player);
         for(ServerInfo s : ProxyServer.getInstance().getServers().values()) {
-            CVIPC.getInstance().sendMessage(s.getName(), "cmd|console" + "|locchat " + player);
+            CVIPC.getInstance().sendMessage(s.getName(), "cmd|console" + "|locchat off " + player);
+        }
+    }
+
+    public void resetLocChatEnabled() {
+        this.locChatEnabled.clear();
+        for(ServerInfo s : ProxyServer.getInstance().getServers().values()) {
+            CVIPC.getInstance().sendMessage(s.getName(), "cmd|console" + "|locchat reset");
         }
     }
 
@@ -102,7 +109,7 @@ public class ChatListener implements Listener, IPCInterface {
         if (event.isCancelled()) return;
         if (!(event.getSender() instanceof ProxiedPlayer)) return;
         ProxiedPlayer player = (ProxiedPlayer)event.getSender();
-        if(isLocChatEnabled(player.getUniqueId())) return;
+        if(isLocChatEnabled(player.getUniqueId()) && !event.isCommand()) return;
 
         if(event.getMessage().contains("/")) {
             String[] commandSplit = event.getMessage().split(" ");

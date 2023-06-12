@@ -16,18 +16,23 @@ public class LocchatCommand extends CommandBase
     }
 
     public void executeC(CommandSender commandSender, String[] args) {
-        if(args.length > 0) {
-            commandSender.sendMessage(new TextComponent(ChatColor.RED + "Incorrect usage! Use /locchat to toggle locchat on and off"));
+        if(args.length != 1 || (!args[0].equalsIgnoreCase("on") && !args[0].equalsIgnoreCase("off") && !args[0].equalsIgnoreCase("reset"))) {
+            commandSender.sendMessage(new TextComponent(ChatColor.RED + "Incorrect usage! Use /locchat <on|off> to toggle locchat on and off"));
             return;
         }
         if(!(commandSender instanceof ProxiedPlayer)) return;
         ProxiedPlayer player = (ProxiedPlayer) commandSender;
-        if(chatListener.isLocChatEnabled(player.getUniqueId())) {
+        if(args[0].equalsIgnoreCase("off")) {
             chatListener.removeLocChatEnabled(player.getUniqueId());
             player.sendMessage(new TextComponent(ChatColor.GOLD + player.getName() + "'s local chat will operate as normal"));
-        } else {
+        } else if(args[0].equalsIgnoreCase("on")) {
             chatListener.addLocChatEnabled(player.getUniqueId());
             player.sendMessage(new TextComponent(ChatColor.GOLD + player.getName() + "'s local chat will be sent to the server"));
+        } else if(args[0].equalsIgnoreCase("reset")) {
+            if(player.hasPermission("cvchat.locchatreset")) {
+                chatListener.resetLocChatEnabled();
+                player.sendMessage(new TextComponent(ChatColor.GREEN + "LocchatEnabled Set<> reset for all players on bungee and bukkit"));
+            }
         }
     }
 }

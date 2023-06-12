@@ -115,7 +115,7 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
         event.setQuitMessage(null);
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.LOWEST)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         if(locChatEnabled.contains(event.getPlayer().getUniqueId())) return;
         event.setCancelled(true);
@@ -220,14 +220,23 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
             }
             return true;
         } else if(command.getName().equalsIgnoreCase("locchat")) {
-            if(args.length != 1) return false;
-            UUID uuid = UUID.fromString(args[0]);
-            if(locChatEnabled.contains(uuid)) {
-                locChatEnabled.remove(uuid);
-            } else {
-                locChatEnabled.add(uuid);
+            if(args.length > 2) return false;
+            if(args.length == 1 && args[0].equalsIgnoreCase("reset")) {
+                locChatEnabled.clear();
+                return true;
             }
-            return true;
+            if(args.length == 2) {
+                UUID uuid = UUID.fromString(args[1]);
+                if(args[0].equalsIgnoreCase("off")) {
+                    locChatEnabled.remove(uuid);
+                } else {
+                    locChatEnabled.add(uuid);
+                }
+                return true;
+            }
+        } else if(command.getName().equalsIgnoreCase("locchatreset")) {
+            if(args.length > 0) return false;
+
         }
         return false;
     }
