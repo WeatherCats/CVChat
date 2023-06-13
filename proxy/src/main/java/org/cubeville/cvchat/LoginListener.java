@@ -113,7 +113,7 @@ public class LoginListener implements Listener
             sa.add("Ptown16");
             sa.add("_DarkElf");
             sa.add("WallyDonkey");
-            if(protocolVersion != forcedProtocolVersion && !sa.contains(connection.getName())) {
+            if(protocolVersion > 762 && !sa.contains(connection.getName())) {
                 event.setCancelled(true);
                 event.setCancelReason(TextComponent.fromLegacyText("§cPlease use §aMinecraft v1.18.2 §cfor Cubeville.\nhttp://cubeville.org/version"));
                 return;
