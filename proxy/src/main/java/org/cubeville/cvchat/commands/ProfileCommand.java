@@ -112,7 +112,13 @@ public class ProfileCommand extends CommandBase
         }
         
         if(sender.hasPermission("cvchat.profile.extended")) {
-            sender.sendMessage(new TextComponent("§4- §r" + (isOnline ? "Peer" : "Last") + " address: §9" + getPDM().getIPAddress(playerId)));
+            TextComponent ip = new TextComponent("§4- §r" + (isOnline ? "Peer" : "Last") + " address: ");
+            String addr = getPDM().getIPAddress(playerId);
+            TextComponent click = new TextComponent("§9" + addr);
+            click.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Copy to clipboard")));
+            click.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, addr));
+            ip.addExtra(click);
+            sender.sendMessage(ip);
         }
 
         String lastOnline;
