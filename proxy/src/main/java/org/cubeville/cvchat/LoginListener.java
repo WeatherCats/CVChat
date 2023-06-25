@@ -99,11 +99,11 @@ public class LoginListener implements Listener
         UUID uuid = connection.getUniqueId();
 
         {
-            int forcedProtocolVersion = 758;
+            int forcedProtocolVersion = 763;
             int protocolVersion = connection.getVersion();
             if(protocolVersion != forcedProtocolVersion && !versionCheckBypass.contains(uuid)) {
                 event.setCancelled(true);
-                event.setCancelReason(TextComponent.fromLegacyText("§cPlease use §aMinecraft v1.18.2 §cfor Cubeville.\nhttp://cubeville.org/version"));
+                event.setCancelReason(TextComponent.fromLegacyText("§cPlease use §aMinecraft v1.20.1 §cfor Cubeville.\nhttp://cubeville.org/version"));
                 return;
             }
         }
