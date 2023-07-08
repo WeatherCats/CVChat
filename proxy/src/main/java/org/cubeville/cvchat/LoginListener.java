@@ -130,11 +130,12 @@ public class LoginListener implements Listener
             boolean perm = pdm.isPermanentlyBanned(connection.getUniqueId());
             String type = perm ? "permanently" : "temporarily";
             String endOfBan = "";
+            String more = perm ? "\n§aMore Information: §eYou have been banned because a staff member has decided that you didn't play according to the Cubeville rules. If you think this is a mistake, or if you want to join the server again without violating the rules again, you can apply for an unban. For more information, visit §acubeville.org/unban§e." : "";
             if(!perm) {
                 SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss z");
                 endOfBan = " until §e" + sdf.format(new Date(pdm.getEndOfTempban(uuid)));
             }
-            event.setCancelReason(TextComponent.fromLegacyText("§cYou're " + type + " banned from this server" + endOfBan + ".\n§cReason: §e" + pdm.getBanReason(uuid) + "\n§aMore Information: §eYou have been banned because a staff member has decided that you didn't play according to the Cubeville rules. If you think this is a mistake, or if you want to join the server again without violating the rules again, you can apply for an unban. For more information, visit §acubeville.org/unban§e."));
+            event.setCancelReason(TextComponent.fromLegacyText("§cYou're " + type + " banned from this server" + endOfBan + ".\n§cReason: §e" + pdm.getBanReason(uuid) + more));
             return;
         }
 
