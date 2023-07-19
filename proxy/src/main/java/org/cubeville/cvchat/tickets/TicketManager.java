@@ -162,6 +162,14 @@ public class TicketManager implements IPCInterface
 	if(ProxyServer.getInstance().getPlayer(playerId) == null) return false;
 	return !Util.playerIsUnlisted(playerId);
     }
+
+    public List<Ticket> getTicketsByPlayer(UUID pUUID) {
+        List<Ticket> playerTickets = new ArrayList<>();
+        for(Ticket ticket : tickets) {
+            if(ticket.getPlayer().equals(pUUID)) playerTickets.add(ticket);
+        }
+        return playerTickets;
+    }
     
     public void checkTickets(CommandSender sender, boolean held, boolean closed, UUID playerId, UUID modId, int page) {
         // TODO: Need to async this?

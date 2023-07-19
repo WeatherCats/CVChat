@@ -242,7 +242,7 @@ public class CVChat extends Plugin {
             pm.registerCommand(this, new WhoCommand());
                 
             // Little helper command, remove when done! TODO
-            pm.registerCommand(this, new TestCommand());
+            pm.registerCommand(this, new TestCommand(this, ipc));
 
             // other commands
             pm.registerCommand(this, new PrefixCommand());
@@ -252,10 +252,11 @@ public class CVChat extends Plugin {
             pm.registerCommand(this, new PTrCommand());
             pm.registerCommand(this, new GTrCommand());
             pm.registerCommand(this, new SetAliasCommand());
-            pm.registerCommand(this, new SuCommand());
+            pm.registerCommand(this, new SuCommand(ipc));
             pm.registerCommand(this, new ClearchatCommand());
             pm.registerCommand(this, new VcbAddCommand(loginListener));
             pm.registerCommand(this, new BlockNewPlayersCommand(loginListener));
+            pm.registerCommand(this, new ModreqStatusCommand(this, ticketManager, ipc));
         }
 
         { // Install playerdata system

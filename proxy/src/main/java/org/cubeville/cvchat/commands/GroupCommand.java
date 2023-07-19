@@ -100,7 +100,7 @@ public class GroupCommand extends CommandBase
             ChannelManager.getInstance().saveStatus(player);
         }
         else {
-            player.sendMessage(new TextComponent("§c/group <leave|invite|join|list>"));
+            //player.sendMessage(new TextComponent("§c/group <leave|invite|join|list>"));
         }
     }
 }

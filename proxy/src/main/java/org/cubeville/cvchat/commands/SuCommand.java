@@ -4,12 +4,16 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import org.cubeville.cvipc.CVIPC;
 
 public class SuCommand extends CommandBase
 {
-    public SuCommand() {
+    CVIPC cvipc;
+
+    public SuCommand(CVIPC cvipc) {
         super("su", "cvchat.su");
         setUsage("§c/su <player> <command> <args>...");
+        this.cvipc = cvipc;
     }
 
     public void executeC(CommandSender commandSender, String[] args) {
@@ -32,7 +36,8 @@ public class SuCommand extends CommandBase
         if(!server.getPluginManager().dispatchCommand(tplayer, cmd)) {
             if(tplayer instanceof ProxiedPlayer) {
                 ProxiedPlayer player = (ProxiedPlayer) tplayer;
-                player.chat("/" + cmd);
+                //player.chat("/" + cmd);
+                cvipc.sendMessage(player.getServer().getInfo().getName(), "cmd|" + player.getUniqueId() + "|" + cmd);
             }
             else {
                 commandSender.sendMessage(new TextComponent("§cCan't run command as console."));
