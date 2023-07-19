@@ -77,9 +77,9 @@ public class ModreqStatusCommand extends CommandBase {
             String item;
             String itemName = ChatColor.GOLD + "#" + ticket.getId() + " Status: " + ChatColor.AQUA;
             List<String> playerMsgList = new ArrayList<>();
-            String playerMsg = ticket.getText();
+            String playerMsg = ticket.getText() == null ? ticket.getText() : ticket.getText().replace("\"", "'");
             List<String> modMsgList = new ArrayList<>();
-            String modMsg = ticket.getModeratorText();
+            String modMsg = ticket.getModeratorText() == null ? ticket.getModeratorText() : ticket.getModeratorText().replace("\"", "'");
             if(playerMsg != null) {
                 while(playerMsg.length() > 50) {
                     playerMsgList.add(playerMsg.substring(0, 50));
