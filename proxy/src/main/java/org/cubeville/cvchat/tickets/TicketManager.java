@@ -189,14 +189,18 @@ public class TicketManager implements IPCInterface
                     }
                     if(text.length() > 22) { text = text.substring(0, 22) + "§7..."; }
  		    boolean playerOnline = showPlayerAsOnline(ticket.getPlayer());
-                    int id = ticket.getId();
-                    TextComponent t = new TextComponent("§6#" + id + ". " + getDateStr(ticket.getCreationTimestamp()) + " by §" + (playerOnline ? "a" : "c") + ticket.getPlayerName() + " §7- " + text);
-                    t.addExtra("  ");
-                    TextComponent c = new TextComponent("§b[§aCheck§b]");
-                    c.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/check " + id));
-                    c.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Check modreq #" + id)));
-                    t.addExtra(c);
-                    out.add(t);
+                    if(ticket.getId() != null) {
+                        int id = ticket.getId();
+                        TextComponent t = new TextComponent("§6#" + id + ". " + getDateStr(ticket.getCreationTimestamp()) + " by §" + (playerOnline ? "a" : "c") + ticket.getPlayerName() + " §7- " + text);
+                        t.addExtra("  ");
+                        TextComponent c = new TextComponent("§b[§aCheck§b]");
+                        c.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/check " + id));
+                        c.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Check modreq #" + id)));
+                        t.addExtra(c);
+                        out.add(t);
+                    } else {
+                        out.add(new TextComponent("NULL TICKET ID! REPORT TO TOE PLZ!"));
+                    }
                 }
             }
         }
