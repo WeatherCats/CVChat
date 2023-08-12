@@ -69,6 +69,10 @@ public class TempbanCommand extends CommandBase
             return;
         }
         if(!verifyOutranks(sender, bannedPlayerId)) return;
+        if(getPDM().isPermanentlyBanned(bannedPlayerId)) {
+            sender.sendMessage(new TextComponent("§e" + args[offset] + "§c is already permanently banned!"));
+            return;
+        }
 
         String bannedPlayerName = getPDM().getPlayerName(bannedPlayerId);
         SanctionManager.getInstance().banPlayer(sender, bannedPlayerId, banReason, amount, silent);
