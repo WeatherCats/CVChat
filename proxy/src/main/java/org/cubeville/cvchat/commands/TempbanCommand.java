@@ -69,7 +69,7 @@ public class TempbanCommand extends CommandBase
             return;
         }
         if(!verifyOutranks(sender, bannedPlayerId)) return;
-        if(getPDM().isPermanentlyBanned(bannedPlayerId)) {
+        if(getPDM().isBanned(bannedPlayerId, false) && getPDM().isPermanentlyBanned(bannedPlayerId)) {
             sender.sendMessage(new TextComponent("§e" + args[offset] + "§c is already permanently banned!"));
             return;
         }
