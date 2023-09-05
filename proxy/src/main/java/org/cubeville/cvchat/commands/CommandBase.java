@@ -118,6 +118,12 @@ public abstract class CommandBase extends Command
         }
     }
 
+    public void sendMessage(Collection<ProxiedPlayer> players, TextComponent message) {
+        for(ProxiedPlayer player: players) {
+            player.sendMessage(message);
+        }
+    }
+
     public void sendMessage(ProxiedPlayer player, String message) {
         player.sendMessage(TextComponent.fromLegacyText(message));
     }
