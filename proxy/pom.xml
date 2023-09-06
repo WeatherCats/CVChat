@@ -22,12 +22,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>net.md-5</groupId>
-      <artifactId>bungeecord-module-reconnect-yaml</artifactId>
-      <version>1.20-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.cubeville.proxy</groupId>
       <artifactId>CVIPC</artifactId>
       <version>1.18</version>
