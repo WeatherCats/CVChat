@@ -3,6 +3,7 @@ package org.cubeville.cvchat;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.InetSocketAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,24 +22,24 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.PlayerDisconnectEvent;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.event.PreLoginEvent;
-import net.md_5.bungee.api.event.ProxyPingEvent;
-import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
+import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.cubeville.cvchat.channels.ChannelManager;
 import org.cubeville.cvchat.ranks.RankManager;
 import org.cubeville.cvchat.tickets.TicketManager;
 import org.cubeville.cvplayerdata.playerdata.NameRecord;
 import org.cubeville.cvplayerdata.playerdata.NameRecordDao;
 import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
+import org.yaml.snakeyaml.Yaml;
 
 public class LoginListener implements Listener
 {
@@ -52,6 +53,9 @@ public class LoginListener implements Listener
 
     Map<String, Set<UUID>> playerIP = new HashMap<>();
     Map<UUID, String> confirmationIP = new HashMap<>();
+
+    Map<UUID, ServerInfo> playerLocations = new HashMap<>();
+    Map<UUID, ServerInfo> pendingRelocations = new HashMap<>();
 
     boolean enableAdminMFA;
     
@@ -294,8 +298,55 @@ public class LoginListener implements Listener
             }
         }
 
-        System.out.println("Player " + player.getName() + " logged in" + (newPlayer ? " for the first time: " : ": ") + ip);
+        ServerInfo attemptedServer = ProxyServer.getInstance().getReconnectHandler().getServer(player);
+        ServerInfo correctServer = getCorrectServer(player);
+        System.out.println(player.getName() + " is attempting to connect to " + attemptedServer.getName());
+        System.out.println(player.getName() + " previously logged off on " + (correctServer == null ? "N/A" : correctServer.getName()));
+        if(correctServer != null && !correctServer.equals(attemptedServer)) {
+            this.pendingRelocations.put(player.getUniqueId(), correctServer);
+        }
 
+        System.out.println("Player " + player.getName() + " logged in" + (newPlayer ? " for the first time: " : ": ") + ip);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onServerSwitch(ServerSwitchEvent event) {
+        ProxiedPlayer player = event.getPlayer();
+        if(this.pendingRelocations.containsKey(player.getUniqueId())) {
+            if(!this.pendingRelocations.get(player.getUniqueId()).equals(player.getServer().getInfo())) {
+                player.connect(this.pendingRelocations.get(player.getUniqueId()));
+                System.out.println(player.getName() + " is being relocated to " + this.pendingRelocations.get(player.getUniqueId()).getName());
+            }
+            this.pendingRelocations.remove(player.getUniqueId());
+        }
+        this.playerLocations.put(player.getUniqueId(), player.getServer().getInfo());
+    }
+
+    private ServerInfo getCorrectServer(ProxiedPlayer player) {
+        if(this.playerLocations.containsKey(player.getUniqueId())) {
+            return this.playerLocations.get(player.getUniqueId());
+        } else {
+            File file = new File("locations.yml");
+            Yaml yaml = new Yaml();
+            CaseInsensitiveMap<String> data = null;
+            try {
+                file.createNewFile();
+                try (FileReader rd = new FileReader(file)) {
+                    Map map = yaml.loadAs(rd, Map.class);
+                    if (map != null) {
+                        data = new CaseInsensitiveMap<>(map);
+                    }
+                }
+            } catch (Exception ignored) {}
+            if(data != null) {
+                //InetSocketAddress host = player.getPendingConnection().getVirtualHost();
+                String key = player.getName() + ";cubeville.org:25565";
+                ServerInfo server = ProxyServer.getInstance().getServerInfo(data.get(key));
+                return server;
+            } else {
+                return null;
+            }
+        }
     }
 
     private String getStrippedIpAddress(Connection player) {
