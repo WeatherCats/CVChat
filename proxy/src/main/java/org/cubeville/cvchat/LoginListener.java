@@ -58,14 +58,16 @@ public class LoginListener implements Listener
     Map<UUID, ServerInfo> pendingRelocations = new HashMap<>();
 
     boolean enableAdminMFA;
+    boolean enableWhitelist;
     
-    public LoginListener(ChannelManager channelManager, TicketManager ticketManager, Set<UUID> versionCheckBypass, boolean enableAdminMFA) {
+    public LoginListener(ChannelManager channelManager, TicketManager ticketManager, Set<UUID> versionCheckBypass, boolean enableAdminMFA, boolean enableWhitelist) {
         this.channelManager = channelManager;
         this.ticketManager = ticketManager;
         newPlayerLogins = new HashMap<>();
 
         this.versionCheckBypass = versionCheckBypass;
         this.enableAdminMFA = enableAdminMFA;
+        this.enableWhitelist = enableWhitelist;
     }
 
     public void addVersionCheckBypass(UUID player) {
@@ -103,13 +105,20 @@ public class LoginListener implements Listener
         UUID uuid = connection.getUniqueId();
 
         {
-            int forcedProtocolVersion = 763;
+            int forcedProtocolVersion = 764;
             int protocolVersion = connection.getVersion();
             if(protocolVersion != forcedProtocolVersion && !versionCheckBypass.contains(uuid)) {
                 event.setCancelled(true);
-                event.setCancelReason(TextComponent.fromLegacyText("§cPlease use §aMinecraft v1.20.1 §cfor Cubeville.\nhttp://cubeville.org/version"));
+                event.setCancelReason(TextComponent.fromLegacyText("§cPlease use §aMinecraft v1.20.2 §cfor Cubeville.\nhttp://cubeville.org/version"));
                 return;
             }
+        }
+
+        if((!pdm.isPlayerKnown(uuid) || pdm.getPriority(uuid) < 61) && enableWhitelist) {
+            System.out.println(connection.getName() + " blocked from logging on. Cause: Whitelist enabled");
+            event.setCancelled(true);
+            event.setReason(new TextComponent("§cSorry, the server is currently under maintenance. Check back shortly!"));
+            return;
         }
         
         if(!pdm.isPlayerKnown(uuid)) {

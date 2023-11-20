@@ -189,7 +189,8 @@ public class CVChat extends Plugin {
             versionCheckBypass.add(UUID.fromString(s));
         }
         boolean enableAdminMFA = config.getBoolean("enableAdminMFA", true);
-        LoginListener loginListener = new LoginListener(channelManager, ticketManager, versionCheckBypass, enableAdminMFA);
+        boolean enableWhitelist = config.getBoolean("enableWhitelist", false);
+        LoginListener loginListener = new LoginListener(channelManager, ticketManager, versionCheckBypass, enableAdminMFA, enableWhitelist);
         pm.registerListener(this, loginListener);
         pm.registerCommand(this, new ChannelCommand(channelManager));
             
