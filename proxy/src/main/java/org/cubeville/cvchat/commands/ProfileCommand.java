@@ -44,7 +44,11 @@ public class ProfileCommand extends CommandBase
         }
 
         UUID playerId = null;
-        if(searchTerms.size() == 1) {
+        try {
+            UUID uuid = UUID.fromString(searchTerms.get(0));
+            if(PlayerDataManager.getInstance().isPlayerKnown(uuid)) playerId = uuid;
+        } catch(IllegalArgumentException ignored) {}
+        if(playerId == null && searchTerms.size() == 1) {
             playerId = PlayerDataManager.getInstance().getPlayerId(searchTerms.get(0));
         }
 
