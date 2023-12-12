@@ -6,13 +6,16 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import org.cubeville.cvipc.CVIPC;
 import org.cubeville.cvplayerdata.playerdata.PlayerDataManager;
 
 public class SanctionManager
 {
+
     Map<UUID, List<Map<Long, String>>> filteredMessages;
     boolean allChatMuted;
     Map<UUID, Long> mutedPlayers;
+    Set<UUID> frozenPlayers;
     List<String> filterTerms;
     HashMap<String, List<String>> unicodeTranslations;
     
@@ -26,12 +29,29 @@ public class SanctionManager
         filteredMessages = new HashMap<>();
         allChatMuted = false;
         mutedPlayers = new HashMap<>();
+        frozenPlayers = new HashSet<>();
         this.filterTerms = filterTerms;
         this.unicodeTranslations = unicodeTranslations;
     }
 
     public HashMap<String, List<String>> getUnicodeTranslations() {
         return this.unicodeTranslations;
+    }
+
+    public boolean isPlayerFrozen(UUID uuid) {
+        return this.frozenPlayers.contains(uuid);
+    }
+
+    public void freezePlayer(UUID uuid, Integer range) {
+        this.frozenPlayers.add(uuid);
+        String message = "frozen|" + "true" + ":" + range + "|" + uuid;
+        CVIPC.getInstance().broadcastMessage(message);
+    }
+
+    public void thawPlayer(UUID uuid) {
+        this.frozenPlayers.remove(uuid);
+        String message = "frozen|" + "false" + ":" + uuid;
+        CVIPC.getInstance().broadcastMessage(message);
     }
 
     public void mutePlayer(UUID player) {

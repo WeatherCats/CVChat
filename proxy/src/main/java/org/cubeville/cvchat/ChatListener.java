@@ -6,15 +6,13 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.api.event.TabCompleteResponseEvent;
-import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-import net.md_5.bungee.event.EventPriority;
+import org.cubeville.cvchat.sanctions.SanctionManager;
 import org.cubeville.cvipc.CVIPC;
 import org.cubeville.cvipc.IPCInterface;
 
@@ -110,6 +108,13 @@ public class ChatListener implements Listener, IPCInterface {
         if (!(event.getSender() instanceof ProxiedPlayer)) return;
         ProxiedPlayer player = (ProxiedPlayer)event.getSender();
         if(isLocChatEnabled(player.getUniqueId()) && !event.isCommand()) return;
+
+        if(event.isCommand() && SanctionManager.getInstance().isPlayerFrozen(player.getUniqueId())) {
+            event.setCancelled(true);
+            player.sendMessage(new TextComponent("§cYou cannot enter commands! You are currently frozen!"));
+            System.out.println("Cancelling command for player " + player.getName() + " because they are frozen");
+            return;
+        }
 
         if(event.getMessage().contains("/")) {
             String[] commandSplit = event.getMessage().split(" ");

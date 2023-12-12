@@ -236,6 +236,8 @@ public class CVChat extends Plugin {
             pm.registerCommand(this, new TempbanCommand());
             pm.registerCommand(this, new UnbanCommand());
             pm.registerCommand(this, new CheckbanCommand());
+            pm.registerCommand(this, new FreezeCommand());
+            pm.registerCommand(this, new ThawCommand());
                 
             // Player list commands
             pm.registerCommand(this, new ModlistCommand());
