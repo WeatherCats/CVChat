@@ -29,9 +29,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -55,6 +53,9 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
     Map<UUID, Long> lastGlobalChatInfo = new HashMap<>();
 
     private Set<UUID> locChatEnabled;
+
+    private Map<UUID, Integer> frozenPlayers;
+    private Map<UUID, Location> frozenPlayersLocs;
     
     public void onEnable() {
         PluginManager pm = getServer().getPluginManager();
@@ -63,6 +64,7 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
         ipc = (CVIPC) pm.getPlugin("CVIPC");
         ipc.registerInterface("locchat", this);
         ipc.registerInterface("chatquery", this);
+        ipc.registerInterface("frozen", this);
 
         cvvanish = (CVVanish) Bukkit.getServer().getPluginManager().getPlugin("CVVanish");
 
@@ -78,36 +80,78 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
         localChatDistance = getConfig().getInt("localchatdistance", 55);
         System.out.println("Local chat distance is " + localChatDistance);
         this.locChatEnabled = new HashSet<>();
+        this.frozenPlayers = new HashMap<>();
+        this.frozenPlayersLocs = new HashMap<>();
     }
 
     public void onDisable() {
         ipc.deregisterInterface("locchat");
         ipc.deregisterInterface("chatquery");
     }
+
+    public void freezePlayer(UUID uuid, Integer range) {
+        this.frozenPlayers.put(uuid, range);
+        if(range > 0) {
+            if(Bukkit.getPlayer(uuid) != null && Bukkit.getPlayer(uuid).isOnline()) {
+                this.frozenPlayersLocs.put(uuid, Bukkit.getPlayer(uuid).getLocation());
+            }
+        }
+    }
+
+    public void thawPlayer(UUID uuid) {
+        this.frozenPlayers.remove(uuid);
+        this.frozenPlayersLocs.remove(uuid);
+    }
     
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(null);
-        // String highestRank = "default";
-        // Player player = event.getPlayer();
-        // int prio = 0;
-        // Set<String> ranks = getConfig().getConfigurationSection("ranks").getKeys(false);
-        // for (String rank : ranks) {
-        //     ConfigurationSection rankData = getConfig().getConfigurationSection("ranks").getConfigurationSection(rank);
-        //     if (player.hasPermission(rankData.getString("permission")) && rankData.getInt("priority") > prio) {
-        //         prio = rankData.getInt("priority");
-        //         highestRank = rank;
-        //     }
-        // }
-        // ScoreboardManager manager = Bukkit.getScoreboardManager();
-        // Scoreboard mainBoard = manager.getMainScoreboard();
-        // System.out.println("Set scoreboard team of player " + player.getName() + " to " + highestRank);
-        // if(mainBoard.getTeam(highestRank) != null) {
-        //     mainBoard.getTeam(highestRank).addEntry(player.getName().toString());
-        // }
-        // else {
-        //     System.out.println("Team not found on scoreboard!");
-        // }
+
+        UUID pUUID = event.getPlayer().getUniqueId();
+        if(this.frozenPlayers.containsKey(pUUID) && this.frozenPlayers.get(pUUID) > 0) {
+            this.frozenPlayersLocs.put(pUUID, event.getPlayer().getLocation());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onWorldSwitch(PlayerChangedWorldEvent event) {
+        UUID pUUID = event.getPlayer().getUniqueId();
+        if(this.frozenPlayers.containsKey(pUUID) && this.frozenPlayers.get(pUUID) > 0) {
+            this.frozenPlayersLocs.put(pUUID, event.getPlayer().getLocation());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if(event.isCancelled()) return;
+        UUID pUUID = event.getPlayer().getUniqueId();
+        if(this.frozenPlayers.containsKey(pUUID) && this.frozenPlayers.get(pUUID) > -1) {
+            Location fromLoc = event.getFrom();
+            Location toLoc = event.getTo();
+            int range = this.frozenPlayers.get(pUUID);
+            if(range == 0) {
+                if(fromLoc.getWorld().equals(toLoc.getWorld()) && fromLoc.distance(toLoc) > 0) {
+                    event.setCancelled(true);
+                }
+            } else if(this.frozenPlayersLocs.containsKey(pUUID) && this.frozenPlayersLocs.get(pUUID).distance(toLoc) > range) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        if(event.isCancelled()) return;
+        UUID pUUID = event.getPlayer().getUniqueId();
+        if(this.frozenPlayers.containsKey(pUUID)) {
+            if(event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN)) {
+                if(this.frozenPlayers.get(pUUID) > 0) {
+                    this.frozenPlayersLocs.put(pUUID, event.getTo());
+                }
+            } else {
+                event.setCancelled(true);
+            }
+        }
     }
 
     @EventHandler
@@ -389,6 +433,16 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                 else if(message.substring(gtidx + 2).equals("fus ro dah") && player.hasPermission("cvchat.thuum.fus.ro.dah")) {
                     fusRoDah(player, 3);
                 }
+            }
+        } else if(channel.equals("frozen")) {
+            //String message = "frozen|" + "true" + ":" + range + "|" + uuid;
+            boolean isFrozen = Boolean.parseBoolean(message.substring(0, message.indexOf(":")));
+            UUID uuid = UUID.fromString(message.substring((isFrozen ? message.indexOf("|") : message.indexOf(":")) + 1));
+            if(isFrozen) {
+                int range = Integer.parseInt(message.substring(message.indexOf(":") + 1, message.indexOf("|")));
+                freezePlayer(uuid, range);
+            } else {
+                thawPlayer(uuid);
             }
         }
     }

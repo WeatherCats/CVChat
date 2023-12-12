@@ -1,7 +1,7 @@
 name: CVChat
 main: org.cubeville.cvchat.CVChat
-authors: [FrediW]
-version: 1.18
+authors: [FrediW,ToeMan_]
+version: 1.20
 depend: [CVIPC,CVTools,CVVanish]
 api-version: 1.18
 
