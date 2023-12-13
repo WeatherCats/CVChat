@@ -19,12 +19,16 @@ public class QueryCommand extends CommandBase {
     }
 
     public void executeC(CommandSender sender, String[] args) {
-        if(ProxyServer.getInstance().getPlayer(args[0]) == null || !ProxyServer.getInstance().getPlayer(args[0]).isConnected()) return;
+        if(ProxyServer.getInstance().getPlayer(args[0]) == null || !ProxyServer.getInstance().getPlayer(args[0]).isConnected()) {
+            sender.sendMessage(new TextComponent(ChatColor.RED + args[0] + " is not online!"));
+            return;
+        }
         String ip = String.valueOf(ProxyServer.getInstance().getPlayer(args[0]).getPendingConnection().getSocketAddress());
         String ipFormatted;
         try {
             ipFormatted = ip.substring(ip.indexOf("/") + 1, ip.indexOf(":"));
         } catch(IndexOutOfBoundsException ignored) {
+            sender.sendMessage(new TextComponent(ChatColor.RED + "Index out of bounds error for ip formatting prior to json query, contact Toe!"));
             return;
         }
         List<String> out = jsonHandler.queryIP(ipFormatted);
