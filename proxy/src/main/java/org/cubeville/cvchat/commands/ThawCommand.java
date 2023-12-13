@@ -24,7 +24,13 @@ public class ThawCommand extends CommandBase{
             sender.sendMessage(new TextComponent("§cNo player found!"));
             return;
         }
-        if((sender instanceof ProxiedPlayer) && !verify((ProxiedPlayer) sender, !pUUID.equals(((ProxiedPlayer)sender).getUniqueId()), "§cYou can't freeze yourself, silly!")) return;
+        //if((sender instanceof ProxiedPlayer) && !verify((ProxiedPlayer) sender, !pUUID.equals(((ProxiedPlayer)sender).getUniqueId()), "§cYou can't freeze yourself, silly!")) return;
+        if((sender instanceof ProxiedPlayer) && ((ProxiedPlayer)sender).getUniqueId().equals(pUUID)) {
+            if(!sender.hasPermission("cvchat.sa.thaw")) {
+                sender.sendMessage(new TextComponent(ChatColor.RED + "You can't thaw yourself, silly!"));
+                return;
+            }
+        }
 
         if(!SanctionManager.getInstance().isPlayerFrozen(pUUID)) {
             sender.sendMessage(new TextComponent(ChatColor.RED + args[0] + " is already thawed!"));

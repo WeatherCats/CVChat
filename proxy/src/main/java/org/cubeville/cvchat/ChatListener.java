@@ -109,7 +109,7 @@ public class ChatListener implements Listener, IPCInterface {
         ProxiedPlayer player = (ProxiedPlayer)event.getSender();
         if(isLocChatEnabled(player.getUniqueId()) && !event.isCommand()) return;
 
-        if(event.isCommand() && SanctionManager.getInstance().isPlayerFrozen(player.getUniqueId())) {
+        if(event.isCommand() && SanctionManager.getInstance().isPlayerFrozen(player.getUniqueId()) && !event.getMessage().startsWith("/thaw")) {
             event.setCancelled(true);
             player.sendMessage(new TextComponent("§cYou cannot enter commands! You are currently frozen!"));
             System.out.println("Cancelling command for player " + player.getName() + " because they are frozen");
