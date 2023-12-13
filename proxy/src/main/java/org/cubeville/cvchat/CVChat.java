@@ -277,9 +277,11 @@ public class CVChat extends Plugin {
         }
 
         { // Other commands
+            JsonHandler jsonHandler = new JsonHandler();
             pm.registerCommand(this, new FjCommand());
             pm.registerCommand(this, new FqCommand());
             pm.registerCommand(this, new PingCommand(playerDataManager));
+            pm.registerCommand(this, new QueryCommand(jsonHandler));
         }
             
         { // Chat forward commands for quest
