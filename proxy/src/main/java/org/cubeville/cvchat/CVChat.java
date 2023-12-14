@@ -138,6 +138,7 @@ public class CVChat extends Plugin {
         channelManager = new ChannelManager(channelList, statusFolder, ipc);
 
         // Add commands and listeners
+        JsonHandler jsonHandler = new JsonHandler();
         for(Channel channel: channelManager.getChannels()) {
             for(String command: channel.getCommands()) {
                 pm.registerCommand(this, new ChatCommand(command, channel));
@@ -190,7 +191,7 @@ public class CVChat extends Plugin {
         }
         boolean enableAdminMFA = config.getBoolean("enableAdminMFA", true);
         boolean enableWhitelist = config.getBoolean("enableWhitelist", false);
-        LoginListener loginListener = new LoginListener(channelManager, ticketManager, versionCheckBypass, enableAdminMFA, enableWhitelist);
+        LoginListener loginListener = new LoginListener(jsonHandler, channelManager, ticketManager, versionCheckBypass, enableAdminMFA, enableWhitelist);
         pm.registerListener(this, loginListener);
         pm.registerCommand(this, new ChannelCommand(channelManager));
             
@@ -277,11 +278,10 @@ public class CVChat extends Plugin {
         }
 
         { // Other commands
-            JsonHandler jsonHandler = new JsonHandler();
             pm.registerCommand(this, new FjCommand());
             pm.registerCommand(this, new FqCommand());
             pm.registerCommand(this, new PingCommand(playerDataManager));
-            pm.registerCommand(this, new QueryCommand(jsonHandler));
+            pm.registerCommand(this, new QueryCommand(loginListener));
         }
             
         { // Chat forward commands for quest

@@ -4,18 +4,18 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.cubeville.cvchat.JsonHandler;
+import org.cubeville.cvchat.LoginListener;
 
-import java.util.List;
+import java.util.LinkedHashMap;
 
 public class QueryCommand extends CommandBase {
 
-    JsonHandler jsonHandler;
+    LoginListener loginListener;
 
-    public QueryCommand(JsonHandler jsonHandler) {
+    public QueryCommand(LoginListener loginListener) {
         super("query", "cvchat.query");
         setUsage("/query <player>");
-        this.jsonHandler = jsonHandler;
+        this.loginListener = loginListener;
     }
 
     public void executeC(CommandSender sender, String[] args) {
@@ -23,20 +23,25 @@ public class QueryCommand extends CommandBase {
             sender.sendMessage(new TextComponent(ChatColor.RED + args[0] + " is not online!"));
             return;
         }
-        String ip = String.valueOf(ProxyServer.getInstance().getPlayer(args[0]).getPendingConnection().getSocketAddress());
-        String ipFormatted;
-        try {
-            ipFormatted = ip.substring(ip.indexOf("/") + 1, ip.indexOf(":"));
-        } catch(IndexOutOfBoundsException ignored) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + "Index out of bounds error for ip formatting prior to json query, contact Toe!"));
-            return;
-        }
-        List<String> out = jsonHandler.queryIP(ipFormatted);
+        String ip = ProxyServer.getInstance().getPlayer(args[0]).getPendingConnection().getAddress().toString();
+        String ipFormatted = ip.substring(ip.indexOf("/") + 1, ip.indexOf(":"));
+
+        LinkedHashMap<String, String> out = loginListener.getPlayerIPInfo(ipFormatted);
         if(!out.isEmpty()) {
-            sender.sendMessage(new TextComponent(ChatColor.GOLD + "IP Details for " + ipFormatted));
-            for(String o : out) {
-                sender.sendMessage(new TextComponent(o));
+            sender.sendMessage(new TextComponent(ChatColor.GOLD + "IP details for " + ipFormatted));
+            for(String key : out.keySet()) {
+                String b = out.get(key);
+                if(b.equalsIgnoreCase("true")) {
+                    b = ChatColor.GREEN + b;
+                } else if(b.equalsIgnoreCase("false")) {
+                    b = ChatColor.RED + b;
+                } else {
+                    b = ChatColor.YELLOW + b;
+                }
+                sender.sendMessage(new TextComponent(ChatColor.LIGHT_PURPLE + key + ": " + b));
             }
+        } else {
+            sender.sendMessage(new TextComponent(ChatColor.RED + "No IP details for " + ipFormatted + " This is probably an error!"));
         }
     }
 }

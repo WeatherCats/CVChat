@@ -5,15 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.net.InetSocketAddress;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -43,6 +36,7 @@ import org.yaml.snakeyaml.Yaml;
 
 public class LoginListener implements Listener
 {
+    JsonHandler jsonHandler;
     ChannelManager channelManager;
     TicketManager ticketManager;
 
@@ -51,6 +45,7 @@ public class LoginListener implements Listener
     
     Set<UUID> versionCheckBypass;
 
+    Map<String, LinkedHashMap<String, String>> playerIPInfo = new HashMap<>();
     Map<String, Set<UUID>> playerIP = new HashMap<>();
     Map<UUID, String> confirmationIP = new HashMap<>();
 
@@ -60,7 +55,8 @@ public class LoginListener implements Listener
     boolean enableAdminMFA;
     boolean enableWhitelist;
     
-    public LoginListener(ChannelManager channelManager, TicketManager ticketManager, Set<UUID> versionCheckBypass, boolean enableAdminMFA, boolean enableWhitelist) {
+    public LoginListener(JsonHandler jsonHandler, ChannelManager channelManager, TicketManager ticketManager, Set<UUID> versionCheckBypass, boolean enableAdminMFA, boolean enableWhitelist) {
+        this.jsonHandler = jsonHandler;
         this.channelManager = channelManager;
         this.ticketManager = ticketManager;
         newPlayerLogins = new HashMap<>();
@@ -210,21 +206,25 @@ public class LoginListener implements Listener
         boolean newPlayer = false;
 
         String ip = getStrippedIpAddress(player);
-        
+
+        if(!this.playerIPInfo.containsKey(ip)) {
+            asyncQueryPlayerIPInfo(ip, player.getName());
+        }
+
         if(!player.hasPermission("cvchat.silent.join")) {
             if(!pdm.isPlayerKnown(playerId)) {
                 newPlayer = true;
                 //sendWelcomeMessage(player.getName());
                 pdm.addPlayer(playerId, player.getName(), ip);
-                sendPublicMessage(player.getDisplayName(), "joined", true);
+                sendPublicMessage(ip, player.getDisplayName(), "joined", true);
                 newPlayerLogins.put(playerId, System.currentTimeMillis());
             }
             else {
                 if(pdm.getPlayerName(playerId).equals(player.getName()) || pdm.getPlayerDisplayName(playerId) != null) {
-                    sendPublicMessage(player.getDisplayName(), "joined", false);
+                    sendPublicMessage(ip, player.getDisplayName(), "joined", false);
                 }
                 else {
-                    sendPublicMessage(player.getDisplayName() + " (formerly known as " + pdm.getPlayerName(playerId) + ")", "joined", false);
+                    sendPublicMessage(ip, player.getDisplayName() + " (formerly known as " + pdm.getPlayerName(playerId) + ")", "joined", false);
                 }
                 if(!pdm.getPlayerName(playerId).equals(player.getName())) {
                     pdm.changePlayerName(playerId, player.getName());
@@ -369,7 +369,7 @@ public class LoginListener implements Listener
         ProxiedPlayer player = event.getPlayer();
         channelManager.playerDisconnect(player);
         if(!player.hasPermission("cvchat.silent.leave")) {
-            sendPublicMessage(player.getDisplayName(), "left", false);
+            sendPublicMessage(null, player.getDisplayName(), "left", false);
         }
         else {
             sendSilentMessage(player.getDisplayName(), "left");
@@ -391,13 +391,32 @@ public class LoginListener implements Listener
         ping.getPlayers().setSample(new ServerPing.PlayerInfo[0]);
     }
     
-    private void sendPublicMessage(String playerName, String status, boolean newPlayer) {
+    private void sendPublicMessage(String ip, String playerName, String status, boolean newPlayer) {
+        boolean vpnInUse = false;
+        if(ip != null && this.playerIPInfo.containsKey(ip)) {
+            vpnInUse = (this.playerIPInfo.get(ip).containsKey("proxy") && this.playerIPInfo.get(ip).get("proxy").equalsIgnoreCase("true"))
+                    || (this.playerIPInfo.containsKey("hosting") && this.playerIPInfo.get(ip).get("hosting").equalsIgnoreCase("true"));
+        }
         for(ProxiedPlayer p: ProxyServer.getInstance().getPlayers()) {
             if(newPlayer && p.hasPermission("cvchat.informnewplayer")) {
-                p.sendMessage(new TextComponent("§e" + playerName + "§e " + status + " the game. §a(New player)"));
+                TextComponent out = new TextComponent("§e" + playerName + "§e " + status + " the game. §a(New player)");
+                if(vpnInUse && p.hasPermission("cvchat.informvpnplayer")) {
+                    TextComponent vpn = new TextComponent(ChatColor.AQUA + " (VPN)");
+                    vpn.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Show details")));
+                    vpn.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/query " + playerName));
+                    out.addExtra(vpn);
+                }
+                p.sendMessage(out);
             }
             else {
-                p.sendMessage(new TextComponent("§e" + playerName + "§e " + status + " the game."));
+                TextComponent out = new TextComponent("§e" + playerName + "§e " + status + " the game.");
+                if(vpnInUse && p.hasPermission("cvchat.informvpnplayer")) {
+                    TextComponent vpn = new TextComponent(ChatColor.AQUA + " (VPN)");
+                    vpn.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Show details")));
+                    vpn.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/query " + playerName));
+                    out.addExtra(vpn);
+                }
+                p.sendMessage(out);
             }
         }
     }
@@ -439,7 +458,34 @@ public class LoginListener implements Listener
             }
         }
     }
+    private void sendVPNNotifyMessage(String player) {
+        for(ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
+            if(p.hasPermission("cvchat.informvpnplayer")) {
+                TextComponent out = new TextComponent("§e" + player + "(recent login) is using a VPN." + ChatColor.AQUA + " (VPN)");
+                out.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Show details")));
+                out.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/query " + player));
+                p.sendMessage(out);
+            }
+        }
+    }
     public void setNewPlayerBlocker(boolean active) {
         newPlayerBlocker = active;
+    }
+
+    public LinkedHashMap<String, String> getPlayerIPInfo(String ip) {
+        if(this.playerIPInfo.containsKey(ip)) {
+            return this.playerIPInfo.get(ip);
+        } else {
+            return new LinkedHashMap<>();
+        }
+    }
+
+    public void asyncQueryPlayerIPInfo(String ip, String pName) {
+        ProxyServer.getInstance().getScheduler().runAsync(CVChat.getInstance(), () -> {
+            this.playerIPInfo.put(ip, jsonHandler.queryIP(ip));
+            boolean vpnInUse = (this.playerIPInfo.get(ip).containsKey("proxy") && this.playerIPInfo.get(ip).get("proxy").equalsIgnoreCase("true"))
+                    || (this.playerIPInfo.containsKey("hosting") && this.playerIPInfo.get(ip).get("hosting").equalsIgnoreCase("true"));
+            if(vpnInUse) sendVPNNotifyMessage(pName);
+        });
     }
 }

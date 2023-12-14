@@ -1,15 +1,13 @@
 package org.cubeville.cvchat;
 
-import net.md_5.bungee.api.ChatColor;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class JsonHandler {
 
@@ -17,10 +15,10 @@ public class JsonHandler {
 
     }
 
-    public List<String> queryIP(String ip) {
+    public LinkedHashMap<String, String> queryIP(String ip) {
         String urlString = "http://ip-api.com/json/" + ip + "?fields=message,country,regionName,city,zip,timezone,isp,org,as,mobile,proxy,hosting,query";
         StringBuilder response = null;
-        List<String> out = new ArrayList<>();
+        LinkedHashMap<String, String> out = new LinkedHashMap<>();
         try {
             URL url = new URL(urlString);
             try {
@@ -61,16 +59,7 @@ public class JsonHandler {
                 }
                 if(resp.length() <= end + 1) break;
                 resp = resp.substring(end + 1);
-                if(isBoolean) {
-                    if(b.equalsIgnoreCase("true")) {
-                        b = ChatColor.GREEN + b;
-                    } else {
-                        b = ChatColor.RED + b;
-                    }
-                } else {
-                    b = ChatColor.YELLOW + b;
-                }
-                out.add(ChatColor.LIGHT_PURPLE + a + ": " + b);
+                out.put(a, b);
             }
         }
         return out;
