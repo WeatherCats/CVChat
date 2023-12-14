@@ -403,7 +403,7 @@ public class LoginListener implements Listener
                 if(vpnInUse && p.hasPermission("cvchat.informvpnplayer")) {
                     TextComponent vpn = new TextComponent(ChatColor.AQUA + " (VPN)");
                     vpn.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Show details")));
-                    vpn.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/query " + playerName));
+                    vpn.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/query " + ip));
                     out.addExtra(vpn);
                 }
                 p.sendMessage(out);
@@ -413,7 +413,7 @@ public class LoginListener implements Listener
                 if(vpnInUse && p.hasPermission("cvchat.informvpnplayer")) {
                     TextComponent vpn = new TextComponent(ChatColor.AQUA + " (VPN)");
                     vpn.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Show details")));
-                    vpn.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/query " + playerName));
+                    vpn.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/query " + ip));
                     out.addExtra(vpn);
                 }
                 p.sendMessage(out);
@@ -458,12 +458,12 @@ public class LoginListener implements Listener
             }
         }
     }
-    private void sendVPNNotifyMessage(String player) {
+    private void sendVPNNotifyMessage(String ip, String player) {
         for(ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
             if(p.hasPermission("cvchat.informvpnplayer")) {
                 TextComponent out = new TextComponent("§e" + player + "(recent login) is using a VPN." + ChatColor.AQUA + " (VPN)");
                 out.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Show details")));
-                out.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/query " + player));
+                out.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/query " + ip));
                 p.sendMessage(out);
             }
         }
@@ -485,7 +485,7 @@ public class LoginListener implements Listener
             this.playerIPInfo.put(ip, jsonHandler.queryIP(ip));
             boolean vpnInUse = (this.playerIPInfo.get(ip).containsKey("proxy") && this.playerIPInfo.get(ip).get("proxy").equalsIgnoreCase("true"))
                     || (this.playerIPInfo.containsKey("hosting") && this.playerIPInfo.get(ip).get("hosting").equalsIgnoreCase("true"));
-            if(vpnInUse) sendVPNNotifyMessage(pName);
+            if(vpnInUse) sendVPNNotifyMessage(ip, pName);
         });
     }
 }

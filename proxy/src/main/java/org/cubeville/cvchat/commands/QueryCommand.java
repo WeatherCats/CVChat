@@ -19,12 +19,19 @@ public class QueryCommand extends CommandBase {
     }
 
     public void executeC(CommandSender sender, String[] args) {
-        if(ProxyServer.getInstance().getPlayer(args[0]) == null || !ProxyServer.getInstance().getPlayer(args[0]).isConnected()) {
+        if(!verifyNotLessArguments(sender, args, 1)) return;
+        if(!verifyNotMoreArguments(sender, args, 1)) return;
+
+        String ipFormatted;
+        if(args[0].contains(".")) {
+            ipFormatted = args[0];
+        } else if(ProxyServer.getInstance().getPlayer(args[0]) == null || !ProxyServer.getInstance().getPlayer(args[0]).isConnected()) {
             sender.sendMessage(new TextComponent(ChatColor.RED + args[0] + " is not online!"));
             return;
+        } else {
+            String ip = ProxyServer.getInstance().getPlayer(args[0]).getPendingConnection().getAddress().toString();
+            ipFormatted = ip.substring(ip.indexOf("/") + 1, ip.indexOf(":"));
         }
-        String ip = ProxyServer.getInstance().getPlayer(args[0]).getPendingConnection().getAddress().toString();
-        String ipFormatted = ip.substring(ip.indexOf("/") + 1, ip.indexOf(":"));
 
         LinkedHashMap<String, String> out = loginListener.getPlayerIPInfo(ipFormatted);
         if(!out.isEmpty()) {
