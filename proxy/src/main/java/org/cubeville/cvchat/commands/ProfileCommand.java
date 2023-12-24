@@ -127,7 +127,10 @@ public class ProfileCommand extends CommandBase
 
         String lastOnline;
         if(isOnline) {
-            lastOnline = "§aOnline now";
+            String domain = ProxyServer.getInstance().getPlayer(playerId).getPendingConnection().getVirtualHost().getHostName();
+            if(domain.contains(".")) domain = domain.substring(domain.indexOf("."));
+            lastOnline = "§aOnline now §9(§a" + domain + "§9)";
+
         }
         else {
             lastOnline = "§9";
