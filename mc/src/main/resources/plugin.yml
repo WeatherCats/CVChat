@@ -18,6 +18,9 @@ commands:
   localchatregion:
     description: Local chat region administration
     permission: cvchat.localchatregion
+  localchatworld:
+    description: Local chat world administration
+    permission: cvchat.localchatworld
   localchardistance:
     permission: cvchat.localchatdistance
     description: Change local chat default distance temporarily

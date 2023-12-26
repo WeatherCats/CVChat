@@ -141,16 +141,16 @@ public class Channel
             }
         }
         
-        String formattedMessage = format.get("default");
+        String formattedMessage = Util.translateAlternateColorCodes(format.get("default"));
         if(player instanceof ProxiedPlayer) {
             String serverName = ((ProxiedPlayer) player).getServer().getInfo().getName();
             if(format.containsKey(serverName)) {
-                formattedMessage = format.get(serverName);
+                formattedMessage = Util.translateAlternateColorCodes(format.get(serverName));
             }
         }
         
         if(formattedMessage.contains("%prefix%") && player instanceof ProxiedPlayer) {
-            formattedMessage = formattedMessage.replace("%prefix%", PlayerDataManager.getInstance().getPrefix(((ProxiedPlayer) player).getUniqueId()));
+            formattedMessage = formattedMessage.replace("%prefix%", Util.translateAlternateColorCodes(PlayerDataManager.getInstance().getPrefix(((ProxiedPlayer) player).getUniqueId())));
         }
         if(formattedMessage.contains("%postfix%")) {
             if(player instanceof ProxiedPlayer) {

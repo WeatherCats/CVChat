@@ -1,15 +1,6 @@
 package org.cubeville.cvchat;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.UUID;
+import java.util.*;
 
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -47,6 +38,7 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
     CVVanish cvvanish;
 
     Set<String> localChatRegions;
+    HashMap<String, Integer> localChatWorldDistances;
 
     int localChatDistance;
     
@@ -75,6 +67,23 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
         else {
             System.out.println("Reading local chat region list from config.");
             localChatRegions = new HashSet<>(getConfig().getStringList("localchatregions"));
+        }
+
+        if(getConfig().getConfigurationSection("localchatworlds") == null) {
+            System.out.println("No local chat worlds found.");
+            localChatWorldDistances = new HashMap<>();
+        }
+        else {
+            System.out.println("Reading local chat world list from config.");
+            localChatWorldDistances = new HashMap<>();
+            for (Map.Entry<String, Object> world : getConfig().getConfigurationSection("localchatworlds").getValues(false).entrySet()) {
+                try {
+                    localChatWorldDistances.put(world.getKey(), Integer.parseInt(world.getValue().toString()));
+                }
+                catch (NumberFormatException nfe) {
+                    Bukkit.getLogger().warning("Invalid radius " + world.getValue() + " for world " + world.getKey() + " in config!");
+                }
+            }
         }
 
         localChatDistance = getConfig().getInt("localchatdistance", 55);
@@ -202,17 +211,13 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
             Player player = (Player) sender;
 
             if(args.length == 0) return true;
-            Collection<Player> players = (Collection<Player>) getServer().getOnlinePlayers();
             String message = args[0];
             for(int i = 1; i < args.length; i++) message += " " + args[i];
             message = ChatColor.translateAlternateColorCodes('&', message);
-            Location loc = player.getLocation();
-            for(Player p: players) {
-                Location pl = p.getLocation();
-                if(pl.getWorld().getUID().equals(loc.getWorld().getUID()) && pl.distance(loc) < localChatDistance) {
-                    p.sendMessage(message);
-                }
+            for(Player p: getNearbyLocalChatRecipients(player)) {
+                p.sendMessage(message);
             }
+            player.sendMessage(message);
             return true;
         }
 	else if(command.getName().equals("localchatdistance")) {
@@ -263,6 +268,55 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                 sender.sendMessage("§c/localchatregion list|add|remove");
             }
             return true;
+        } else if(command.getName().equals("localchatworld")) {
+            if(args.length == 0) {
+                sender.sendMessage("§c/localchatworld list|set|remove");
+            }
+            else if(args[0].equals("list")) {
+                if(args.length != 1) {
+                    sender.sendMessage("§clist doesn't have any parameters");
+                }
+                else {
+                    sender.sendMessage("§aLocal chat worlds:");
+                    for(Map.Entry<String, Integer> world: localChatWorldDistances.entrySet()) {
+                        sender.sendMessage("§e- " + world.getKey() + ": §a" + world.getValue());
+                    }
+                }
+            }
+            else if(args[0].equals("set")) {
+                if (args.length != 3) {
+                    sender.sendMessage("§c/localchatworld set <worldname> <radius>");
+                    return false;
+                }
+                Integer radius;
+                try {
+                    radius = Integer.parseInt(args[2]);
+                } catch (NumberFormatException nfe) {
+                    sender.sendMessage("§c" + args[2] + " is not a valid radius. The radius should be an integer.");
+                    return false;
+                }
+                localChatWorldDistances.put(args[1], radius);
+                sender.sendMessage("§a" + args[1] + " with radius " + radius + " added to list of local chat worlds.");
+                writeLocalChatWorldsToConfig();
+            }
+            else if(args[0].equals("remove")) {
+                if (args.length != 2) {
+                    sender.sendMessage("§c/localchatworld remove <worldname>");
+                    return false;
+                }
+                if(localChatWorldDistances.containsKey(args[1])) {
+                    localChatWorldDistances.remove(args[1]);
+                    sender.sendMessage("§a" + args[1] + " removed from list of local chat worlds.");
+                    writeLocalChatWorldsToConfig();
+                }
+                else {
+                    sender.sendMessage("§c" + args[1] + " is not in the list of local chat worlds.");
+                }
+            }
+            else {
+                sender.sendMessage("§c/localchatworld list|set|remove");
+            }
+            return true;
         } else if(command.getName().equalsIgnoreCase("locchat")) {
             if(args.length > 2) return false;
             if(args.length == 1 && args[0].equalsIgnoreCase("reset")) {
@@ -285,9 +339,51 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
         return false;
     }
 
+    private List<Player> getNearbyLocalChatRecipients(Player sender) {
+        Collection<Player> players = (Collection<Player>) getServer().getOnlinePlayers();
+        List<Player> nearbyPlayers = new ArrayList<>();
+
+        String chatRegion = null;
+        if(localChatRegions.size() != 0) {
+            chatRegion = BlockUtils.findApplicableRegion(localChatRegions, sender.getLocation());
+        }
+
+        Integer radius = localChatDistance;
+        if (localChatWorldDistances.containsKey(sender.getWorld().getName())) {
+            radius = localChatWorldDistances.get(sender.getWorld().getName());
+        }
+
+        UUID playerWorldId = sender.getLocation().getWorld().getUID();
+
+        for(Player p: players) {
+            if (!p.getUniqueId().equals(sender.getUniqueId())) {
+                boolean isInVicinity = false;
+                Location pl = p.getLocation();
+                if (pl.getWorld().getUID().equals(playerWorldId)) {
+                    if (chatRegion != null) {
+                        isInVicinity = BlockUtils.isInRegion(chatRegion, p.getLocation());
+                    } else {
+                        isInVicinity = pl.distance(sender.getLocation()) < radius;
+                    }
+                }
+                if (isInVicinity) {
+                    nearbyPlayers.add(p);
+                }
+            }
+        }
+        return nearbyPlayers;
+    }
+
     private void writeLocalChatRegionsToConfig() {
         List<String> list = new ArrayList<>(localChatRegions);
         getConfig().set("localchatregions", list);
+        saveConfig();
+    }
+
+    private void writeLocalChatWorldsToConfig() {
+        for (Map.Entry<String, Integer> world : localChatWorldDistances.entrySet()) {
+            getConfig().set("localchatworlds." + world.getKey(), world.getValue());
+        }
         saveConfig();
     }
     
@@ -342,43 +438,26 @@ public class CVChat extends JavaPlugin implements Listener, IPCInterface
                     lastGlobalChatInfo.put(player.getUniqueId(), System.currentTimeMillis());
                 }
             }
-               
-            Collection<Player> players = (Collection<Player>) getServer().getOnlinePlayers();
+
+            Collection<Player> players = new HashSet<>(getServer().getOnlinePlayers());
+            players.remove(player);
             List<Player> recipients = new ArrayList<>();
             List<Player> vanishedClosePlayers = new ArrayList<>();
             List<Player> monitoringFarPlayers = new ArrayList<>();
             
-            String chatRegion = null;
-            if(localChatRegions.size() != 0) {
-                chatRegion = BlockUtils.findApplicableRegion(localChatRegions, player.getLocation());
+            for(Player p: getNearbyLocalChatRecipients(player)) {
+                if (isVanished(p)) {
+                    vanishedClosePlayers.add(p);
+                } else {
+                    p.sendMessage(message);
+                    recipients.add(p);
+                }
+                players.remove(p);
             }
 
-            UUID playerWorldId = player.getLocation().getWorld().getUID();
-            
-            for(Player p: players) {
-                if(!p.getUniqueId().equals(player.getUniqueId())) {
-                    boolean isInVicinity = false;
-                    Location pl = p.getLocation();
-                    if(pl.getWorld().getUID().equals(playerWorldId)) {
-                        if(chatRegion != null) {
-                            isInVicinity = BlockUtils.isInRegion(chatRegion, p.getLocation());
-                        }
-                        else {
-                            isInVicinity = pl.distance(loc) < localChatDistance;
-                        }
-                    }
-                    if(isInVicinity) {
-                        if(isVanished(p)) {
-                            vanishedClosePlayers.add(p);
-                        }
-                        else {
-                            p.sendMessage(message);
-                            recipients.add(p);
-                        }
-                    }
-                    else if(p.hasPermission("cvchat.monitor.local") && false == mutedIds.contains(p.getUniqueId())) {
-                        monitoringFarPlayers.add(p);
-                    }
+            for (Player p: players) {
+                if(p.hasPermission("cvchat.monitor.local") && false == mutedIds.contains(p.getUniqueId())) {
+                    monitoringFarPlayers.add(p);
                 }
             }
 
